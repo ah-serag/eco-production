@@ -17,9 +17,11 @@ exports.checkout = async (req, res) => {
     // 1. Get all product IDs
     const productIds = items.map(item => item.id);
 
-    // 2. IMPORTANT: Must SELECT discount_price here to use it later
+    // 2. تعديل الاستعلام لجلب الـ title والـ description أيضاً
     const productResult = await client.query(
-      `SELECT id, discount_price FROM products WHERE id = ANY($1) AND is_active = true`,
+      `SELECT id, title, description, discount_price 
+       FROM products 
+       WHERE id = ANY($1) AND is_active = true`,
       [productIds]
     );
 
@@ -32,12 +34,11 @@ exports.checkout = async (req, res) => {
 
     let totalAmount = 0;
     
-    // 4. Calculate total using discount_price
+    // 4. Calculate total and prepare data
     const processedItems = items.map(cartItem => {
       const dbProduct = dbProducts.find(p => p.id === cartItem.id);
       
       const quantity = Number(cartItem.quantity) || 1;
-      // Use discount_price from DB result
       const price = Number(dbProduct.discount_price);
       
       if (isNaN(price)) {
@@ -48,6 +49,8 @@ exports.checkout = async (req, res) => {
 
       return {
         id: dbProduct.id,
+        title: dbProduct.title,             
+        description: dbProduct.description, 
         price: price,
         quantity: quantity
       };
@@ -64,20 +67,25 @@ exports.checkout = async (req, res) => {
 
     const orderId = orderResult.rows[0].id;
 
-    // 6. Bulk insert order items
+    // 6. Bulk insert order items مع الأعمدة الجديدة
     for (const pItem of processedItems) {
       await client.query(
         `INSERT INTO order_items 
-          (order_id, product_id, quantity, price_at_purchase)
-         VALUES ($1, $2, $3, $4)`,
-        [orderId, pItem.id, pItem.quantity, pItem.price]
+          (order_id, product_id, quantity, price_at_purchase, product_title, product_description)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [
+          orderId, 
+          pItem.id, 
+          pItem.quantity, 
+          pItem.price, 
+          pItem.title,     
+          pItem.description   
+        ]
       );
     }
 
     // 7. Paymob integration
     const token = await paymobService.getAuthToken();
-    
-    // Paymob needs amount in Cents (Integer)
     const amountInCents = Math.round(totalAmount * 100);
 
     const paymobOrder = await paymobService.createOrder(token, {
@@ -106,7 +114,6 @@ exports.checkout = async (req, res) => {
   } catch (err) {
     await client.query("ROLLBACK");
     console.error("Checkout Error:", err.message);
-    // Return specific error message to help debugging
     res.status(400).json({ error: err.message || "Checkout process failed" });
   } finally {
     client.release();

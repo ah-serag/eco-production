@@ -49,3 +49,16 @@ services:
       PAYMOB_IFRAME_ID : 1009273 
     volumes:
       - ./backend:/myProject 
+
+    nextjs:
+     build:
+      context: ./frontend  
+      dockerfile: dockerfile
+     container_name: next_app
+     restart: always
+     ports:
+      - "5000:5000"
+     depends_on:
+      - express
+     environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000 

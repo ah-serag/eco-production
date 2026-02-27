@@ -22,6 +22,11 @@ app.use("/users" ,require("./routes/Admin/AdminUsers/usersRoute") )
 app.use("/vendors" ,require("./routes/Admin/AdminVendors/vendors_route") )
 app.use("/upload" ,require("./routes/Admin/AdminImage/uploadRoute") )
 app.use("/products" , require("./routes/Admin/AdminCategory/categoryRoute"))
+app.use("/admin" , require("./routes/Admin/orders/ordersRoute"))
+
+
+
+
 // home
 app.use("/home" ,require("./routes/Admin/HomeAdmin/AllSectionRoute") )
 app.use("/home" ,require("./routes/Admin/HomeAdmin/herroBannerRoute") )

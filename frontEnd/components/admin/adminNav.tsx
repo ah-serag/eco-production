@@ -7,7 +7,9 @@ import { cn } from "@/lib/utils";
 import { 
   LayoutGrid, Package, ListTree, Users, ShoppingBag, 
   LucidePackagePlus, Image as ImageIcon, House, ChevronDown,
-  PlusCircle, FileSpreadsheet, ImageUp
+  PlusCircle, FileSpreadsheet, ImageUp, 
+  ClipboardList, Receipt, CreditCard, Search, // أيقونات جديدة للطلبات
+  UserStar
 } from "lucide-react";
 
 import {
@@ -26,9 +28,11 @@ export function AdminNav() {
       <div className="flex h-13 items-center justify-between px-6">
         
         <div className="flex items-center gap-4">
-          <Link href="/admin/dashboard" className="flex items-center gap-2 mr-4">
-            <span className="text-[14px] font-bold tracking-tight text-chart-1 hidden lg:block">Vexa Admin</span>
-          </Link>
+       <Link href="/admin/dashboard" className="flex items-center gap-2 mr-4 group"> 
+          <span className="text-[20px] font-semibold  tracking-tighter text-gray-900 hidden lg:block">
+           Vexa <span className="text-chart-1">Admin</span>
+           </span>
+        </Link>
 
           <nav className="flex items-center gap-1">
             <NavItem href="/admin/dashboard" active={pathname === "/admin/dashboard"} icon={<LayoutGrid size={16} />}>
@@ -52,6 +56,23 @@ export function AdminNav() {
               Categories
             </NavItem>
 
+            {/* --- قسم الطلبات الجديد (Orders) --- */}
+            <MenuDropdown 
+              label="Orders" 
+              icon={<ClipboardList size={16} />} 
+              active={pathname.includes("orders")}
+            >
+              <SectionHeader title="Sales Overview" />
+              <MenuLink href="/admin/orders" icon={<ClipboardList size={14} />}>All Orders</MenuLink>
+              <MenuLink href="/admin/orders/items" icon={<Receipt size={14} />}>Order Items</MenuLink>
+              
+              <SectionHeader title="Financials" />
+              <MenuLink href="/admin/orders/transactions" icon={<CreditCard size={14} />}>Transactions</MenuLink>
+              
+              <SectionHeader title="Search" />
+              <MenuLink href="/admin/orders/search" icon={<Search size={14} />}>Find by ID</MenuLink>
+            </MenuDropdown>
+
             {/* Images Dropdown */}
             <MenuDropdown 
               label="Images" 
@@ -72,7 +93,7 @@ export function AdminNav() {
               Vendors
             </NavItem>
 
-            {/* Home Dropdown (The big one) */}
+            {/* Home Dropdown */}
             <MenuDropdown 
               label="Home UI" 
               icon={<House size={16} />} 
@@ -108,13 +129,14 @@ export function AdminNav() {
   );
 }
 
+
 // --- Helpers ---
 
 function NavItem({ href, icon, children, active }: any) {
   return (
     <Link href={href} className={cn(
       "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all",
-      active ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+      active ? "bg-chart-1 text-white shadow-sm" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
     )}>
       {icon} <span>{children}</span>
     </Link>
@@ -126,7 +148,7 @@ function MenuDropdown({ label, icon, active, children }: any) {
     <DropdownMenu>
       <DropdownMenuTrigger className={cn(
         "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all outline-none",
-        active ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-500 hover:bg-slate-50"
+        active ? "bg-chart-1 text-white shadow-sm" : "text-slate-500 hover:bg-slate-50"
       )}>
         {icon} <span>{label}</span> <ChevronDown size={12} className="opacity-40" />
       </DropdownMenuTrigger>

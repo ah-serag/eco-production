@@ -110,26 +110,27 @@ export default function AddProduct() {
 
   return (
       <div className="w-full mx-auto   space-y-6">
-      <div className="relative overflow-hidden mb-10  rounded-md p-10  bg-secondary text-white">
-
-  {/* المحتوى */}
+                                                               <div className="relative overflow-hidden mb-10 rounded-md p-6 md:p-10 bg-white border-b border-gray-200 shadow-sm">
   <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
     
-    {/* أيقونة ونص */}
-     <div className="flex items-start md:items-center gap-4 md:gap-6 max-w-xl">
-
-          <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-chart-1">
-        <PackagePlus  className="w-8 h-8" />
-     </div>
+    <div className="flex items-start md:items-center gap-4 md:gap-6 max-w-xl">
+      <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-chart-1 shadow-md shrink-0">
+        <PackagePlus className="w-8 h-8 text-white" />
+      </div>
       
-      <div className="space-y-2">
-        <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Add New Product</h2>
-        <p className="text-sm text-gray-300">
+      <div className="space-y-1">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-600">Add New Product</h2>
+        <p className="text-sm text-gray-500">
           Easily add new products to your store. Fill in the details including title, description, price, stock, images, and categories.
         </p>
-        <p className="text-sm text-gray-400">
-          Make sure all required fields are filled and images are uploaded.
-        </p>
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-[11px] font-bold uppercase px-2 py-0.5 bg-rose-50 text-rose-600 rounded-md">
+            Required Fields Included
+          </span>
+          <span className="text-[11px] font-bold uppercase px-2 py-0.5 bg-gray-100 text-gray-500 rounded-md">
+            Draft Auto-save Enabled
+          </span>
+        </div>
       </div>
     </div>
 
