@@ -23,7 +23,7 @@ async function createOrder(token, orderData) {
   return data;
 }
 
-async function generatePaymentKey(token, orderId, amount , billingData) {
+async function generatePaymentKey(token, orderId, amount , billingData ,integration ) {
   const { data } = await axios.post(`${BASE_URL}/acceptance/payment_keys`, {
     auth_token: token,
     amount_cents: Math.round(amount),
@@ -61,7 +61,7 @@ async function generatePaymentKey(token, orderId, amount , billingData) {
 
       },
     currency: "EGP",
-    integration_id: config.integrationId,
+    integration_id: integration,
   });
 
   return data.token;

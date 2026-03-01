@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
   text: { marginBottom: 4 },
   boldText: { fontWeight: 'bold', color: '#000' },
   
-  // Table Styles
   table: { marginTop: 15 },
   tableHeader: { 
     backgroundColor: '#111', 
@@ -52,9 +51,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     borderBottomWidth: 0.5, 
     borderColor: '#eee', 
-    paddingVertical: 15, // زيادة المسافة الرأسية لتناسب الوصف
+    paddingVertical: 15, 
     paddingHorizontal: 10,
-    alignItems: 'flex-start' // محاذاة العناصر للأعلى بسبب الوصف الطويل
+    alignItems: 'flex-start' 
   },
   
   colDesc: { width: '60%', flexDirection: 'column', gap: 2 },
@@ -99,9 +98,22 @@ const styles = StyleSheet.create({
 });
 
 export const InvoiceDocument = ({ order }: { order: any }) => {
-  const shipping = order.payment_response?.order?.shipping_data || {};
+  // جلب البيانات من billing_details أولاً كأولوية
+  const billing = order.billing_details || {};
+  const shippingFallback = order.payment_response?.order?.shipping_data || {};
+  
+  const firstName = billing.first_name || shippingFallback.first_name || "Guest";
+  const lastName = billing.last_name || shippingFallback.last_name || "";
+  const street = billing.street || shippingFallback.street || "N/A";
+  const city = billing.city || shippingFallback.city || "N/A";
+  const state = billing.state || shippingFallback.state || "N/A";
+  const phone = billing.phone_number || shippingFallback.phone_number || "N/A";
+  const building = billing.building || shippingFallback.building || "";
+
   const paymentSource = order.payment_response?.source_data || {};
-  const isPaid = order.is_paid || order.payment_response?.success;
+  
+  const isCash = order.payment_provider === 'cash_on_delivery';
+  const isPaid = order.is_paid || order.payment_response?.success || (order.status === 'completed' && isCash);
 
   return (
     <Document>
@@ -123,18 +135,21 @@ export const InvoiceDocument = ({ order }: { order: any }) => {
         <View style={styles.section}>
           <View style={styles.subSection}>
             <Text style={styles.sectionTitle}>Recipient</Text>
-            <Text style={[styles.boldText, { fontSize: 11, marginBottom: 4 }]}>{shipping.first_name} {shipping.last_name}</Text>
-            <Text style={styles.text}>{shipping.street}</Text>
-            <Text style={styles.text}>{shipping.city}, {shipping.state}</Text>
-            <Text style={styles.text}>M: {shipping.phone_number}</Text>
+            <Text style={[styles.boldText, { fontSize: 11, marginBottom: 4 }]}>{firstName} {lastName}</Text>
+            <Text style={styles.text}>{street} {building && `| Bldg: ${building}`}</Text>
+            <Text style={styles.text}>{city}, {state}</Text>
+            <Text style={styles.text}>M: {phone}</Text>
+            {billing.email && <Text style={styles.text}>E: {billing.email}</Text>}
           </View>
 
           <View style={styles.subSection}>
             <Text style={styles.sectionTitle}>Transaction Info</Text>
             <Text style={styles.text}>Provider: <Text style={styles.boldText}>{order.payment_provider.toUpperCase()}</Text></Text>
-            <Text style={styles.text}>Method: {paymentSource.sub_type || 'Card'} (**** {paymentSource.pan || 'N/A'})</Text>
+            <Text style={styles.text}>
+                Method: {isCash ? 'Cash on Delivery' : (paymentSource.sub_type || 'Online Payment')}
+            </Text>
             <Text style={[styles.text, { color: isPaid ? '#059669' : '#dc2626', fontWeight: 'bold', marginTop: 5 }]}>
-               [{isPaid ? "PAID & VERIFIED" : "PAYMENT PENDING"}]
+                [{isPaid ? "PAID & VERIFIED" : (isCash ? "COLLECTION PENDING" : "PAYMENT PENDING")}]
             </Text>
           </View>
         </View>
@@ -149,13 +164,12 @@ export const InvoiceDocument = ({ order }: { order: any }) => {
 
           {order.items?.map((item: any, i: number) => (
             <View key={i} style={styles.tableRow}>
-              {/* عمود الوصف المعدل ليشمل الاسم والوصف والـ SKU */}
               <View style={styles.colDesc}>
                 <Text style={styles.productTitle}>{item.product_title || 'General Product'}</Text>
                 {item.product_description && (
                   <Text style={styles.productDesc}>{item.product_description}</Text>
                 )}
-                <Text style={styles.skuText}>SKU: {item.product_id}</Text>
+                <Text style={styles.skuText}>PID: {item.product_id}</Text>
               </View>
 
               <Text style={styles.colQty}>{item.quantity}</Text>
@@ -173,7 +187,7 @@ export const InvoiceDocument = ({ order }: { order: any }) => {
             <Text>{order.total_amount} {order.currency}</Text>
           </View>
           <View style={[styles.totalRow, styles.grandTotal]}>
-            <Text>Amount Paid</Text>
+            <Text>{isPaid ? "Amount Paid" : "Total Due"}</Text>
             <Text>{order.total_amount} {order.currency}</Text>
           </View>
         </View>

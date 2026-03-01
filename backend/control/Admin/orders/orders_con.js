@@ -3,72 +3,79 @@ const pool = require("../../../config/condb");
 
 const getOrders = async (req, res) => {
   try {
-    const { id, status, is_paid, limit = 10, offset = 0 } = req.query;
+    const { id, status, limit = 10, offset = 0 } = req.query;
 
-let query = `
-  SELECT 
-    o.*, 
-    COALESCE(
-      json_agg(
-        json_build_object(
-          'id', oi.id,
-          'product_id', oi.product_id,
-          'product_title', oi.product_title, -- العمود الجديد
-          'product_description', oi.product_description, -- العمود الجديد
-          'quantity', oi.quantity,
-          'price_at_purchase', oi.price_at_purchase
-        )
-      ) FILTER (WHERE oi.id IS NOT NULL), '[]'
-    ) AS items
-  FROM orders o
-  LEFT JOIN order_items oi ON o.id = oi.order_id
-  WHERE 1=1
-`;
+    let dataQuery = `
+      SELECT 
+        o.*, 
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', oi.id,
+              'product_id', oi.product_id,
+              'product_title', oi.product_title, 
+              'product_description', oi.product_description,
+              'quantity', oi.quantity,
+              'price_at_purchase', oi.price_at_purchase
+            )
+          ) FILTER (WHERE oi.id IS NOT NULL), '[]'
+        ) AS items
+      FROM orders o
+      LEFT JOIN order_items oi ON o.id = oi.order_id
+      WHERE 1=1
+    `;
+
+    let countQuery = `SELECT COUNT(DISTINCT o.id) FROM orders o WHERE 1=1`;
 
     const queryParams = [];
+    const countParams = [];
     let paramIndex = 1;
 
-    // فلترة بالـ ID
     if (id) {
-      query += ` AND o.id = $${paramIndex++}`;
-      queryParams.push(id);
+      const filter = ` AND o.id::text LIKE $${paramIndex}`;
+      dataQuery += filter;
+      countQuery += filter;
+      const searchVal = `%${id}%`;
+      queryParams.push(searchVal);
+      countParams.push(searchVal);
+      paramIndex++;
     }
 
-    // فلترة بالحالة (status)
     if (status) {
-      query += ` AND o.status = $${paramIndex++}`;
+      const filter = ` AND o.status = $${paramIndex}`;
+      dataQuery += filter;
+      countQuery += filter;
       queryParams.push(status);
+      countParams.push(status);
+      paramIndex++;
     }
 
-    // فلترة بالدفع (is_paid)
-    if (is_paid !== undefined) {
-      query += ` AND o.is_paid = $${paramIndex++}`;
-      queryParams.push(is_paid === 'true');
-    }
-
-    // التجميع والترتيب والـ Pagination
-    query += ` GROUP BY o.id ORDER BY o.created_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
+    dataQuery += ` GROUP BY o.id ORDER BY o.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
     queryParams.push(parseInt(limit), parseInt(offset));
 
-    const result = await pool.query(query, queryParams);
+    const [dataResult, countResult] = await Promise.all([
+      pool.query(dataQuery, queryParams),
+      pool.query(countQuery, countParams)
+    ]);
 
     res.status(200).json({
       success: true,
-      count: result.rowCount,
-      data: result.rows
+      total: parseInt(countResult.rows[0].count), 
+      count: dataResult.rows.length,              
+      data: dataResult.rows                       
     });
+
   } catch (error) {
     console.error("Error in getOrders (Postgres):", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
-
 const getAllOrderItems = async (req, res) => {
   try {
     const { order_id, product_id, limit = 10, offset = 0 } = req.query;
 
-    let query = `
+    let dataQuery = `
       SELECT 
         oi.id,
         oi.order_id,
@@ -85,34 +92,58 @@ const getAllOrderItems = async (req, res) => {
       WHERE 1=1
     `;
 
+    let countQuery = `
+      SELECT COUNT(*) 
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.id
+      WHERE 1=1
+    `;
+
     const queryParams = [];
+    const countParams = [];
     let paramIndex = 1;
 
     if (order_id && order_id.trim() !== "") {
-      query += ` AND oi.order_id::text LIKE $${paramIndex++}`;
-      queryParams.push(`%${order_id}%`); 
+      const filter = ` AND oi.order_id::text LIKE $${paramIndex}`;
+      dataQuery += filter;
+      countQuery += filter;
+      const searchVal = `%${order_id}%`;
+      queryParams.push(searchVal);
+      countParams.push(searchVal);
+      paramIndex++;
     }
 
     if (product_id && product_id.trim() !== "") {
-      query += ` AND oi.product_id::text LIKE $${paramIndex++}`;
-      queryParams.push(`%${product_id}%`);
+      const filter = ` AND oi.product_id::text LIKE $${paramIndex}`;
+      dataQuery += filter;
+      countQuery += filter;
+      const searchVal = `%${product_id}%`;
+      queryParams.push(searchVal);
+      countParams.push(searchVal);
+      paramIndex++;
     }
- 
-    query += ` ORDER BY oi.created_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
+
+    dataQuery += ` ORDER BY oi.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
     queryParams.push(parseInt(limit), parseInt(offset));
 
-    const result = await pool.query(query, queryParams);
+    const [dataResult, countResult] = await Promise.all([
+      pool.query(dataQuery, queryParams),
+      pool.query(countQuery, countParams)
+    ]);
 
     res.status(200).json({
       success: true,
-      total_count: result.rowCount, 
-      data: result.rows
+      total: parseInt(countResult.rows[0].count), 
+      count: dataResult.rows.length,              
+      data: dataResult.rows                       
     });
+
   } catch (error) {
-    console.error(" Full Error Trace:", error);
+    console.error("Full Error Trace:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
+
 
 
 const getOrderItems = async (req, res) => {

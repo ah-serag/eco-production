@@ -106,7 +106,8 @@ exports.getImages = async (req, res) => {
     res.json({
       success: true,
       images: result.rows,
-      totalPages: totalPages
+      total: total ,
+      totalPages: totalPages 
     });
 
   } catch (err) {
@@ -131,27 +132,41 @@ exports.deleteImage = async (req, res) => {
       [id]
     );
 
-    if (imgRes.rows.length === 0) {  throw new Error("Image not found");}
+    if (imgRes.rows.length === 0) {
+      await client.query("ROLLBACK"); 
+      return res.status(404).json({ 
+        success: false, 
+        message: "Image not found in our records" 
+      });
+    }
 
     const publicId = imgRes.rows[0].public_id;
 
-    await cloudinary.uploader.destroy(publicId);
+    if (publicId) {
+      await cloudinary.uploader.destroy(publicId);
+    }
 
     await client.query("DELETE FROM product_images WHERE image_id = $1", [id]);
-
     await client.query("DELETE FROM images WHERE id = $1", [id]);
 
     await client.query("COMMIT");
 
-    res.json({
+    return res.json({
       success: true,
-      message: "Image deleted from Cloudinary + Database",
+      message: "Asset purged from cloud and local registry",
     });
 
   } catch (err) {
-    await client.query("ROLLBACK");
-    console.error(err);
-    res.status(500).json({ success: false, message: err.message });
+    if (client) await client.query("ROLLBACK");
+    
+    console.error("CRITICAL_ERROR in deleteImage:", err.message);
+    
+    if (!res.headersSent) {
+      return res.status(500).json({ 
+        success: false, 
+        message: "Internal server error during deletion" 
+      });
+    }
   } finally {
     client.release();
   }

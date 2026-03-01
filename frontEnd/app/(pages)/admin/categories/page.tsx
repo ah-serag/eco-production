@@ -69,7 +69,7 @@ export default function AdminCategoryTable() {
   if (isLoading) return <div className="p-20 text-center text-slate-400 animate-pulse font-medium">Loading Dashboard...</div>;
 
   return (
-    <div className=" mx-auto space-y-6 p-6 antialiased">
+    <div className=" mx-auto space-y-6 p-6 pb-20 antialiased">
       
       {/* --- Header Section --- */}
       <div className="flex justify-between items-center bg-white p-6 rounded-md border border-slate-100 shadow-sm">
@@ -85,7 +85,7 @@ export default function AdminCategoryTable() {
 
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl h-10 px-6 font-medium shadow-md transition-all active:scale-95">
+            <Button className="bg-chart-1 hover:bg-chart-1/90 text-white  h-10 px-6 font-medium shadow-md transition-all active:scale-95">
               <Plus size={18} className="mr-2" />
               New Entry
             </Button>
@@ -111,7 +111,7 @@ export default function AdminCategoryTable() {
       </div>
 
       {/* --- Categories Architecture --- */}
-      <div className="space-y-3">
+      <div className="space-y-3 ">
         <Accordion type="single" collapsible className="space-y-3">
           {categories.map((cat :any) => (
             <AccordionItem key={cat.id} value={`item-${cat.id}`} className="border bg-white">
@@ -134,8 +134,8 @@ export default function AdminCategoryTable() {
                 />
               </div>
 
-              <AccordionContent className="pt-2 pb-4 px-2">
-                <div className="ml-8 pl-6 border-l-2 border-slate-100/80 space-y-2 mt-2">
+              <AccordionContent className="pt-2 pb-10 px-2">
+                <div className="ml-8 pl-6 border-l-2 border-slate-100/80 space-y-2 m-2">
                   {cat.items && cat.items.length > 0 ? (
                     cat.items.map((sub :any) => (
                       <div key={sub.id} className="flex items-center justify-between py-3 px-4 bg-gray-50  border hover:border-slate-200 hover:shadow-sm transition-all group/sub">
@@ -191,7 +191,7 @@ function CategoryActions({ title, onDelete, isParent } :any) {
             <MoreVertical size={16} />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-36 rounded-xl p-1 shadow-xl border-slate-100">
+        <DropdownMenuContent align="end" className="w-36 rounded-xl p-1 shadow-xl pb-10 border-slate-100">
           <DialogTrigger asChild>
             <DropdownMenuItem className="rounded-lg cursor-pointer font-medium text-xs py-2 text-red-500 focus:text-red-500 focus:bg-red-50">
               <Trash2 size={14} className="mr-2" /> Remove Item

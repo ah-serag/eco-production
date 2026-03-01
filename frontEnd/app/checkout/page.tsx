@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation"; // أضفنا الراوتر للتوجيه بعد نجاح الكاش
 import {
   Card,
   CardContent,
@@ -11,19 +12,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Loader2, CreditCard, MapPin, User, ShoppingBag } from "lucide-react";
-import { useCheckoutMutation } from "@/redux/features/paybom/paybomSlice";
+import { Loader2, CreditCard, MapPin, User, Wallet, Banknote } from "lucide-react";
+import { 
+  useCheckoutMutation, 
+  useCheckoutWalletMutation,
+  useCheckoutCashMutation // إضافة الـ Hook الجديد
+} from "@/redux/features/paybom/paybomSlice";
 import {
   checkoutSchema,
   type CheckoutFormData,
 } from "@/lib/checkout.schema";
 
 export default function CheckoutPage() {
-  // Get cart items from Redux
-
   const checkoutItems = useSelector((state: any) => state.cart.checkoutItems);
+  const router = useRouter();
 
-  const [checkout, { isLoading }] = useCheckoutMutation();
+  const [checkoutCard, { isLoading: isCardLoading }] = useCheckoutMutation();
+  const [checkoutWallet, { isLoading: isWalletLoading }] = useCheckoutWalletMutation();
+  const [checkoutCash, { isLoading: isCashLoading }] = useCheckoutCashMutation();
+
+  const [paymentType, setPaymentType] = useState<"card" | "wallet" | "cash">("card");
+  const [walletNumber, setWalletNumber] = useState("");
 
   const [form, setForm] = useState<CheckoutFormData>({
     first_name: "",
@@ -43,6 +52,8 @@ export default function CheckoutPage() {
     0
   );
 
+  const isLoading = isCardLoading || isWalletLoading || isCashLoading;
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
     if (errors[e.target.name as keyof CheckoutFormData]) {
@@ -55,13 +66,8 @@ export default function CheckoutPage() {
   }
 
   async function handleCheckout() {
-    if (checkoutItems.length === 0) {
-      alert("سلة المشتريات فارغة!");
-      return;
-    }
-
+    if (checkoutItems.length === 0) return;
     const result = checkoutSchema.safeParse(form);
-
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof CheckoutFormData, string>> = {};
       result.error?.issues.forEach((err: any) => {
@@ -71,25 +77,30 @@ export default function CheckoutPage() {
       setErrors(fieldErrors);
       return;
     }
-
-    setErrors({});
-
     try {
-      // Prepare items array for API
       const itemsPayload = checkoutItems.map((item: any) => ({
         id: item.id,
         quantity: item.quantity,
       }));
 
-      // Send payload to backend
-      const res = await checkout({
-        items: itemsPayload,     
-        billingData: result.data,
-      }).unwrap();
-
-      window.location.href = res.iframeUrl;
+      if (paymentType === "card") {
+        const res = await checkoutCard({ items: itemsPayload, billingData: result.data }).unwrap();
+        window.location.href = res.iframeUrl;
+      } else if (paymentType === "wallet") {
+        if (!walletNumber) return alert("Please enter wallet number");
+        const res = await checkoutWallet({ 
+          items: itemsPayload, 
+          billingData: result.data, 
+          walletNumber 
+        }).unwrap();
+        window.location.href = res.redirectUrl;
+      } else {
+        // دفع عند الاستلام (Cash)
+        const res = await checkoutCash({ items: itemsPayload, billingData: result.data }).unwrap();
+        router.push(res.redirectUrl); // التوجيه لصفحة الـ Success المذكورة في الباك-إند
+      }
     } catch (err) {
-      console.error("Checkout Error:", err);
+      console.error("Error:", err);
     }
   }
 
@@ -97,10 +108,7 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-[#F8FAFC] py-10 px-4 antialiased">
       <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-        {/* LEFT — FULL FORM */}
         <div className="lg:col-span-7 space-y-6">
-          
-          {/* Contact Information */}
           <Card className="rounded-2xl border border-slate-100 shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-md font-medium text-slate-800">
@@ -118,23 +126,22 @@ export default function CheckoutPage() {
                 <div className="space-y-1.5">
                   <Label className="text-[11px] uppercase tracking-wider text-slate-500">Last Name</Label>
                   <Input name="last_name" value={form.last_name} onChange={handleChange} className="h-10 text-sm" placeholder="Serag" />
-                  {errors.last_name && <p className="text-[10px] text-red-500">{errors.last_name}</p>}
                 </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px] uppercase tracking-wider text-slate-500">Email Address</Label>
                 <Input name="email" value={form.email} onChange={handleChange} className="h-10 text-sm" placeholder="you@email.com" />
-                {errors.email && <p className="text-[10px] text-red-500">{errors.email}</p>}
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px] uppercase tracking-wider text-slate-500">Phone Number</Label>
-                <Input name="phone_number" value={form.phone_number} onChange={handleChange} className="h-10 text-sm" placeholder="01000000000" />
-                {errors.phone_number && <p className="text-[10px] text-red-500">{errors.phone_number}</p>}
+                <div className="relative">
+                  <Input name="phone_number" value={form.phone_number} onChange={handleChange} className="h-10 text-sm pl-10" placeholder="01000000000" />
+                  <img src="/photo/payment/Flag_of_Egypt.svg" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-auto" alt="EG" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Shipping Address */}
           <Card className="rounded-2xl border border-slate-100 shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-md font-medium text-slate-800">
@@ -147,87 +154,134 @@ export default function CheckoutPage() {
                 <div className="space-y-1.5">
                   <Label className="text-[11px] uppercase tracking-wider text-slate-500">City</Label>
                   <Input name="city" value={form.city} onChange={handleChange} className="h-10 text-sm" placeholder="Cairo" />
-                  {errors.city && <p className="text-[10px] text-red-500">{errors.city}</p>}
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[11px] uppercase tracking-wider text-slate-500">State / Governorate</Label>
+                  <Label className="text-[11px] uppercase tracking-wider text-slate-500">State</Label>
                   <Input name="state" value={form.state} onChange={handleChange} className="h-10 text-sm" placeholder="Cairo" />
-                  {errors.state && <p className="text-[10px] text-red-500">{errors.state}</p>}
                 </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px] uppercase tracking-wider text-slate-500">Street Address</Label>
                 <Input name="street" value={form.street} onChange={handleChange} className="h-10 text-sm" placeholder="Street name" />
-                {errors.street && <p className="text-[10px] text-red-500">{errors.street}</p>}
               </div>
               <div className="space-y-1.5">
-                <Label className="text-[11px] uppercase tracking-wider text-slate-500">Building / Apartment</Label>
+                <Label className="text-[11px] uppercase tracking-wider text-slate-500">Building</Label>
                 <Input name="building" value={form.building} onChange={handleChange} className="h-10 text-sm" placeholder="Building, apartment..." />
-                {errors.building && <p className="text-[10px] text-red-500">{errors.building}</p>}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* RIGHT SUMMARY */}
-        <div className="lg:col-span-5 ">
+        <div className="lg:col-span-5 space-y-4">
           <Card className="rounded-2xl border border-slate-100 shadow-sm sticky top-6 overflow-hidden">
             <CardHeader className="bg-slate-50/50 border-b border-slate-100">
-              <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-500">Order Summary</CardTitle>
+              <CardTitle className="text-sm font-semibold uppercase tracking-widest text-slate-500">Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
               
-              <div className="max-h-[350px] overflow-y-auto space-y-4 pr-2  pt-2 custom-scrollbar">
-                {checkoutItems.length > 0 ? (
-                  checkoutItems.map((item: any) => (
-                    <div key={item.id} className="flex gap-4 items-center">
-                      <div className="relative w-14 h-14 shrink-0 bg-white border border-slate-100 rounded-lg p-1">
-                        <img src={item.image} alt={item.title} className="w-full h-full object-contain" />
-                        <span className="absolute -top-2 -right-2 w-5 h-5 bg-slate-200 text-slate-600  text-[10px] flex items-center justify-center rounded-full font-bold">
-                          {item.quantity}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-[13px] font-medium text-slate-800 truncate">{item.title}</h3>
-                        <p className="text-[11px] text-slate-400 font-semibold mt-0.5">${(Number(item.price) * item.quantity).toFixed(2)}</p>
-                      </div>
+              <div className="max-h-[300px] overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+                {checkoutItems.map((item: any) => (
+                  <div key={item.id} className="flex gap-4 pt-4 items-center">
+                    <div className="relative w-14 h-14 bg-white border border-slate-100 rounded-lg p-1">
+                      <img src={item.image} alt={item.title} className="w-full h-full object-contain" />
+                      <span className="absolute -top-2 -right-2 w-5 h-5 bg-slate-200 text-slate-600 text-[10px] flex items-center justify-center rounded-full font-semibold">
+                        {item.quantity}
+                      </span>
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center py-6 text-slate-400">
-                    <ShoppingBag className="mx-auto mb-2 opacity-20" size={32} />
-                    <p className="text-xs">No products selected</p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-[13px] font-medium text-slate-800 truncate">{item.title}</h3>
+                      <p className="text-[11px] text-slate-400 font-semibold mt-0.5">${(Number(item.price) * item.quantity).toFixed(2)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 space-y-3">
+                <Label className="text-[10px] font-semibold uppercase text-slate-400">Payment Method</Label>
+                <div className="grid grid-cols-3 gap-2"> {/* تم التعديل لـ 3 أعمدة */}
+                  <button 
+                    onClick={() => setPaymentType("card")}
+                    className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "card" ? "border-chart-1 bg-chart-1/5 text-chart-1" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}
+                  >
+                    <CreditCard size={14} />
+                    <span className="text-[9px] font-semibold uppercase tracking-tighter">Card</span>
+                  </button>
+                  <button 
+                    onClick={() => setPaymentType("wallet")}
+                    className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "wallet" ? "border-chart-1 bg-chart-1/5 text-chart-1" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}
+                  >
+                    <Wallet size={14} />
+                    <span className="text-[9px] font-semibold uppercase tracking-tighter">Wallet</span>
+                  </button>
+                  <button 
+                    onClick={() => setPaymentType("cash")}
+                    className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "cash" ? "border-chart-1 bg-chart-1/5 text-chart-1" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}
+                  >
+                    <Banknote size={14} />
+                    <span className="text-[9px] font-semibold uppercase tracking-tighter">Cash</span>
+                  </button>
+                </div>
+
+                <div className="py-1 min-h-[20px] flex items-center justify-center gap-3 animate-in fade-in zoom-in-95 duration-300">
+                  {paymentType === "cash" ? (
+                     <span className="text-[10px] text-slate-400 font-medium italic">Pay upon receiving your order</span>
+                  ) : (
+                    <>
+                      <span className="text-[10px] text-slate-300 font-medium">Supported:</span>
+                      {paymentType === "card" ? (
+                        <>
+                          <img src="/photo/payment/visa.svg" className="h-3 w-auto opacity-10 grayscale" alt="visa" />
+                          <img src="/photo/payment/mastercard.svg" className="h-4 w-auto opacity-10 grayscale" alt="mastercard" />
+                          <img src="/photo/payment/Meeza.svg" className="h-3 w-auto opacity-10 grayscale" alt="meeza" />
+                        </>
+                      ) : (
+                        <>
+                          <img src="/photo/payment/Vodafone_cash.svg" className="h-4 w-auto opacity-10 grayscale" alt="vodafone" />
+                          <img src="/photo/payment/Logo_Orange_Money.svg" className="h-4 w-auto opacity-10 grayscale" alt="orange" />
+                          <img src="/photo/payment/Etisalat_eand_Logo_EN.svg" className="h-3 w-auto opacity-10 grayscale" alt="etisalat" />
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {paymentType === "wallet" && (
+                  <div className="animate-in fade-in slide-in-from-top-1 relative">
+                    <Input 
+                      placeholder="Enter wallet number" 
+                      value={walletNumber}
+                      onChange={(e) => setWalletNumber(e.target.value)}
+                      className="h-9 text-[11px] border-chart-1/20 focus-visible:ring-chart-1 pl-10"
+                    />
+                    <img src="/photo/payment/Flag_of_Egypt.svg" className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-auto " alt="EG" />
                   </div>
                 )}
               </div>
 
-              <div className="pt-4 border-t border-slate-100 space-y-3">
-                <div className="flex justify-between text-xs text-slate-500 uppercase tracking-tighter">
-                  <span>Subtotal</span>
-                  <span className="font-medium text-slate-900">${totalPrice.toFixed(2)}</span>
+              <div className="pt-2 border-t border-slate-100">
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-xs font-semibold text-slate-900 uppercase">Total</span>
+                  <span className="text-lg font-semibold text-slate-900">${totalPrice.toFixed(2)}</span>
                 </div>
-         
-                <div className="flex justify-between items-center pt-2 border-t border-slate-50">
-                  <span className="text-sm font-semibold text-slate-900 uppercase">Total</span>
-                  <span className="text-xl font-semibold text-slate-900 tracking-tighter">${totalPrice.toFixed(2)}</span>
-                </div>
-              </div>
 
-              <Button
-                onClick={handleCheckout}
-                disabled={isLoading || checkoutItems.length === 0}
-                className="w-full h-12 rounded-xl font-bold bg-chart-1 hover:brightness-110 text-white shadow-lg shadow-chart-1/20 transition-all  text-[12px] tracking-widest gap-2"
-              >
-                {isLoading ? (
-                  <><Loader2 className="animate-spin mr-2" size={18} /> Processing...</>
-                ) : (
-                  <><CreditCard size={18} className="mr-2" /> Pay now</>
-                )}
-              </Button>
+                <Button
+                  onClick={handleCheckout}
+                  disabled={isLoading || checkoutItems.length === 0}
+                  className="w-full h-11 rounded-xl font-semibold bg-chart-1 hover:brightness-110 text-white transition-all text-[11px] tracking-widest flex items-center justify-center gap-2"
+                >
+                  {isLoading ? (
+                    <><Loader2 className="animate-spin" size={16} /> PROCESSING...</>
+                  ) : (
+                    <>
+                      {paymentType === "cash" ? <Banknote size={16} /> : <CreditCard size={16} />}
+                      {paymentType === "cash" ? "CONFIRM CASH ORDER" : "COMPLETE PURCHASE"}
+                    </>
+                  )}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
-
       </div>
     </div>
   );

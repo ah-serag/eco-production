@@ -21,9 +21,8 @@ export default function ProductDetailsPage() {
     skip: !slug, 
   });
 
-  const product = data?.data; // استخراج المنتج من الرد (Response)
+  const product = data?.data;
 
-  // 1. حالة التحميل (Skeleton أو Spinner هادئ)
   if (isLoading) {
     return (
         <SkeletonProductPreview  />

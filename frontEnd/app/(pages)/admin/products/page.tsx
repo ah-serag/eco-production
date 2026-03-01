@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Package, MoreHorizontal, Edit, Trash2, Power, Search, ListOrdered, Filter } from "lucide-react";
+import { Package, MoreHorizontal, Edit, Trash2, Power, Search, ListOrdered, Database, ChevronRight } from "lucide-react";
 import {
   useGetProductsAdminQuery,
   useToggleActiveMutation,
@@ -124,26 +124,27 @@ export default function ProductsAdmin() {
 
   return (
     <FormProvider {...methods}>
-      <div className="p-8 bg-slate-50/30 min-h-screen space-y-6">
+      <div className="p-8 bg-[#fafafa] min-h-screen space-y-6 text-slate-600 font-sans">
         
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Products Manager</h1>
-            <p className="text-slate-500 text-sm font-medium">Manage inventory, status, and product details.</p>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900">Products Manager</h1>
+            <p className="text-slate-400 text-[11px] font-semibold tracking-tight uppercase">Manage inventory, status, and details.</p>
           </div>
-          <div className="bg-white px-4 py-2 rounded-lg border shadow-sm">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">In Stock: </span>
-            <span className="text-sm font-black text-blue-600">{data?.total || 0} Items</span>
+          <div className="bg-white border rounded-lg px-4 py-1.5 shadow-sm text-right">
+             <span className="text-[10px] font-semibold text-slate-600  m-2 leading-tight uppercase tracking-wider">Inventory Total :</span>
+             <span className="text-sm  text-chart-1 tracking-tighter">
+               {data?.total?.toLocaleString() || 0} 
+             </span>
           </div>
         </div>
-
-        {/* Filters Bar - Updated to Match Requests */}
-        <div className="bg-white p-4 rounded-xl border shadow-sm flex flex-wrap gap-4 items-center">
-          
+          <hr />
+        {/* Filters Bar */}
+        <div className="flex flex-wrap gap-3 items-center">
           {/* Search Box */}
           <div className="relative flex-1 min-w-[240px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
             <Input
               placeholder="Search by title..."
               value={search}
@@ -151,84 +152,77 @@ export default function ProductsAdmin() {
                 setPage(1);
                 setValue("search", e.target.value);
               }}
-              className="pl-9 h-10 text-xs border-slate-200"
+              className="pl-9 h-9 text-[11px] font-semibold border rounded-lg bg-white shadow-sm focus:border-slate-400"
             />
           </div>
 
-          {/* Limit Input - الكتابة اليدوية كما طلبت */}
-          <div className="relative w-28">
-            <ListOrdered className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <Input
+          {/* Limit Input */}
+          <div className="bg-white border rounded-lg px-3 py-1 shadow-sm flex items-center gap-2 h-9">
+            <span className="text-[10px] font-black text-slate-300 uppercase">Limit:</span>
+            <input
               type="number"
-              placeholder="Limit"
               value={limit}
               onChange={(e) => {
                 setPage(1);
                 setValue("limit", Number(e.target.value) || 10);
               }}
-              className="pl-9 h-10 text-xs font-bold border-slate-200"
+              className="w-10 text-[11px] font-bold bg-transparent outline-none text-slate-600"
             />
           </div>
 
           {/* Category Select */}
-          <div className="w-40">
-            <Select
-              value={category_id ? category_id.toString() : "all"}
-              onValueChange={(val) => {
-                setPage(1);
-                setValue("category_id", val === "all" ? undefined : Number(val));
-              }}
-            >
-              <SelectTrigger className="h-10 text-xs font-medium border-slate-200 bg-white">
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Select
+            value={category_id ? category_id.toString() : "all"}
+            onValueChange={(val) => {
+              setPage(1);
+              setValue("category_id", val === "all" ? undefined : Number(val));
+            }}
+          >
+            <SelectTrigger className="h-9 w-40 text-[11px] font-bold border rounded-lg bg-white shadow-sm">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem className="text-[11px]" value="all">All Categories</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} className="text-[11px]" value={cat.id.toString()}>{cat.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           {/* Status Select */}
-          <div className="w-32">
-            <Select
-              value={status}
-              onValueChange={(val) => {
-                setPage(1);
-                setValue("status", val);
-              }}
-            >
-              <SelectTrigger className="h-10 text-xs font-medium border-slate-200 bg-white">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="active">Active Only</SelectItem>
-                <SelectItem value="inactive">Inactive Only</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select
+            value={status}
+            onValueChange={(val) => {
+              setPage(1);
+              setValue("status", val);
+            }}
+          >
+            <SelectTrigger className="h-9 w-32 text-[11px] font-bold border rounded-lg bg-white shadow-sm">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem className="text-[11px]" value="active">Active Only</SelectItem>
+              <SelectItem className="text-[11px]" value="inactive">Inactive Only</SelectItem>
+            </SelectContent>
+          </Select>
 
           {/* Sort Select */}
-          <div className="w-32">
-            <Select
-              value={sort_by}
-              onValueChange={(val) => {
-                setPage(1);
-                setValue("sort_by", val as any);
-              }}
-            >
-              <SelectTrigger className="h-10 text-xs font-medium border-slate-200 bg-white">
-                <SelectValue placeholder="Sort By" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="created_at">Newest First</SelectItem>
-                <SelectItem value="oldest">Oldest First</SelectItem>
-                <SelectItem value="price">Price</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select
+            value={sort_by}
+            onValueChange={(val) => {
+              setPage(1);
+              setValue("sort_by", val as any);
+            }}
+          >
+            <SelectTrigger className="h-9 w-32 text-[11px] font-bold border rounded-lg bg-white shadow-sm">
+              <SelectValue placeholder="Sort By" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem className="text-[11px]" value="created_at">Newest First</SelectItem>
+              <SelectItem className="text-[11px]" value="oldest">Oldest First</SelectItem>
+              <SelectItem className="text-[11px]" value="price">Price</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Table Content */}
@@ -236,57 +230,73 @@ export default function ProductsAdmin() {
           <Table>
             <TableHeader className="bg-slate-50/50">
               <TableRow className="border-slate-100">
-                <TableHead className="w-20 text-[10px] font-bold uppercase text-slate-400">Image</TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-slate-400">Product Title</TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-slate-400">Price</TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-slate-400">Stock</TableHead>
-                <TableHead className="text-[10px] font-bold uppercase text-slate-400">Status</TableHead>
-                <TableHead className="text-right text-[10px] font-bold uppercase text-slate-400">Actions</TableHead>
+                <TableHead className="h-10 w-20 text-[10px] font-bold text-slate-400 pl-6 uppercase">Preview</TableHead>
+                <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase">Product Title</TableHead>
+                <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase">Settlement</TableHead>
+                <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase">Inventory</TableHead>
+                <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase">Visibility</TableHead>
+                <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase text-right pr-6">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-20 text-[10px] text-slate-400 tracking-widest uppercase">Fetching Inventory...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center py-20 text-[10px] font-bold text-slate-300 uppercase tracking-widest">Syncing Inventory...</TableCell></TableRow>
               ) : data?.products.map((p: Product) => (
-                <TableRow key={p.id} className="border-slate-50 hover:bg-slate-50/50 transition-colors">
-                  <TableCell>
-                    <img src={p.image_url} alt={p.title} className="w-10 h-10 object-contain bg-slate-50 rounded border border-slate-100" />
+                <TableRow key={p.id} className="border-slate-50 hover:bg-slate-50/50 transition-colors group">
+                  <TableCell className="pl-6 py-3">
+                    <img src={p.image_url} alt={p.title} className="w-9 h-9 object-contain bg-slate-50 rounded border border-slate-100 p-0.5" />
                   </TableCell>
-                  <TableCell className="font-bold text-slate-700 text-xs">{p.title}</TableCell>
-                  <TableCell className="text-xs font-medium text-slate-600">${p.discount_price || p.price}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-slate-800 text-[11px] leading-tight tracking-tight group-hover:text-blue-600 transition-colors">{p.title}</span>
+                      <span className="text-[9px] font-mono font-bold text-slate-400">SKU: #{p.id.toString().padStart(5, '0')}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-bold text-slate-900 tracking-tighter">
+                        {p.discount_price || p.price} <span className="text-[9px] text-slate-400 font-normal">EGP</span>
+                      </span>
+                      {p.discount_price && (
+                        <span className="text-[8px] text-slate-300 line-through font-bold">
+                          {p.price} EGP
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <span className={cn(
-                      "text-[10px] font-bold px-2 py-0.5 rounded-full",
-                      p.stock > 0 ? "bg-blue-50 text-blue-600" : "bg-rose-50 text-rose-600"
+                      "text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-tighter",
+                      p.stock > 0 ? "bg-blue-50 text-gray-700" : "bg-rose-50 text-rose-600"
                     )}>
-                      {p.stock} in stock
+                      {p.stock > 0 ? `In Stock: ${p.stock}` : "Out of Stock"}
                     </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <div className={cn("w-1.5 h-1.5 rounded-full", p.is_active ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-slate-300")} />
-                      <span className="text-[10px] font-bold uppercase text-slate-500">{p.is_active ? "Live" : "Draft"}</span>
+                      <div className={cn("w-1.5 h-1.5 rounded-full", p.is_active ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" : "bg-slate-300")} />
+                      <span className="text-[9px] font-black uppercase text-slate-500 tracking-tighter">{p.is_active ? "Live" : "Draft"}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right pr-6">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-100"><MoreHorizontal size={14} /></Button>
+                        <Button variant="ghost" className="h-7 w-7 p-0 hover:bg-slate-100 hover:text-blue-600"><MoreHorizontal size={14} /></Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40">
-                        <DropdownMenuLabel className="text-[10px] font-bold uppercase text-slate-400">Options</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => handleEditProduct(p)} className="text-xs cursor-pointer font-medium">
-                          <Edit className="mr-2 h-3.5 w-3.5" /> Edit Details
+                      <DropdownMenuContent align="end" className="w-44 shadow-xl border-slate-100">
+                        <DropdownMenuLabel className="text-[9px] font-black uppercase text-slate-400 px-3 py-2">Inventory Options</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleEditProduct(p)} className="text-[11px] cursor-pointer font-bold py-2">
+                          <Edit className="mr-2 h-3.5 w-3.5 text-slate-400" /> Edit Product
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleToggleActive(p.id)} className="text-xs cursor-pointer font-medium">
-                          <Power className="mr-2 h-3.5 w-3.5 text-blue-500" /> {p.is_active ? "Set Inactive" : "Set Active"}
+                        <DropdownMenuItem onClick={() => handleToggleActive(p.id)} className="text-[11px] cursor-pointer font-bold py-2">
+                          <Power className={cn("mr-2 h-3.5 w-3.5", p.is_active ? "text-rose-400" : "text-emerald-400")} /> {p.is_active ? "Set as Draft" : "Publish Live"}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem 
                           onClick={() => { setProductToDelete(p); setDeleteDialogOpen(true); }}
-                          className="text-xs cursor-pointer font-medium text-rose-600 focus:text-rose-600"
+                          className="text-[11px] cursor-pointer font-bold text-rose-600 focus:text-rose-600 py-2"
                         >
-                          <Trash2 className="mr-2 h-3.5 w-3.5" /> Remove Product
+                          <Trash2 className="mr-2 h-3.5 w-3.5" /> Permanent Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -297,22 +307,35 @@ export default function ProductsAdmin() {
           </Table>
         </div>
 
-        {/* Pagination */}
-        <div className="flex justify-between items-center bg-white p-4 rounded-xl border shadow-sm">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-            Page {page} of {totalPages}
-          </p>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold border-slate-200" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-              PREVIOUS
+        {/* Pagination Footer */}
+        <div className="flex justify-between items-center px-2 pt-2">
+          <div className="flex items-center gap-2">
+            <Database size={12} className="text-slate-300" />
+            <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+              Page {page} of {totalPages}
+            </p>
+          </div>
+          <div className="flex gap-1.5">
+            <Button 
+              variant="outline" 
+              className="h-7 px-3 text-[9px] font-black border-slate-200 hover:bg-white hover:text-blue-600 transition-all uppercase tracking-widest"
+              disabled={page <= 1} 
+              onClick={() => setPage(page - 1)}
+            >
+              Prev
             </Button>
-            <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold border-slate-200" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
-              NEXT PAGE
+            <Button 
+              variant="outline" 
+              className="h-7 px-3 text-[9px] font-black border-slate-200 hover:bg-white hover:text-blue-600 transition-all uppercase tracking-widest"
+              disabled={page >= totalPages} 
+              onClick={() => setPage(page + 1)}
+            >
+              Next
             </Button>
           </div>
         </div>
 
-        {/* Dialogs remain identical logic-wise */}
+        {/* Dialogs */}
         {editingProduct && (
           <EditProduct
             product={editingProduct}
@@ -324,16 +347,16 @@ export default function ProductsAdmin() {
 
         {productToDelete && (
           <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-            <DialogContent className="max-w-sm">
+            <DialogContent className="max-w-sm rounded-xl border-none shadow-2xl">
               <DialogHeader>
-                <DialogTitle className="text-sm font-bold uppercase tracking-tight">Confirm Deletion</DialogTitle>
+                <DialogTitle className="text-[13px] font-black uppercase tracking-tight text-slate-900">Confirm Deletion</DialogTitle>
               </DialogHeader>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Are you sure you want to remove <strong>{productToDelete.title}</strong>? This action cannot be undone.
+              <p className="text-[11px] text-slate-500 leading-relaxed font-medium">
+                Are you sure you want to remove <span className="text-slate-900 font-bold">"{productToDelete.title}"</span>? This action is irreversible.
               </p>
               <div className="flex justify-end gap-2 mt-4">
-                <Button variant="ghost" className="h-9 text-xs font-bold" onClick={() => setDeleteDialogOpen(false)}>CANCEL</Button>
-                <Button variant="destructive" className="h-9 text-xs font-bold px-6" onClick={handleDeleteConfirmed}>DELETE</Button>
+                <Button variant="ghost" className="h-8 text-[10px] font-black uppercase tracking-widest" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+                <Button variant="destructive" className="h-8 text-[10px] font-black px-6 uppercase tracking-widest shadow-lg shadow-rose-100" onClick={handleDeleteConfirmed}>Confirm Delete</Button>
               </div>
             </DialogContent>
           </Dialog>
