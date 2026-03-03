@@ -10,6 +10,7 @@ export const checkoutApiSlice = apiSlice.injectEndpoints({
           items,
           billingData,
         },
+        invalidatesTags: ['ClientOrders'],
       }),
     }),
 
@@ -22,6 +23,7 @@ export const checkoutApiSlice = apiSlice.injectEndpoints({
           billingData,
           walletNumber, 
         },
+        invalidatesTags: ['ClientOrders'],
       }),
     }),
 
@@ -33,6 +35,7 @@ export const checkoutApiSlice = apiSlice.injectEndpoints({
           items,
           billingData,
         },
+        invalidatesTags: ['ClientOrders'],
       }),
     }),
   }),

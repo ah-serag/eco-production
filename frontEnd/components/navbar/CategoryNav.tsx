@@ -107,7 +107,7 @@ export function MegaMenuNavbar() {
                 {currentCategoryData?.items.map((sub, index) => (
                   <Link
                     key={sub.id}
-                    href={`/searchpro/${activeCategory}?sub=${sub.id}`}
+                    href={`/products/${activeCategory}?sub=${sub.id}`}
                     onClick={closeMenu}
                     className={cn(
                       "group relative py-1.5 outline-none flex items-center gap-2 w-fit transition-all duration-500",
@@ -153,7 +153,7 @@ export function MegaMenuNavbar() {
               </div>
 
               <Link 
-                href={`/searchpro/${activeCategory}`}
+                href={`/products/${activeCategory}`}
                 onClick={closeMenu}
                 className="group flex items-center justify-center gap-3 p-4 bg-chart-1 text-white rounded-xl text-[12px] font-bold hover:shadow-xl hover:shadow-chart-1/20 transition-all duration-500 active:scale-95"
               >

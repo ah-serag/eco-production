@@ -42,7 +42,8 @@ app.use("/product" ,require("./routes/PreviewProduct/previewPro") )
 
 app.use("/api/payment", require("./modules/payment/paymob.routes"));
 
-
+//orders clients 
+app.use("/clientOrders", require("./routes/orders_client/ordersClientRoute"));
 
 
 

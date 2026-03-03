@@ -1,93 +1,100 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Home, ShoppingCart, MessageCircle, Menu, MoreHorizontal } from "lucide-react";
+import React, { useState } from "react";
+import { Home, ShoppingBag, Menu, MoreHorizontal, Phone } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MobileSidebar } from "./mobileSidebar";
 import { cn } from "@/lib/utils";
+import CartBadge from "./cardCount"; 
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
 
-  useEffect(() => {
-    const updateCount = () => {
-      const stored = localStorage.getItem("cart");
-      if (stored) {
-        const cart = JSON.parse(stored);
-        setCartCount(cart.reduce((acc: number, item: any) => acc + item.quantity, 0));
-      }
-    };
-    updateCount();
-    window.addEventListener("storage", updateCount);
-    return () => window.removeEventListener("storage", updateCount);
-  }, []);
+  const isActive = (path: string) => pathname === path;
 
-  const navItems = [
-    { name: "Home", icon: Home, href: "/" },
-    { name: "Cart", icon: ShoppingCart, href: "/cart_product", count: cartCount },
-    { name: "Ask Us", icon: MessageCircle, href: "/contact" },
-    { name: "Menu", icon: Menu, isAction: true, action: () => setIsSidebarOpen(true) },
-    { name: "More", icon: MoreHorizontal, href: "/more" },
-  ];
+  // مكون الأيقونات الجانبية (Cart, Contact, Menu, More)
+  const NavIcon = ({ path, icon: Icon, label, isBadge = false, isAction = false, action }: any) => {
+    const active = isActive(path);
+    const content = (
+      <div className="flex flex-col items-center  justify-center gap-1 transition-all active:scale-90">
+        <div className={cn(
+          "relative p-2 rounded-xl  border border-slate-100 transition-all duration-300", 
+          active ? "bg-chart-1 " : "bg-transparent"
+        )}>
+          <Icon 
+            size={18} 
+            strokeWidth={1.2} 
+            className={cn("transition-colors", active ? "text-white" : "text-slate-400")} 
+          />
+          {isBadge && (
+            <span className={cn(
+              "absolute -top-1 -right-1 text-[7px] font-bold h-3.5 w-3.5 flex items-center justify-center rounded-full border-2",
+              active ? "bg-white text-chart-1 " : "bg-slate-900 text-white border-white"
+            )}>
+              <CartBadge />
+            </span>
+          )}
+        </div>
+        <span className={cn(
+          "text-[8px] font-medium tracking-widest uppercase",
+          active ? "text-chart-1 font-bold" : "text-slate-400"
+        )}>{label}</span>
+      </div>
+    );
+
+    return isAction ? (
+      <button onClick={action} className="flex-1">{content}</button>
+    ) : (
+      <Link href={path} className="flex-1">{content}</Link>
+    );
+  };
 
   return (
     <>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-100 z-50 h-16 px-2 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-        <div className="flex justify-around items-center h-full">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            const Icon = item.icon;
+      <nav className="md:hidden fixed bottom-0  left-0 right-0 bg-white border-t border-slate-100 z-50 h-16 shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
+        <div className="flex justify-between items-center h-full max-w-md mx-auto px-2">
+          
+          {/* 1. Contact (WhatsApp Link via Phone Icon) */}
+          <Link href="https://wa.me/201091714419" target="_blank" className="flex-1">
+             <div className="flex flex-col items-center justify-center gap-1 active:scale-90 transition-all">
+                <div className="p-2 rounded-xl bg-transparent border border-slate-50">
+                   <Phone size={18} strokeWidth={1.2} className="text-slate-400" />
+                </div>
+                <span className="text-[8px] font-medium tracking-widest uppercase text-slate-400">Contact</span>
+             </div>
+          </Link>
 
-            return item.isAction ? (
-              <button
-                key={item.name}
-                onClick={item.action}
-                className="flex flex-col items-center justify-center flex-1 gap-1 text-neutral-400 active:scale-90 transition-all"
-              >
-                <div className="p-1.5 rounded-full transition-colors">
-                   <Icon size={20} />
-                </div>
-                <span className="text-[9px] font-medium uppercase tracking-wider">{item.name}</span>
-              </button>
-            ) : (
-              <Link
-                key={item.name}
-                href={item.href || "#"}
-                className={cn(
-                  "flex flex-col items-center justify-center flex-1 gap-1 transition-all relative active:scale-95",
-                  isActive ? "text-neutral-900" : "text-neutral-400"
-                )}
-              >
-                {/* الخلفية الدائرية للأيقونة النشطة */}
-                <div className={cn(
-                  "p-1.5 px-4 rounded-full transition-all duration-300",
-                  isActive ? "bg-chart-1/10" : "bg-transparent"
-                )}>
-                  <div className="relative">
-                    <Icon 
-                      size={20} 
-                      strokeWidth={isActive ? 2.5 : 2}
-                      className={cn(isActive && "fill-chart-1 text-chart-1")} 
-                    />
-                    {item.count ? (
-                      <span className="absolute -top-2 -right-3 bg-neutral-900 text-white text-[8px] font-bold h-3.5 w-3.5 flex items-center justify-center rounded-full border border-white">
-                        {item.count}
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-                <span className={cn(
-                  "text-[9px] uppercase tracking-wider transition-colors",
-                  isActive ? "font-bold text-neutral-900" : "font-medium"
-                )}>
-                  {item.name}
-                </span>
-              </Link>
-            );
-          })}
+          {/* 2. Cart */}
+          <NavIcon path="/cart_product" icon={ShoppingBag} label="Cart" isBadge={true} />
+
+          {/* 3. HOME (THE CENTER) */}
+          <Link href="/" className="flex-1 flex flex-col items-center justify-center">
+             <div className={cn(
+               "p-2.5 rounded-2xl transition-all duration-300",
+               isActive("/") ? "bg-chart-1 shadow-md shadow-chart-1/20" : "bg-slate-50 border border-slate-100"
+             )}>
+                <Home 
+                  size={22} 
+                  strokeWidth={1.2} 
+                  className={cn(isActive("/") ? "text-white" : "text-slate-500")} 
+                />
+             </div>
+          </Link>
+
+          {/* 4. Menu */}
+          <NavIcon 
+            isAction 
+            action={() => setIsSidebarOpen(true)} 
+            icon={Menu} 
+            label="Menu" 
+            path="/menu-active-check" // مجرد مسار وهمي للفحص
+          />
+
+          {/* 5. More */}
+          <NavIcon path="/more" icon={MoreHorizontal} label="More" />
+
         </div>
       </nav>
 

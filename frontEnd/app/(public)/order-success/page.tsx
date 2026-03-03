@@ -48,7 +48,7 @@ export default function OrderSuccessPage() {
           {/* Action Buttons */}
           <div className="space-y-3">
             <Link href="/orders" className="block">
-              <Button className="w-full h-12 rounded-2xl font-semibold bg-slate-900 hover:bg-black text-white text-[11px] tracking-widest shadow-lg shadow-slate-100 gap-2 transition-all group">
+              <Button className="w-full h-12 rounded-2xl font-semibold bg-chart-1 hover:bg-chart-1/80 text-white text-[11px] tracking-widest shadow-lg shadow-slate-100 gap-2 transition-all group">
                 TRACK YOUR ORDER
                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </Button>

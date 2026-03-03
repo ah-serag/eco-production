@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -8,68 +9,81 @@ export default function CategorySection({ section }: any) {
   const category = section?.content ?? [];
   const info = section?.info;
 
+  // تأثير الـ Hint Scroll للهواتف لجذب الانتباه
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const viewport = document.querySelector('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        viewport.scrollTo({ left: 50, behavior: 'smooth' });
+        setTimeout(() => {
+          viewport.scrollTo({ left: 0, behavior: 'smooth' });
+        }, 500);
+      }
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <section className="bg-white  p-2 rounded-3xl shadow-sm overflow-hidden my-6">
+    <section className="bg-transparent border-b border-gray-100   overflow-hidden my-1 group/section">
       
-      {/* ===== Minimal Header - بسيط ومريح للعين ===== */}
+      {/* ===== Header أنيق وصغير ===== */}
       {info?.title && (
-        <div className="py-6 px-6 flex items-baseline gap-3 bg-white">
-          <h2 className="text-xl md:text-2xl font-medium text-gray-900 tracking-tight">
+        <div className="pt-6 px-8 flex flex-col gap-0.5">
+          <h2 className="text-[14px] md:text-[23px] font-semibold   tracking-tight leading-none">
             {info.title}
           </h2>
           
           {info.subtitle && (
-            <div className="flex items-center gap-3 text-gray-400 border-l border-gray-200 pl-3">
-              <span className="text-xs md:text-sm font-normal uppercase tracking-[0.2em]">
-                {info.subtitle}
-              </span>
-            </div>
+            <span className="text-[8px] md:text-[9px] font-medium uppercase tracking-[0.3em] mt-1">
+              {info.subtitle}
+            </span>
           )}
         </div>
       )}
 
-      {/* ===== Categories Carousel - بدون خلفيات مزعجة ===== */}
+      {/* ===== Categories Carousel ===== */}
       <ScrollArea className="w-full">
-        <div className="flex gap-8 md:gap-14 px-8 pb-10 w-max mx-auto">
+        <div className="flex gap-6 md:gap-12 px-8 py-8 w-max mx-auto items-center justify-center">
           {category
             .filter((cat: any) => cat?.category_id && (cat?.image_url || cat?.title))
             .map((cat: any, index: number) => (
               <Link
                 key={index}
-                href={`/searchpro/${cat.category_id}`}
-                className="group block"
+                href={`/products/${cat.category_id}`}
+                className="group flex flex-col items-center gap-2.5 transition-all duration-300 active:scale-90"
               >
-                <div className="flex flex-col items-center gap-4">
-                  {/* Category Image - دائرة شفافة تماماً */}
-                  <div className="relative w-20 h-20 md:w-28 md:h-28  flex items-center justify-center transition-all duration-500">
-                    {cat?.image_url ? (
+                <div className="relative w-20 h-20  md:w-30 md:h-30 flex items-center justify-center bg-transparent rounded-full transition-all duration-500 group-hover:scale-110">
+                  {cat?.image_url ? (
+                    <div className="relative w-full h-full flex items-center justify-center">
                       <Image
                         src={cat.image_url}
                         alt={cat.title || "Category"}
-                        fill
-                        sizes="(max-width: 768px) 80px, 112px"
-                        className="object-contain transition-opacity rounded-full duration-300 group-hover:opacity-80" 
+                         fill
+                        className="object-contain p-1 drop-shadow-sm rounded-full  transition-transform duration-500" 
                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-300">
-                        No Image
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-gray-50 flex items-center justify-center text-[8px] text-gray-300 uppercase tracking-widest">
+                      N/A
+                    </div>
+                  )}
+                </div>
 
-                  {/* Title - التأثير هنا فقط عند الـ Hover */}
-                  <div className="relative pt-1">
-                    <span className="text-[13px] md:text-sm font-medium text-gray-500 transition-colors duration-300 group-hover:text-black tracking-tight">
-                      {cat.title || "Untitled"}
-                    </span>
-                    {/* خط سفلي نحيف جداً يظهر بنعومة */}
-                    <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-0 h-1px bg-black transition-all duration-300 group-hover:w-full" />
-                  </div>
+                {/* Title - خط صغير وناعم جداً */}
+                <div className="text-center">
+                  <span className="text-[10px] md:text-[11px] font-semibold text-gray-500 transition-colors duration-300 group-hover:text-black tracking-tight">
+                    {cat.title || "Untitled"}
+                  </span>
                 </div>
               </Link>
             ))}
         </div>
-        <ScrollBar orientation="horizontal" className="h-1.5" />
+
+        {/* السكرول بار يظهر فقط عند الـ Hover */}
+        <ScrollBar 
+          orientation="horizontal" 
+          className="h-1 opacity-0 group-hover/section:opacity-100 transition-opacity duration-300" 
+        />
       </ScrollArea>
     </section>
   );

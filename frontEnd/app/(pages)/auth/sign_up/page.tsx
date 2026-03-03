@@ -59,17 +59,17 @@ export default function RegisterPage() {
       )}
 
       <div className="w-full max-w-[420px]">
-        {/* Logo - Small */}
-        <div className="flex justify-center mb-4">
-          <Link href="/"><Image src="/photo/logoVexa.svg" alt="Logo" width={75} height={28} priority /></Link>
-        </div>
 
         <Card className="rounded-[20px] border border-slate-200/60 bg-white shadow-sm">
           <CardContent className="pt-6 pb-6 px-6">
             <div className="text-center mb-5">
-              <h1 className="text-lg font-bold text-slate-900 tracking-tight">Create Account</h1>
-            </div>
+                       {/* Logo - Small */}
+           <div className="flex justify-center mb-7">
+            <Link href="/"><Image src="/photo/logoVexa.svg" alt="Logo" width={100} height={28} priority /></Link>
 
+            </div>
+            </div>
+             {/* <hr className="my-4"/> */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
               
               {/* Row 1: Name & Username */}
@@ -82,6 +82,7 @@ export default function RegisterPage() {
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Username</label>
                   <Input placeholder="Username" {...register("username")} className="h-9 text-[13px] rounded-lg" />
+                  {errors.username && <p className="text-[10px] text-red-500 mt-0.5 ml-1 leading-none">{(errors.username as any).message}</p>}
                 </div>
               </div>
 
@@ -94,18 +95,28 @@ export default function RegisterPage() {
 
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Phone Number</label>
-                <Controller
-                  name="phone"
-                  control={control}
-                  render={({ field }) => (
-                    <PhoneInput
-                      {...field}
-                      defaultCountry="EG"
-                      className="flex h-9 w-full rounded-lg border border-slate-200 bg-transparent px-3 text-[13px] focus-within:ring-1 focus-within:ring-chart-1 transition-all"
-                      onChange={(value) => field.onChange(value)}
-                    />
-                  )}
-                />
+                <div className="relative flex items-center">
+                   <img 
+                    src="/photo/payment/Flag_of_Egypt.svg" 
+                    className="absolute left-3 z-10 h-3.5 w-auto pointer-events-none" 
+                    alt="EG" 
+                  />
+                  <Controller
+                    name="phone"
+                    control={control}
+                    render={({ field }) => (
+                      <PhoneInput
+                        {...field}
+                        defaultCountry="EG"
+                        placeholder="01x xxxx xxxx"
+                        countrySelectComponent={() => null}
+                        className="flex h-9 w-full rounded-lg border border-slate-200 bg-transparent pl-11 pr-3 text-[13px] focus-within:ring-1 focus-within:ring-chart-1 transition-all"
+                        onChange={(value) => field.onChange(value)}
+                      />
+                    )}
+                  />
+                </div>
+                {errors.phone && <p className="text-[10px] text-red-500 mt-0.5 ml-1 leading-none">{(errors.phone as any).message}</p>}
               </div>
 
               {/* Row 3: Passwords */}
@@ -113,16 +124,18 @@ export default function RegisterPage() {
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Password</label>
                   <Input type="password" placeholder="••••••••" {...register("password")} className="h-9 text-[13px] rounded-lg" />
+                  {errors.password && <p className="text-[10px] text-red-500 mt-0.5 ml-1 leading-none">{(errors.password as any).message}</p>}
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Confirm</label>
                   <Input type="password" placeholder="••••••••" {...register("confirmPassword")} className="h-9 text-[13px] rounded-lg" />
+                  {errors.confirmPassword && <p className="text-[10px] text-red-500 mt-0.5 ml-1 leading-none">{(errors.confirmPassword as any).message}</p>}
                 </div>
               </div>
 
               {serverError && <p className="text-[10px] text-center bg-red-50 text-red-600 p-1.5 rounded-lg font-medium">{serverError}</p>}
 
-              <Button type="submit" className="w-full h-10 rounded-lg bg-slate-900 hover:bg-black text-white font-bold text-[13px] mt-2 shadow-sm active:scale-[0.98]" disabled={isLoading}>
+              <Button type="submit" className="w-full h-10 rounded-lg bg-chart-1 hover:bg-chart-1/80 text-white font-semibold text-[13px] mt-2 shadow-sm active:scale-[0.98]" disabled={isLoading}>
                 {isLoading ? "Creating..." : "Create Account"}
               </Button>
             </form>

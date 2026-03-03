@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import EditProduct from "@/components/manage/editingProduct";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import Link from "next/link"; // أضفت Link لدعم الانتقال للمنتج
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Package, MoreHorizontal, Edit, Trash2, Power, Search, ListOrdered, Database, ChevronRight } from "lucide-react";
+import { Package, MoreHorizontal, Edit, Trash2, Power, Search, ListOrdered, Database, ChevronRight, ExternalLink } from "lucide-react";
 import {
   useGetProductsAdminQuery,
   useToggleActiveMutation,
@@ -25,7 +26,7 @@ import {
 } from "../../../../redux/features/productAdmin/productapiSlice";
 import { cn } from "@/lib/utils";
 
-// Types remains the same
+// Types
 type Product = {
   id: number;
   title: string;
@@ -35,6 +36,7 @@ type Product = {
   discount_price?: number | null;
   is_active: boolean;
   image_url: string;
+  slug?: string; // أضفت الـ slug لو كان متاحاً في بياناتك
 };
 
 type FormValues = {
@@ -231,7 +233,7 @@ export default function ProductsAdmin() {
             <TableHeader className="bg-slate-50/50">
               <TableRow className="border-slate-100">
                 <TableHead className="h-10 w-20 text-[10px] font-bold text-slate-400 pl-6 uppercase">Preview</TableHead>
-                <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase">Product Title</TableHead>
+                <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase">Product Details</TableHead>
                 <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase">Settlement</TableHead>
                 <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase">Inventory</TableHead>
                 <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase">Visibility</TableHead>
@@ -247,9 +249,23 @@ export default function ProductsAdmin() {
                     <img src={p.image_url} alt={p.title} className="w-9 h-9 object-contain bg-slate-50 rounded border border-slate-100 p-0.5" />
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-col">
-                      <span className="font-bold text-slate-800 text-[11px] leading-tight tracking-tight group-hover:text-blue-600 transition-colors">{p.title}</span>
-                      <span className="text-[9px] font-mono font-bold text-slate-400">SKU: #{p.id.toString().padStart(5, '0')}</span>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-bold text-slate-800 text-[11px] leading-tight tracking-tight group-hover:text-blue-600 transition-colors">
+                        {p.title}
+                      </span>
+                      {/* Product URL Line */}
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tighter">Path:</span>
+                        <Link 
+                          href={`/product/${p.slug || p.id}`} 
+                          target="_blank"
+                          className="text-[9px] font-medium text-slate-400 hover:text-blue-500 underline decoration-slate-200 underline-offset-2 flex items-center"
+                        >
+                          /product/{p.slug || p.id}
+                          <ExternalLink size={8} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </Link>
+                      </div>
+                      <span className="text-[9px] font-mono font-bold text-slate-400 mt-0.5">SKU: #{p.id.toString().padStart(5, '0')}</span>
                     </div>
                   </TableCell>
                   <TableCell>

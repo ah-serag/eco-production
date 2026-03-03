@@ -18,11 +18,6 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
       providesTags: ['Orders'],
     }),
 
-    getOrderItems: builder.query({
-      query: (orderId) => `/admin/orders/${orderId}/items`,
-      providesTags: (result, error, orderId) => [{ type: 'Orders', id: orderId }],
-    }),
-
     getAllOrderItems: builder.query({
       query: ({ offset = 0, limit = 10, order_id, product_id }) => {
         let params = new URLSearchParams({
@@ -38,20 +33,24 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
       providesTags: ['OrderItems'],
     }),
 
-    updateOrderStatus: builder.mutation({
-      query: ({ id, status }) => ({
-        url: `/admin/orders/${id}/status`,
-        method: 'PATCH',
-        body: { status },
-      }),
-      invalidatesTags: ['Orders'],
+    getClientOrders: builder.query({
+      query: ({ offset = 0, limit = 10, status } = {}) => {
+        let params = new URLSearchParams({
+          offset: offset.toString(),
+          limit: limit.toString(),
+        });
+
+        if (status) params.append('status', status);
+        return `/clientOrders/getClientOrders?${params.toString()}`;
+      },
+      providesTags: ['ClientOrders'],
     }),
+    
   }),
 });
 
 export const {
   useGetOrdersQuery,
-  useGetOrderItemsQuery,
-  useUpdateOrderStatusMutation,
-  useGetAllOrderItemsQuery
+  useGetAllOrderItemsQuery,
+  useGetClientOrdersQuery,
 } = ordersApiSlice;

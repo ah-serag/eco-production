@@ -30,7 +30,6 @@ const cartSlice = createSlice({
     },
 
     setDirectCheckout: (state, action) => {
-      // للدفع المباشر لمنتج واحد فقط
       state.checkoutItems = [{ ...action.payload }];
     },
 

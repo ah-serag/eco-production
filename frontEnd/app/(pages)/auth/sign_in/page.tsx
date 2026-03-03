@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation"; // أضفنا useSearchParams
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,13 +14,15 @@ import { toast } from "sonner";
 
 import { loginSchema } from "@/lib/zodSchema";
 import { useLoginMutation } from "../../../../redux/features/auth/AuthapiSlice";
-import { use } from "react";
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams(); 
   const [login, { isLoading }] = useLoginMutation();
+
+  const callbackUrl = searchParams.get("checkout_url")  || "/";
 
   const {
     register,
@@ -32,16 +34,10 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-     const result =  await login(data).unwrap();
+      const result = await login(data).unwrap();
 
+        router.push(callbackUrl);
      
-      const isAdmin = ["Super Admin" ,"Admin" ].includes(result.user.role)
-
-      if(isAdmin){
-       router.push('/admin/users');
-      }else{
-       router.push('/');
-      }
     } catch (err: any) {
       toast.error(err?.data?.message || "Invalid credentials");
     }
@@ -51,24 +47,22 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-linear-to-t from-chart-1/10 via-white to-white px-4">
       
       <div className="w-full max-w-[400px] space-y-6">
-        <div className="flex flex-col items-center gap-5 mb-2">
-          <Link href="/">
-            <Image 
-              src="/photo/logoVexa.svg" 
-              alt="Logo" 
-              width={90} 
-              height={35} 
-              priority 
-              className="object-contain mb-5"
-            />
-          </Link>
-        </div>
 
         <Card className="rounded-[20px] border border-slate-200/60 bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] overflow-hidden">
           <CardContent className="pt-10 pb-10 px-8">
-            <div className="text-center mb-8">
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Sign In</h1>
-              <p className="text-[13px] text-slate-500 mt-1">Enter your details to continue</p>
+            <div className="text-center mb-4">
+              <div className="flex flex-col items-center gap-5 mb-2">
+                <Link href="/">
+                  <Image 
+                    src="/photo/logoVexa.svg" 
+                    alt="Logo" 
+                    width={90} 
+                    height={35} 
+                    priority 
+                    className="object-contain mb-5"
+                  />
+                </Link>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -114,7 +108,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full h-11 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-[13px] transition-all active:scale-[0.98] mt-2 shadow-sm"
+                className="w-full h-11 rounded-xl bg-chart-1 hover:bg-chart-1/80 text-white font-bold text-[13px] transition-all active:scale-[0.98] mt-2 shadow-sm"
                 disabled={isLoading}
               >
                 {isLoading ? "Signing in..." : "Continue"}

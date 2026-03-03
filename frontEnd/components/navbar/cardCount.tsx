@@ -25,7 +25,7 @@ export default function CartBadge() {
   }
 
   return (
-    <span className="bg-slate-200 text-slate-600  px-1.5 py-0.5 rounded-md text-[11px] transition-all duration-300">
+    <span className="bg-slate-200 text-slate-600 px-1 text-[5px] py-0.5 sm:px-1.5 sm:py-0.5 rounded-md sm:text-[11px] transition-all duration-300">
       {count}
     </span>
   );

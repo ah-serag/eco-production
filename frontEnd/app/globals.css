@@ -83,7 +83,7 @@ html {
   --popover-foreground: oklch(0.141 0.005 285.823);
   --primary: oklch(0.48 0.16 253.95);
   --primary-foreground: oklch(0.97 0.014 254.604);
-  --secondary: lab(46 1.39 -55.4);
+  --secondary: oklch(53.679% 0.13515 245.014);
   --secondary-foreground: oklch(100% 0.00011 271.152);
   --muted: oklch(0.967 0.001 286.375);
   --muted-foreground: oklch(0.552 0.016 285.938);

@@ -19,8 +19,7 @@ export default function ProductCardHome({ product }: { product: Product }) {
       href={`/product/${slug}`} 
       className="block group relative overflow-visible"
     >
-      {/* Container المنتج - بدون حدود أو خلفيات */}
-      <div className="w-[140px] md:w-[180px] aspect-square flex items-center justify-center transition-all duration-500 ease-in-out group-hover:scale-110">
+      <div className="w-[100px] md:w-[130px] aspect-square flex items-center justify-center transition-all duration-500 ease-in-out group-hover:scale-110">
         
         {/* الصورة فقط */}
         <img

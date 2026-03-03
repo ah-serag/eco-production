@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation"; // أضفنا الراوتر للتوجيه بعد نجاح الكاش
+import { useRouter, usePathname } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -16,7 +16,7 @@ import { Loader2, CreditCard, MapPin, User, Wallet, Banknote } from "lucide-reac
 import { 
   useCheckoutMutation, 
   useCheckoutWalletMutation,
-  useCheckoutCashMutation // إضافة الـ Hook الجديد
+  useCheckoutCashMutation 
 } from "@/redux/features/paybom/paybomSlice";
 import {
   checkoutSchema,
@@ -26,6 +26,8 @@ import {
 export default function CheckoutPage() {
   const checkoutItems = useSelector((state: any) => state.cart.checkoutItems);
   const router = useRouter();
+  const  checkout_url = usePathname()
+
 
   const [checkoutCard, { isLoading: isCardLoading }] = useCheckoutMutation();
   const [checkoutWallet, { isLoading: isWalletLoading }] = useCheckoutWalletMutation();
@@ -68,6 +70,7 @@ export default function CheckoutPage() {
   async function handleCheckout() {
     if (checkoutItems.length === 0) return;
     const result = checkoutSchema.safeParse(form);
+    
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof CheckoutFormData, string>> = {};
       result.error?.issues.forEach((err: any) => {
@@ -77,6 +80,7 @@ export default function CheckoutPage() {
       setErrors(fieldErrors);
       return;
     }
+
     try {
       const itemsPayload = checkoutItems.map((item: any) => ({
         id: item.id,
@@ -95,12 +99,13 @@ export default function CheckoutPage() {
         }).unwrap();
         window.location.href = res.redirectUrl;
       } else {
-        // دفع عند الاستلام (Cash)
         const res = await checkoutCash({ items: itemsPayload, billingData: result.data }).unwrap();
-        router.push(res.redirectUrl); // التوجيه لصفحة الـ Success المذكورة في الباك-إند
+        router.push(res.redirectUrl);
       }
-    } catch (err) {
-      console.error("Error:", err);
+    } catch (err: any) {
+      if (err.status === 403) {
+        router.push(`/auth/sign_in?checkout_url=${checkout_url}`);
+      }
     }
   }
 
@@ -121,16 +126,18 @@ export default function CheckoutPage() {
                 <div className="space-y-1.5">
                   <Label className="text-[11px] uppercase tracking-wider text-slate-500">First Name</Label>
                   <Input name="first_name" value={form.first_name} onChange={handleChange} className="h-10 text-sm" placeholder="Ahmed" />
-                  {errors.first_name && <p className="text-[10px] text-red-500">{errors.first_name}</p>}
+                  {errors.first_name && <p className="text-[10px] text-red-500 ml-1">{errors.first_name}</p>}
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[11px] uppercase tracking-wider text-slate-500">Last Name</Label>
                   <Input name="last_name" value={form.last_name} onChange={handleChange} className="h-10 text-sm" placeholder="Serag" />
+                  {errors.last_name && <p className="text-[10px] text-red-500 ml-1">{errors.last_name}</p>}
                 </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px] uppercase tracking-wider text-slate-500">Email Address</Label>
                 <Input name="email" value={form.email} onChange={handleChange} className="h-10 text-sm" placeholder="you@email.com" />
+                {errors.email && <p className="text-[10px] text-red-500 ml-1">{errors.email}</p>}
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px] uppercase tracking-wider text-slate-500">Phone Number</Label>
@@ -138,6 +145,7 @@ export default function CheckoutPage() {
                   <Input name="phone_number" value={form.phone_number} onChange={handleChange} className="h-10 text-sm pl-10" placeholder="01000000000" />
                   <img src="/photo/payment/Flag_of_Egypt.svg" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-auto" alt="EG" />
                 </div>
+                {errors.phone_number && <p className="text-[10px] text-red-500 ml-1">{errors.phone_number}</p>}
               </div>
             </CardContent>
           </Card>
@@ -154,19 +162,23 @@ export default function CheckoutPage() {
                 <div className="space-y-1.5">
                   <Label className="text-[11px] uppercase tracking-wider text-slate-500">City</Label>
                   <Input name="city" value={form.city} onChange={handleChange} className="h-10 text-sm" placeholder="Cairo" />
+                  {errors.city && <p className="text-[10px] text-red-500 ml-1">{errors.city}</p>}
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[11px] uppercase tracking-wider text-slate-500">State</Label>
                   <Input name="state" value={form.state} onChange={handleChange} className="h-10 text-sm" placeholder="Cairo" />
+                  {errors.state && <p className="text-[10px] text-red-500 ml-1">{errors.state}</p>}
                 </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px] uppercase tracking-wider text-slate-500">Street Address</Label>
                 <Input name="street" value={form.street} onChange={handleChange} className="h-10 text-sm" placeholder="Street name" />
+                {errors.street && <p className="text-[10px] text-red-500 ml-1">{errors.street}</p>}
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px] uppercase tracking-wider text-slate-500">Building</Label>
                 <Input name="building" value={form.building} onChange={handleChange} className="h-10 text-sm" placeholder="Building, apartment..." />
+                {errors.building && <p className="text-[10px] text-red-500 ml-1">{errors.building}</p>}
               </div>
             </CardContent>
           </Card>
@@ -198,7 +210,7 @@ export default function CheckoutPage() {
 
               <div className="pt-4 border-t border-slate-100 space-y-3">
                 <Label className="text-[10px] font-semibold uppercase text-slate-400">Payment Method</Label>
-                <div className="grid grid-cols-3 gap-2"> {/* تم التعديل لـ 3 أعمدة */}
+                <div className="grid grid-cols-3 gap-2">
                   <button 
                     onClick={() => setPaymentType("card")}
                     className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "card" ? "border-chart-1 bg-chart-1/5 text-chart-1" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}

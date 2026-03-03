@@ -150,16 +150,16 @@ const sign_in = async (req, res) => {
 
     res.cookie("accessToken", accessToken, {
      httpOnly: true,
-     secure: false,
-     sameSite: "lax",
+     secure: true, // false 
+     sameSite: "none" , // lax 
      maxAge: 15 * 60 * 1000,
      path: "/",
    });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
@@ -188,7 +188,7 @@ const refresh = async (req ,res )=>{
     const refreshToken = req.cookies?.refreshToken;
 
     if (!refreshToken) {
-      return res.status(401).json({ message: "Refresh token required" });
+      return res.status(403).json({ message: "Refresh token required" });
     }
 
     const decoded = verifyRefreshToken(refreshToken);
@@ -200,7 +200,7 @@ const refresh = async (req ,res )=>{
     );
 
     if (rows.length === 0) {
-      return res.status(401).json({ message: "Invalid refresh token" });
+      return res.status(403).json({ message: "Invalid refresh token" });
     }
 
     // Create new access token
@@ -208,8 +208,8 @@ const refresh = async (req ,res )=>{
      
     res.cookie("accessToken", accessToken, {
      httpOnly: true,
-     secure: false,
-     sameSite: "lax",
+     secure: true,  
+     sameSite: "none" ,
      maxAge: 15 * 60 * 1000,
      path: "/",
    });

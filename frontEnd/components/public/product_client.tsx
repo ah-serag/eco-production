@@ -7,7 +7,7 @@ import { setDirectCheckout, addToCart } from "../../redux/features/cartSlice/car
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Zap, Plus, Minus, Box, Check } from "lucide-react";
+import { ShoppingCart, Zap, Plus, Minus, Box, Check, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ProductImage {
@@ -38,16 +38,26 @@ export default function ProductPreview({ product }: { product: Product }) {
 
   const [selectedImage, setSelectedImage] = useState(mainImage?.url);
   const [zoom, setZoom] = useState({ x: 0, y: 0, active: false });
-  const [isAdding, setIsAdding] = useState(false); // لحالة الأنميشن
+  const [isAdding, setIsAdding] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [isMaxStock, setIsMaxStock] = useState(false); // حالة التنبيه للمخزون
+  
   const imgRef = useRef<HTMLDivElement>(null);
 
   const increaseQuantity = () => {
-    if (quantity < stockCount) setQuantity((prev) => prev + 1);
+    if (quantity < stockCount) {
+      setQuantity((prev) => prev + 1);
+      setIsMaxStock(false);
+    } else {
+      setIsMaxStock(true);
+    }
   };
 
   const decreaseQuantity = () => {
-    if (quantity > 1) setQuantity((prev) => prev - 1);
+    if (quantity > 1) {
+      setQuantity((prev) => prev - 1);
+      setIsMaxStock(false);
+    }
   };
 
   const getProductData = () => ({
@@ -55,14 +65,13 @@ export default function ProductPreview({ product }: { product: Product }) {
     title: product.title,
     price: product.discount_price || product.price,
     image: mainImage.url,
+    stock : product.stock ,
     quantity: quantity,
   });
 
   const handleAddToCart = () => {
     setIsAdding(true);
     dispatch(addToCart(getProductData()));
-    
-    // أنميشن بسيط يرجع الزرار لأصله بعد ثانية
     setTimeout(() => {
       setIsAdding(false);
     }, 1200);
@@ -96,9 +105,10 @@ export default function ProductPreview({ product }: { product: Product }) {
               <div
                 key={index}
                 onClick={() => setSelectedImage(img.url)}
-                className={`aspect-square overflow-hidden cursor-pointer rounded-lg border-2 transition-all duration-200 ${
+                className={cn(
+                  "aspect-square overflow-hidden cursor-pointer rounded-lg border-2 transition-all duration-200",
                   selectedImage === img.url ? "border-chart-1 shadow-sm" : "border-transparent bg-gray-50 hover:border-gray-200"
-                }`}
+                )}
               >
                 <img src={img?.url} alt="thumbnail" className="w-full h-full object-contain p-1" />
               </div>
@@ -127,24 +137,23 @@ export default function ProductPreview({ product }: { product: Product }) {
               <Badge variant="secondary" className="bg-slate-100 text-slate-600 hover:bg-slate-200 border-none text-[10px] font-medium tracking-tight">
                 {product.category_name}
               </Badge>
-              {/* عرض المخزون */}
-              <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-50 border border-slate-100 rounded">
-                 <Box size={10} className="text-slate-400" />
-                 <span className="text-[10px] font-bold text-slate-500 uppercase">Stock: {stockCount}</span>
+              <div className="flex items-center gap-1 px-2 py-0.5 bg-chart-1 border rounded">
+                 <Box size={11} className="text-white" />
+                 <span className="text-[11px] font-semibold text-white ">Available to order : {stockCount}</span>
               </div>
             </div>
 
-            <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight leading-snug">{product.title}</h1>
+            <h1 className="text-xl md:text-2xl font-semibold text-slate-900 tracking-tight leading-snug">{product.title}</h1>
             <p className="text-[11px] text-slate-400 font-medium tracking-widest uppercase">SKU: {product.sku}</p>
           </div>
 
           <Separator className="bg-slate-100" />
 
           <div className="flex items-center gap-3">
-            <span className="text-xl font-bold">${product.discount_price}</span>
+            <span className="text-xl font-semibold">{product.discount_price} EGP</span>
             {product.discount_price < product.price && (
               <div className="flex items-center gap-2">
-                <span className="line-through text-slate-300 text-sm font-medium">${product.price}</span>
+                <span className="line-through text-slate-300 text-sm font-medium">{product.price} EGP</span>
                 <span className="bg-slate-100 text-slate-600 text-[11px] font-bold px-1.5 py-0.5 rounded">{discountPercent}% OFF</span>
               </div>
             )}
@@ -161,12 +170,23 @@ export default function ProductPreview({ product }: { product: Product }) {
 
           {/* ACTIONS */}
           <div className="flex flex-col gap-3 pt-2">
-            <div className="flex items-center gap-4">
-              <span className="text-xs font-semibold text-slate-500">Quantity</span>
-              <div className="flex items-center border rounded-xl overflow-hidden">
-                <button onClick={decreaseQuantity} disabled={quantity <= 1} className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 disabled:opacity-30"><Minus size={16} /></button>
-                <span className="w-12 text-center font-semibold">{quantity}</span>
-                <button onClick={increaseQuantity} disabled={quantity >= stockCount} className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 disabled:opacity-30"><Plus size={16} /></button>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-4">
+                <span className="text-xs font-semibold text-slate-500">Quantity</span>
+                <div className="flex items-center border rounded-xl overflow-hidden bg-white">
+                  <button onClick={decreaseQuantity} disabled={quantity <= 1} className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 disabled:opacity-30 transition-colors"><Minus size={16} /></button>
+                  <span className="w-12 text-center font-semibold text-sm">{quantity}</span>
+                  <button onClick={increaseQuantity} disabled={quantity >= stockCount} className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 disabled:opacity-30 transition-colors"><Plus size={16} /></button>
+                </div>
+              </div>
+
+              {/* Stock Limit Message */}
+              <div className={cn(
+                "flex items-center gap-1.5 text-rose-500 transition-all duration-300 overflow-hidden",
+                isMaxStock ? "max-h-10 opacity-100 mt-1" : "max-h-0 opacity-0"
+              )}>
+                <AlertCircle size={12} />
+                <span className="text-[10px] font-medium uppercase tracking-tight">Maximum available stock reached</span>
               </div>
             </div>
 
@@ -191,7 +211,7 @@ export default function ProductPreview({ product }: { product: Product }) {
               <Button
                 onClick={handleBuyNow}
                 disabled={stockCount === 0}
-                className="flex-[1.8] h-12 rounded-xl bg-chart-1 hover:bg-chart-1/80 text-white text-xs font-bold transition-all active:scale-95"
+                className="flex-[1.8] h-12 rounded-xl bg-chart-1 hover:bg-chart-1/80 text-white text-xs font-bold transition-all active:scale-95 shadow-lg shadow-chart-1/20"
               >
                 <Zap className="mr-2 h-4 w-4 fill-current" />
                 {stockCount === 0 ? "Out of Stock" : "Buy Now"}

@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { Star, Plus, ArrowUpRight, Check } from "lucide-react";
+import { Star, Plus, ArrowUpRight, Check, BaggageClaim, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState } from "react"; 
@@ -16,6 +16,7 @@ interface Product {
   discount_price?: number;
   description?: string;
   image_url: string;
+  stock : number ;
   slug: string;
   rating?: number;
 }
@@ -33,7 +34,6 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const rating = Number(product.rating) || 0;
 
-  // دالة الإضافة باستخدام Redux
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     try {
@@ -42,6 +42,7 @@ export default function ProductCard({ product }: { product: Product }) {
         title: product.title,
         price: product.discount_price || product.price,
         image: product.image_url, 
+        stock : product.stock ,
         quantity: 1
       };
 
@@ -80,7 +81,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <CardContent className="flex flex-col flex-1 px-1 md:px-1.5 py-0">
         <Link href={`/product/${slug}`}>
-          <CardTitle className="text-[10px] md:text-sm font-bold truncate text-neutral-900">
+          <CardTitle className="text-[11px] md:text-sm font-semibold truncate text-neutral-900">
             {product.title}
           </CardTitle>
         </Link>
@@ -99,19 +100,19 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="mt-auto pt-2 md:pt-3 mb-1.5 md:mb-2">
           {discountPercent > 0 ? (
             <div className="flex flex-wrap items-baseline gap-1 md:gap-1.5">
-              <span className="text-neutral-900 font-bold text-[12px] md:text-base">
-                ${product.discount_price}
+              <span className="text-neutral-900 font-semibold text-[13px] md:text-base">
+                {product.discount_price} EGP
               </span>
               <span className="text-neutral-400 line-through text-[9px] md:text-[13px]">
-                ${product.price}
+                {product.price} EGP
               </span>
               <span className="text-neutral-500 text-[8px] md:text-[12px] font-medium whitespace-nowrap">
                 ({discountPercent}% OFF)
               </span>
             </div>
           ) : (
-            <span className="text-neutral-900 font-bold text-[12px] md:text-base">
-              ${product.price}
+            <span className="text-neutral-900 font-semibold text-[12px] md:text-base">
+              {product.price} EGP
             </span>
           )}
         </div>
@@ -124,19 +125,17 @@ export default function ProductCard({ product }: { product: Product }) {
             className={cn(
               "h-6 md:h-7 px-2 md:px-3 border-neutral-200 transition-all duration-300",
               "text-[8px] md:text-[9px] font-bold uppercase tracking-tight rounded-full flex items-center gap-0.5 md:gap-1",
-              isAdded ? "bg-green-500 border-green-500 text-white" : "text-neutral-700 hover:border-neutral-900 hover:bg-transparent"
+              isAdded ? "bg-green-500 border-green-500 text-white" : " hover:text-green-500 "
             )}
             onClick={handleAddToCart}
           >
             {isAdded ? (
               <>
                 <Check size={10} strokeWidth={3} />
-                <span className="whitespace-nowrap">Added</span>
               </>
             ) : (
               <>
-                <Plus size={9} strokeWidth={3} />
-                <span className="whitespace-nowrap">Add to cart</span>
+                <ShoppingCart  size={9} strokeWidth={2} />
               </>
             )}
           </Button>

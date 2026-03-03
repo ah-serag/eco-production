@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useGetProductsByCategoryQuery } from "../../redux/features/home/homeclientslice";
@@ -20,6 +20,7 @@ export default function ProductsHomeCarouselPro({ section }: any) {
 
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<Product[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null); // مرجع للتحكم في السكرول
   const limit = 10; 
 
   const { data, isLoading, isFetching, isUninitialized } = useGetProductsByCategoryQuery(
@@ -28,72 +29,84 @@ export default function ProductsHomeCarouselPro({ section }: any) {
   );
 
   useEffect(() => {
-    if (data?.data) setProducts(data.data);
-  }, [data]);
+    if (data?.data) {
+      setProducts(data.data);
+      
+   
+    }
+  }, [data, page]);
 
   if (!categoryId) return null;
 
   const totalPages = data?.pagination?.totalPages ?? 1;
 
   return (
-    <section className="relative bg-white border-y p-1 border  rounded-3xl border-gray-100">
+    <section className="relative bg-transparent border-b border-gray-100 py-2 group/section">
       
-      {/* ===== Minimal Header الموحد والمعدل ===== */}
+      {/* ===== Header ===== */}
       {info?.title && (
-        <div className="py-6 px-6 flex items-center justify-between bg-white">
-          <div className="flex items-baseline gap-3">
-            <h2 className="text-xl md:text-2xl font-medium text-gray-900 tracking-tight">
+        <div className="px-6 mb-4 flex items-end justify-between">
+          <div className="flex flex-col gap-0.5">
+            <h2 className="text-[14px] md:text-[20px] font-semibold text-gray-900 tracking-tight">
               {info.title}
             </h2>
-
             {info.subtitle && (
-              <div className="flex items-center gap-3 text-gray-400">
-                <span className="text-gray-200">|</span>
-                <span className="text-xs md:text-sm font-normal uppercase tracking-[0.2em]">
-                  {info.subtitle}
-                </span> 
-              </div>
+              <span className="text-[9px] md:text-[10px] font-medium uppercase tracking-[0.25em]">
+                {info.subtitle}
+              </span>
             )}
           </div>
 
-          {/* ===== Minimal Controls ===== */}
+          {/* ===== Controls ===== */}
           {!isUninitialized && totalPages > 1 && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1 || isFetching}
-                className="p-2 rounded-full hover:bg-gray-50 disabled:opacity-20 transition-all active:scale-90"
+                className="group p-1.5 rounded-full border border-gray-100 bg-white hover:bg-gray-50 disabled:opacity-20 transition-all duration-300"
               >
-                <ChevronLeft size={20} className="text-gray-400" />
+                <ChevronLeft size={15} className="text-gray-500 group-active:scale-75 transition-transform" />
               </button>
               
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages || isFetching}
-                className="p-2 rounded-full hover:bg-gray-50 disabled:opacity-20 transition-all active:scale-90"
+                className="group p-1.5 rounded-full border border-gray-100 bg-white hover:bg-gray-50 disabled:opacity-20 transition-all duration-300"
               >
-                <ChevronRight size={20} className="text-gray-400" />
+                <ChevronRight size={15} className="text-gray-500 group-active:scale-75 transition-transform" />
               </button>
             </div>
           )}
         </div>
       )}
 
-      <ScrollArea className="w-full">
-        <div className="flex gap-4 md:gap-6 px-6 pb-10 w-max mx-auto items-center">
+      <ScrollArea className="w-full whitespace-nowrap overflow-hidden">
+        <div className="flex gap-1 md:gap-3 px-6 pb-6">
           {isLoading || isFetching ? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="w-[180px] md:w-[220px] aspect-3/4 rounded-2xl bg-gray-50 animate-pulse" />
+            Array.from({ length: 4 }).map((_, i) => (
+              <div 
+                key={i} 
+                className="w-[140px] md:w-[200px] aspect-3/4 rounded-xl bg-gray-100/50 animate-pulse shrink-0" 
+              />
             ))
           ) : (
             products.map((product: any, index) => (
-              <div key={index} className="shrink-0 p-2 transition-opacity duration-300">
+              <div 
+                key={`${product.id}-${index}`}
+                className={` p-3 transition-all duration-700 ease-out transform
+                           ${isFetching ? 'opacity-0 translate-x-4' : 'opacity-100 translate-x-0'}`}
+                style={{ transitionDelay: `${index * 50}ms` }}
+              >
                 <ProductCardHome product={product} />
               </div>
             ))
           )}
         </div>
-        <ScrollBar orientation="horizontal" className="h-2" />
+        
+        <ScrollBar 
+          orientation="horizontal" 
+          className="h-1.5 transition-opacity duration-300 opacity-0 group-hover/section:opacity-100" 
+        />
       </ScrollArea>
     </section>
   );

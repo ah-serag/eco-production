@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Flame, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 interface LimitedOfferBanner {
@@ -49,26 +49,24 @@ export default function LimitedOfferSection({ section }: Props) {
   if (!banners.length) return null;
 
   return (
-    <section className="w-full bg-white rounded-3xl    border-gray-50 overflow-hidden">
-      {/* ===== Slim Header الموحد ===== */}
-        {info?.title && (
-        <div className="py-6 px-6 flex items-baseline gap-3 bg-white">
-          <h2 className="text-xl md:text-2xl font-medium text-gray-900 tracking-tight">
+    <section className="w-full bg-transparent rounded-[2.5rem] border-b border-gray-100 overflow-hidden my-6">
+      
+      {/* ===== Header المتناسق والمصغر ===== */}
+      {info?.title && (
+        <div className="pt-6 px-8 flex flex-col gap-0.5">
+          <h2 className="text-[14px] md:text-[20px] font-semibold text-gray-900 tracking-tight">
             {info.title}
           </h2>
-          
           {info.subtitle && (
-            <div className="flex items-center gap-3 text-gray-400 border-l border-gray-200 pl-3">
-              <span className="text-xs md:text-sm font-normal uppercase tracking-[0.2em]">
-                {info.subtitle}
-              </span>
-            </div>
+            <span className="text-[8px] md:text-[9px]  font-medium uppercase tracking-[0.3em] mt-1">
+              {info.subtitle}
+            </span>
           )}
         </div>
       )}
 
       {/* Banners Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 md:p-8">
         {banners.map((banner, index) => {
           const time = timeLeft[index];
           const isExpired = time === "Expired";
@@ -77,66 +75,68 @@ export default function LimitedOfferSection({ section }: Props) {
             <Link 
               key={index} 
               href={banner.link_url || "#"} 
-              className="group relative block aspect-video w-full overflow-hidden rounded-3xl "
+              className="group relative block aspect-[16/9] w-full overflow-hidden rounded-[2rem] bg-gray-50"
             >
-              {/* Image with Zoom effect */}
+              {/* Image with Ultra-Smooth Zoom */}
               <img
                 src={banner.image_url}
                 alt="Limited Offer"
-                className="w-full h-full object-cover opacity-90 transition-transform duration-1000 ease-out group-hover:scale-110 group-hover:opacity-100"
+                className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105"
               />
 
-              {/* Gradient Overlay - Darker for readability */}
-              <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent" />
+              {/* Overlay ناعم جداً */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-              {/* العداد التنازلي المطور - Floating Minimal Cards */}
+              {/* العداد التنازلي - Glassmorphism Style */}
               {!isExpired && time && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-3 md:gap-4 z-20">
-                  {[
-                    { label: "Days", val: time.d },
-                    { label: "Hrs", val: time.h },
-                    { label: "Min", val: time.m },
-                    { label: "Sec", val: time.s },
-                  ].map((unit, i) => (
-                    <div key={i} className="flex flex-col items-center">
-                      <div className="w-12 h-14 md:w-16 md:h-20  backdrop-blur-xl border rounded-3xl flex items-center justify-center shadow-2xl">
-                        <span className="text-2xl md:text-4xl font-black text-white tracking-tighter">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="flex gap-2 md:gap-3 px-4 py-3 rounded-3xl backdrop-blur-md bg-white/5 border border-white/10">
+                    {[
+                      { label: "D", val: time.d },
+                      { label: "H", val: time.h },
+                      { label: "M", val: time.m },
+                      { label: "S", val: time.s },
+                    ].map((unit, i) => (
+                      <div key={i} className="flex flex-col items-center min-w-[35px] md:min-w-[45px]">
+                        <span className="text-xl md:text-2xl font-bold text-white tracking-tighter leading-none">
                           {unit.val.toString().padStart(2, "0")}
                         </span>
+                        <span className="text-[7px] md:text-[8px] font-bold text-white/50 uppercase tracking-widest mt-1">
+                          {unit.label}
+                        </span>
                       </div>
-                      <span className="mt-2 text-[10px] font-bold text-white/60 uppercase tracking-widest">
-                        {unit.label}
-                      </span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
 
-              {/* CTA Label - Bottom Right */}
-              <div className="absolute bottom-6 right-6 z-30 flex items-center gap-2 bg-white text-black px-4 py-2 rounded-full font-bold text-xs tracking-tighter transition-all group-hover:bg-chart-1 group-hover:text-white">
-                SHOP NOW
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              {/* Status Indicator - Top Left */}
+              <div className="absolute top-5 left-5 flex items-center gap-2 bg-black/20 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
+                </span>
+                <span className="text-[8px] font-bold text-white uppercase tracking-[0.15em]">
+                  Live Offer
+                </span>
               </div>
 
-              {/* Expired State */}
+              {/* SHOP NOW Button - Minimalist */}
+              <div className="absolute bottom-5 right-5 flex items-center gap-2 bg-white text-black pl-4 pr-3 py-2 rounded-full font-bold text-[9px] tracking-widest transition-all duration-300 group-hover:bg-black group-hover:text-white group-active:scale-95">
+                SHOP NOW
+                <div className="bg-gray-100 group-hover:bg-white/20 w-5 h-5 rounded-full flex items-center justify-center transition-colors">
+                  <ArrowRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+
+              {/* Expired Mask */}
               {isExpired && (
-                <div className="absolute inset-0 z-40 bg-black/60 rounded-3xl backdrop-blur-sm flex items-center justify-center">
-                  <span className="border-2 border-white/40 px-6 py-2 text-white font-black text-sm uppercase tracking-[0.3em]">
+                <div className="absolute inset-0 z-40 bg-black/40 backdrop-blur-md rounded-[2.5rem]  flex items-center justify-center">
+                  <span className="bg-white/10 border border-white/20 px-5 py-2 text-white font-bold text-[10px] uppercase tracking-[0.3em] rounded-full">
                     Offer Ended
                   </span>
                 </div>
               )}
-
-              {/* Live Status Indicator */}
-              <div className="absolute top-6 left-6 z-30 flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-chart-1 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-chart-1"></span>
-                </span>
-                <span className="text-[10px] font-black text-white uppercase tracking-widest shadow-sm">
-                  Limited Drop
-                </span>
-              </div>
             </Link>
           );
         })}
