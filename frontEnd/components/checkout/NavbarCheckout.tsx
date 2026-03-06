@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Lock, ShieldCheck, HelpCircle, Phone } from "lucide-react";
+import LanguageSwitcher from "../public/langSwitcher";
 
 export default function CheckoutNavbar() {
   return (
@@ -11,7 +12,7 @@ export default function CheckoutNavbar() {
 
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center">
-            <Image src="/photo/logoVexa.svg" alt="Logo" width={100} height={35} priority />
+            <Image src="/photo/logoVexa.svg" alt="Logo"  width={80}  height={35}  priority />
           </Link>
 
           <a 
@@ -35,6 +36,7 @@ export default function CheckoutNavbar() {
                 height={30} 
                 className="opacity-80"
              />
+             <LanguageSwitcher/>
           </div>
 
      

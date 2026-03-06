@@ -6,7 +6,6 @@ exports.handleWebhook = async (req, res) => {
   try {
     const data = req.body;
     const obj = data.obj; 
-     console.log(obj)
      
     if (!obj) return res.sendStatus(400);
 

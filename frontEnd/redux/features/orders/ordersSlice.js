@@ -45,7 +45,15 @@ export const ordersApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: ['ClientOrders'],
     }),
-    
+
+    updateOrderStatus: builder.mutation({
+      query: ({ order_id, status }) => ({
+        url: `/admin/orders/update-status/${order_id}`,
+        method: 'PATCH',
+        body: { status },
+      }),
+      invalidatesTags: ['Orders', 'ClientOrders', 'OrderItems'],
+    }),
   }),
 });
 
@@ -53,4 +61,7 @@ export const {
   useGetOrdersQuery,
   useGetAllOrderItemsQuery,
   useGetClientOrdersQuery,
+  useUpdateOrderStatusMutation,
 } = ordersApiSlice;
+
+

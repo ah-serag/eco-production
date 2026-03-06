@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import CartBadge from "./cardCount";
-import { SearchInput } from "./SearchInput"; // استيراد المكون الجديد
+import { SearchInput } from "./SearchInput"; 
 import { useGetUserInfoQuery } from "@/redux/features/home/homeclientslice";
 import { UserNav } from "./userNav";
+import { Link } from "@/i18n/navigation";
+import LanguageSwitcher from "../public/langSwitcher";
 
 export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true);
@@ -63,8 +64,12 @@ export default function Navbar() {
           </div>
 
           {/* Icons Section */}
-          <div className="flex items-center gap-5 shrink-0">
-  <Link 
+    
+        <div className="flex items-center gap-5 shrink-0">
+         
+         <LanguageSwitcher/>
+
+     <Link 
   href="/cart_product" 
   className="md:flex items-center hidden gap-1.5 p-1.5 px-3 hover:bg-slate-50 rounded-full transition-all duration-300 group active:scale-95 border border-transparent hover:border-slate-100"
 >
@@ -78,8 +83,9 @@ export default function Navbar() {
     <CartBadge />
      </span>
     </Link>
+   <UserNav/>
+    
 
-             <UserNav/>
           </div>
 
         </div>

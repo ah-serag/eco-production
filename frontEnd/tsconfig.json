@@ -28,7 +28,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "redux/app/store.js",
-    "app/(pages)/admin/home/edit/editCategoryHome"
+    "app/[locale]/(pages)/admin/home/edit/editCategoryHome"
   ],
   "exclude": ["node_modules"]
 }

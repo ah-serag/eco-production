@@ -1,0 +1,35 @@
+{
+  "order_client": {
+    "title": "My Orders",
+    "history": "Transaction History",
+    "loading": "Loading...",
+    "ship_to": "Ship to",
+    "payment": "Payment",
+    "items_overview": "Items Overview",
+    "products_count": "{count} Product(s)",
+    "grand_total": "Grand Total",
+    "prev": "Prev",
+    "next": "Next",
+    "status": {
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "processing": "Processing",
+      "pending": "Pending"
+    }
+  } ,
+  "product_preview": {
+    "available_stock": "Available to order: {count}",
+    "sku": "SKU",
+    "currency": "EGP",
+    "off": "OFF",
+    "details_title": "Product Details",
+    "quantity": "Quantity",
+    "max_stock_reached": "Maximum available stock reached",
+    "added": "Added!",
+    "add_to_cart": "Add to Cart",
+    "buy_now": "Buy Now",
+    "out_of_stock": "Out of Stock"
+  }
+
+
+}

@@ -14,7 +14,6 @@ export default function MobileBottomNav() {
 
   const isActive = (path: string) => pathname === path;
 
-  // مكون الأيقونات الجانبية (Cart, Contact, Menu, More)
   const NavIcon = ({ path, icon: Icon, label, isBadge = false, isAction = false, action }: any) => {
     const active = isActive(path);
     const content = (
@@ -31,7 +30,7 @@ export default function MobileBottomNav() {
           {isBadge && (
             <span className={cn(
               "absolute -top-1 -right-1 text-[7px] font-bold h-3.5 w-3.5 flex items-center justify-center rounded-full border-2",
-              active ? "bg-white text-chart-1 " : "bg-slate-900 text-white border-white"
+              active ? "bg-white text-chart-1 " : " text-white border-white"
             )}>
               <CartBadge />
             </span>
@@ -73,7 +72,7 @@ export default function MobileBottomNav() {
           <Link href="/" className="flex-1 flex flex-col items-center justify-center">
              <div className={cn(
                "p-2.5 rounded-2xl transition-all duration-300",
-               isActive("/") ? "bg-chart-1 shadow-md shadow-chart-1/20" : "bg-slate-50 border border-slate-100"
+               isActive("/") ? "bg-chart-1 " : "bg-slate-50 border border-slate-100"
              )}>
                 <Home 
                   size={22} 

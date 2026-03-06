@@ -10,10 +10,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import Link from "next/link";
 import { LogOut, User as UserIcon, Settings, Package, ChevronDown } from "lucide-react";
 import { useLogoutMutation } from "@/redux/features/auth/AuthapiSlice";
 import { useRouter } from "next/navigation";
+import { Link } from "@/i18n/navigation";
 
 export function UserNav() {
   const { data, isLoading, isError } = useGetUserInfoQuery(undefined);
@@ -108,7 +108,7 @@ const [logout] = useLogoutMutation();
         <DropdownMenuSeparator className="opacity-50" />
         
         <DropdownMenuItem 
-          className="text-red-600 text-[12px] cursor-pointer focus:bg-red-50 focus:text-red-700 py-2 font-bold"
+          className=" text-red-950 text-[12px] cursor-pointer focus:bg-red-50 focus:text-red-950 py-2 font-bold"
           onClick={() =>  handleLogout() }
         >
           <LogOut className="mr-2 h-3.5 w-3.5" />

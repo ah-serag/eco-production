@@ -167,8 +167,65 @@ const getOrderItems = async (req, res) => {
   }
 };
 
+const updateOrderStatus = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { order_id } = req.params;
+    const { status } = req.body; 
+
+    const validStatuses = ['pending', 'processing', 'completed', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: "Invalid status" });
+    }
+
+    await client.query("BEGIN");
+
+    const orderQuery = `SELECT status FROM orders WHERE id = $1`;
+    const orderRes = await client.query(orderQuery, [order_id]);
+
+    if (orderRes.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    const oldStatus = orderRes.rows[0].status;
+
+    if (status === 'cancelled' && oldStatus !== 'cancelled') {
+      const itemsQuery = `SELECT product_id, quantity FROM order_items WHERE order_id = $1`;
+      const itemsRes = await client.query(itemsQuery, [order_id]);
+
+      for (const item of itemsRes.rows) {
+        await client.query(
+          `UPDATE products SET stock = stock + $1 WHERE id = $2`,
+          [item.quantity, item.product_id]
+        );
+      }
+    }
+
+    const updateQuery = `UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2`;
+    await client.query(updateQuery, [status, order_id]);
+
+    await client.query("COMMIT");
+    res.status(200).json({ 
+      success: true, 
+      message: `Status updated to ${status} successfully`,
+      data: { order_id, new_status: status }
+    });
+
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Update Status Error:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  } finally {
+    client.release();
+  }
+};
+
+
+
 module.exports = {
   getOrders,
-  getOrderItems ,
-  getAllOrderItems
+  getOrderItems,
+  getAllOrderItems,
+  updateOrderStatus 
 };

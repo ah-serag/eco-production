@@ -3,9 +3,9 @@ const pool = require("../../config/condb");
 const { integrationIdWallet, integrationIdCard } = require("../../config/paymob.config");
 const axios = require("axios");
 
+// 1. Online Card Checkout
 exports.checkout = async (req, res) => {
   const client = await pool.connect();
-
   try {
     const { items, billingData } = req.body;
     const userId = req.userId;
@@ -25,7 +25,6 @@ exports.checkout = async (req, res) => {
     );
 
     const dbProducts = productResult.rows;
-
     if (dbProducts.length !== items.length) {
       await client.query("ROLLBACK");
       return res.status(404).json({ error: "Some products are missing or inactive" });
@@ -38,7 +37,6 @@ exports.checkout = async (req, res) => {
       const dbProduct = dbProducts.find(p => p.id === cartItem.id);
       const quantity = Number(cartItem.quantity) || 1;
       
-      // Stock Validation
       if (quantity > dbProduct.stock) {
         await client.query("ROLLBACK");
         return res.status(400).json({ 
@@ -60,7 +58,7 @@ exports.checkout = async (req, res) => {
 
     const orderResult = await client.query(
       `INSERT INTO orders (user_id, status, total_amount, currency, payment_provider, billing_details)
-       VALUES ($1, 'pending', $2, 'EGP', 'paymob', $3) RETURNING id`,
+       VALUES ($1, 'pending', $2, 'EGP', 'paymob_card', $3) RETURNING id`,
       [userId, totalAmount, JSON.stringify(billingData)]
     );
 
@@ -76,14 +74,12 @@ exports.checkout = async (req, res) => {
 
     const token = await paymobService.getAuthToken();
     const amountInCents = Math.round(totalAmount * 100);
-
     const paymobOrder = await paymobService.createOrder(token, {
       amount: amountInCents,
       billingData: billingData,
     });
 
     await client.query(`UPDATE orders SET provider_order_id = $1 WHERE id = $2`, [paymobOrder.id, orderId]);
-
     const paymentKey = await paymobService.generatePaymentKey(token, paymobOrder.id, amountInCents, billingData, integrationIdCard);
 
     await client.query("COMMIT");
@@ -98,20 +94,23 @@ exports.checkout = async (req, res) => {
   }
 };
 
+// 2. Wallet Checkout
 exports.checkoutWallet = async (req, res) => {
   const client = await pool.connect();
-
   try {
     const { items, billingData, walletNumber } = req.body;
     const userId = req.userId;
 
     if (!walletNumber) return res.status(400).json({ error: "Wallet number is required" });
+    if (!items || items.length === 0) return res.status(400).json({ error: "No items provided" });
 
     await client.query("BEGIN");
 
     const productIds = items.map(item => item.id);
     const productResult = await client.query(
-      `SELECT id, title, discount_price, stock FROM products WHERE id = ANY($1) AND is_active = true`,
+      `SELECT id, title, description, discount_price, stock 
+       FROM products 
+       WHERE id = ANY($1) AND is_active = true`,
       [productIds]
     );
 
@@ -135,7 +134,13 @@ exports.checkoutWallet = async (req, res) => {
 
       const price = Number(dbProduct.discount_price);
       totalAmount += price * quantity;
-      processedItems.push({ id: dbProduct.id, title: dbProduct.title, price, quantity });
+      processedItems.push({ 
+        id: dbProduct.id, 
+        title: dbProduct.title, 
+        description: dbProduct.description,
+        price, 
+        quantity 
+      });
     }
 
     const orderResult = await client.query(
@@ -143,19 +148,21 @@ exports.checkoutWallet = async (req, res) => {
        VALUES ($1, 'pending', $2, 'EGP', 'paymob_wallet', $3) RETURNING id`,
       [userId, totalAmount, JSON.stringify(billingData)]
     );
+
     const orderId = orderResult.rows[0].id;
 
     for (const pItem of processedItems) {
       await client.query(
-        `INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase) VALUES ($1, $2, $3, $4)`,
-        [orderId, pItem.id, pItem.quantity, pItem.price]
+        `INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_title, product_description)
+         VALUES ($1, $2, $3, $4, $5, $6)`, 
+        [orderId, pItem.id, pItem.quantity, pItem.price, pItem.title, pItem.description]
       );
     }
 
     const token = await paymobService.getAuthToken();
     const amountInCents = Math.round(totalAmount * 100);
     const paymobOrder = await paymobService.createOrder(token, { amount: amountInCents, billingData });
-    const paymentKey = await paymobService.generatePaymentKey(token, paymobOrder.id, amountInCents, billingData, process.env.PAYMOB_WALLET_INTEGRATION_ID);
+    const paymentKey = await paymobService.generatePaymentKey(token, paymobOrder.id, amountInCents, billingData, integrationIdWallet);
 
     const response = await axios.post("https://accept.paymob.com/api/acceptance/payments/pay", {
       source: { identifier: walletNumber, subtype: "WALLET" },
@@ -179,9 +186,9 @@ exports.checkoutWallet = async (req, res) => {
   }
 };
 
+// 3. Cash on Delivery
 exports.checkoutCash = async (req, res) => {
   const client = await pool.connect();
-
   try {
     const { items, billingData } = req.body;
     const userId = req.userId;
@@ -192,7 +199,9 @@ exports.checkoutCash = async (req, res) => {
 
     const productIds = items.map(item => item.id);
     const productResult = await client.query(
-      `SELECT id, title, description, discount_price, stock FROM products WHERE id = ANY($1) AND is_active = true`,
+      `SELECT id, title, description, discount_price, stock 
+       FROM products 
+       WHERE id = ANY($1) AND is_active = true`,
       [productIds]
     );
 
@@ -238,7 +247,7 @@ exports.checkoutCash = async (req, res) => {
     }
 
     await client.query("COMMIT");
-    res.status(201).json({ success: true, orderId: orderId, redirectUrl: `/order-success?order_id=${orderId}` });
+    res.status(201).json({ success: true, orderId: orderId, redirectUrl: `/order-success?success=true&id=${orderId}` });
 
   } catch (err) {
     await client.query("ROLLBACK");

@@ -2,12 +2,12 @@
 
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Star, Plus, ArrowUpRight, Check, BaggageClaim, ShoppingCart } from "lucide-react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState } from "react"; 
 import { cn } from "@/lib/utils";
 import { useDispatch } from "react-redux"; 
 import { addToCart } from "../../redux/features/cartSlice/cartSlice"; 
+import { Link } from "@/i18n/navigation";
 
 interface Product {
   id: number;
@@ -46,10 +46,9 @@ export default function ProductCard({ product }: { product: Product }) {
         quantity: 1
       };
 
-      // تنفيذ الأكشن
       dispatch(addToCart(itemToAdd));
 
-      // تأثير بصري للزر
+     
       setIsAdded(true);
       setTimeout(() => setIsAdded(false), 2000);
 
@@ -67,10 +66,10 @@ export default function ProductCard({ product }: { product: Product }) {
         h-full w-full rounded-md
         overflow-hidden border border-neutral-100
         hover:shadow-md transition-all duration-300 p-1.5 md:p-2 bg-white
-      "
-    >
+       "
+      >
       <Link href={`/product/${slug}`} className="block">
-        <div className="relative w-full aspect-square md:aspect-4/3 flex items-center justify-center bg-neutral-50 rounded-sm overflow-hidden mb-1">
+        <div className="relative w-full aspect-square md:aspect-4/3 flex items-center justify-center  rounded-sm overflow-hidden mb-1">
           <img
             src={product.image_url || "/placeholder-image.png"} 
             alt={product.title}

@@ -79,15 +79,7 @@ export function MobileSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: (
           ))}
         </div>
 
-        <div className="p-4 bg-slate-50 mt-auto">
-          <Link 
-            href="/account" 
-            onClick={onClose}
-            className="flex items-center gap-3 p-3 bg-white border rounded-xl text-sm font-medium text-slate-700 shadow-sm"
-          >
-            <User size={18} /> Account Settings
-          </Link>
-        </div>
+
       </aside>
     </>
   );
