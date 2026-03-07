@@ -10,8 +10,9 @@ export default function LanguageSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
-  console.log(pathname)
-  const currentLocale = params.locale as string;
+  
+  // ✅ ضمان الحصول على اللغة بشكل أدق
+  const currentLocale = (params.locale as string) || "en";
   
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -31,6 +32,11 @@ export default function LanguageSwitcher() {
   ];
 
   const handleLanguageChange = (newLocale: string) => {
+    if (newLocale === currentLocale) {
+      setIsOpen(false);
+      return;
+    }
+
     setIsOpen(false);
     
     router.replace(pathname, { locale: newLocale });
@@ -39,17 +45,20 @@ export default function LanguageSwitcher() {
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
       <button
+        type="button" 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-all shadow-sm active:scale-95 "
       >
         <Globe size={14} className="text-slate-500" />
-        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+        <span className="text-[11px] font-bold sm:block hidden uppercase tracking-wider text-slate-500">
           {currentLocale === "ar" ? "العربية" : "English"}
         </span>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-36 origin-top-right rounded-xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-50 overflow-hidden border border-slate-100 animate-in fade-in zoom-in duration-150">
+        <div 
+          className={`absolute ${currentLocale === 'ar' ? 'left-0' : 'right-0'} mt-4 w-36 origin-top-right rounded-xl bg-white shadow-lg border z-50 overflow-hidden animate-in fade-in zoom-in duration-150`}
+        >
           <div className="py-1">
             {languages.map((lang) => (
               <button
@@ -65,7 +74,9 @@ export default function LanguageSwitcher() {
                   <span className="text-sm">{lang.flag}</span>
                   <span>{lang.label}</span>
                 </div>
-                {currentLocale === lang.code && <Check size={14} className="text-chart-1" strokeWidth={3} />}
+                {currentLocale === lang.code && (
+                  <Check size={14} className="text-chart-1" strokeWidth={3} />
+                )}
               </button>
             ))}
           </div>

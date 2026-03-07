@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { Lock, ShieldCheck, HelpCircle, Phone } from "lucide-react";
 import LanguageSwitcher from "../public/langSwitcher";
+import { Link } from "@/i18n/navigation";
 
 export default function CheckoutNavbar() {
   return (
@@ -27,6 +27,8 @@ export default function CheckoutNavbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <LanguageSwitcher/>
+
           <div className="hidden sm:flex items-center gap-3">
              <ShieldCheck size={20} className="text-green-400" />
              <Image 
@@ -36,7 +38,6 @@ export default function CheckoutNavbar() {
                 height={30} 
                 className="opacity-80"
              />
-             <LanguageSwitcher/>
           </div>
 
      

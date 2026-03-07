@@ -1,35 +1,26 @@
-"use client";
-
 import CheckoutNavbar from "@/components/checkout/NavbarCheckout";
 import React from "react";
-import { useLocale } from "next-intl"; // لجلب اللغة الحالية فقط
 import { setRequestLocale } from "next-intl/server";
 
-interface CheckoutLayoutProps {
-  logoUrl: string;
-  productTitle?: string;
-  productImage?: string;
-  children: React.ReactNode;
-}
-
-export default function CheckoutLayout({
-
+export default async function CheckoutLayout({
   children,
-}: CheckoutLayoutProps) {
-  
-  const locale = useLocale();
-  setRequestLocale(locale)
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+
+  setRequestLocale(locale);
+
   return (
-    <div 
-      lang={locale} 
-      dir={locale === 'ar' ? 'rtl' : 'ltr'} 
-      className="min-h-screen bg-slate-50"
-    >
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <CheckoutNavbar />
 
-      <main className="mx-auto py-2 px-2">
+      <main className="mx-auto py-4 px-4 w-full max-w-7xl">
         {children}
       </main>
+      
     </div>
   );
 }

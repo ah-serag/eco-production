@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useRouter, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl"; // إضافة الترجمة
 import {
   Card,
   CardContent,
@@ -24,10 +25,10 @@ import {
 } from "@/lib/checkout.schema";
 
 export default function CheckoutPage() {
+  const t = useTranslations("checkout"); // استخدام الترجمة
   const checkoutItems = useSelector((state: any) => state.cart.checkoutItems);
   const router = useRouter();
-  const  checkout_url = usePathname()
-
+  const checkout_url = usePathname();
 
   const [checkoutCard, { isLoading: isCardLoading }] = useCheckoutMutation();
   const [checkoutWallet, { isLoading: isWalletLoading }] = useCheckoutWalletMutation();
@@ -91,7 +92,7 @@ export default function CheckoutPage() {
         const res = await checkoutCard({ items: itemsPayload, billingData: result.data }).unwrap();
         window.location.href = res.iframeUrl;
       } else if (paymentType === "wallet") {
-        if (!walletNumber) return alert("Please enter wallet number");
+        if (!walletNumber) return alert(t("walletError"));
         const res = await checkoutWallet({ 
           items: itemsPayload, 
           billingData: result.data, 
@@ -118,29 +119,29 @@ export default function CheckoutPage() {
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-md font-medium text-slate-800">
                 <User size={16} className="text-slate-400" />
-                Contact Information
+                {t("contactTitle")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label className="text-[11px] uppercase tracking-wider text-slate-500">First Name</Label>
-                  <Input name="first_name" value={form.first_name} onChange={handleChange} className="h-10 text-sm" placeholder="Ahmed" />
+                  <Label className="text-[11px] uppercase tracking-wider text-slate-500">{t("firstName")}</Label>
+                  <Input name="first_name" value={form.first_name} onChange={handleChange} className="h-10 text-sm" placeholder={t("firstNamePlaceholder")} />
                   {errors.first_name && <p className="text-[10px] text-red-500 ml-1">{errors.first_name}</p>}
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[11px] uppercase tracking-wider text-slate-500">Last Name</Label>
-                  <Input name="last_name" value={form.last_name} onChange={handleChange} className="h-10 text-sm" placeholder="Serag" />
+                  <Label className="text-[11px] uppercase tracking-wider text-slate-500">{t("lastName")}</Label>
+                  <Input name="last_name" value={form.last_name} onChange={handleChange} className="h-10 text-sm" placeholder={t("lastNamePlaceholder")} />
                   {errors.last_name && <p className="text-[10px] text-red-500 ml-1">{errors.last_name}</p>}
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-[11px] uppercase tracking-wider text-slate-500">Email Address</Label>
+                <Label className="text-[11px] uppercase tracking-wider text-slate-500">{t("email")}</Label>
                 <Input name="email" value={form.email} onChange={handleChange} className="h-10 text-sm" placeholder="you@email.com" />
                 {errors.email && <p className="text-[10px] text-red-500 ml-1">{errors.email}</p>}
               </div>
               <div className="space-y-1.5">
-                <Label className="text-[11px] uppercase tracking-wider text-slate-500">Phone Number</Label>
+                <Label className="text-[11px] uppercase tracking-wider text-slate-500">{t("phone")}</Label>
                 <div className="relative">
                   <Input name="phone_number" value={form.phone_number} onChange={handleChange} className="h-10 text-sm pl-10" placeholder="01000000000" />
                   <img src="/photo/payment/Flag_of_Egypt.svg" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-auto" alt="EG" />
@@ -154,30 +155,30 @@ export default function CheckoutPage() {
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-md font-medium text-slate-800">
                 <MapPin size={16} className="text-slate-400" />
-                Shipping Address
+                {t("shippingTitle")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label className="text-[11px] uppercase tracking-wider text-slate-500">City</Label>
-                  <Input name="city" value={form.city} onChange={handleChange} className="h-10 text-sm" placeholder="Cairo" />
+                  <Label className="text-[11px] uppercase tracking-wider text-slate-500">{t("city")}</Label>
+                  <Input name="city" value={form.city} onChange={handleChange} className="h-10 text-sm" placeholder={t("cityPlaceholder")} />
                   {errors.city && <p className="text-[10px] text-red-500 ml-1">{errors.city}</p>}
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[11px] uppercase tracking-wider text-slate-500">State</Label>
-                  <Input name="state" value={form.state} onChange={handleChange} className="h-10 text-sm" placeholder="Cairo" />
+                  <Label className="text-[11px] uppercase tracking-wider text-slate-500">{t("state")}</Label>
+                  <Input name="state" value={form.state} onChange={handleChange} className="h-10 text-sm" placeholder={t("statePlaceholder")} />
                   {errors.state && <p className="text-[10px] text-red-500 ml-1">{errors.state}</p>}
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-[11px] uppercase tracking-wider text-slate-500">Street Address</Label>
-                <Input name="street" value={form.street} onChange={handleChange} className="h-10 text-sm" placeholder="Street name" />
+                <Label className="text-[11px] uppercase tracking-wider text-slate-500">{t("street")}</Label>
+                <Input name="street" value={form.street} onChange={handleChange} className="h-10 text-sm" placeholder={t("streetPlaceholder")} />
                 {errors.street && <p className="text-[10px] text-red-500 ml-1">{errors.street}</p>}
               </div>
               <div className="space-y-1.5">
-                <Label className="text-[11px] uppercase tracking-wider text-slate-500">Building</Label>
-                <Input name="building" value={form.building} onChange={handleChange} className="h-10 text-sm" placeholder="Building, apartment..." />
+                <Label className="text-[11px] uppercase tracking-wider text-slate-500">{t("building")}</Label>
+                <Input name="building" value={form.building} onChange={handleChange} className="h-10 text-sm" placeholder={t("buildingPlaceholder")} />
                 {errors.building && <p className="text-[10px] text-red-500 ml-1">{errors.building}</p>}
               </div>
             </CardContent>
@@ -187,7 +188,7 @@ export default function CheckoutPage() {
         <div className="lg:col-span-5 space-y-4">
           <Card className="rounded-2xl border border-slate-100 shadow-sm sticky top-6 overflow-hidden">
             <CardHeader className="bg-slate-50/50 border-b border-slate-100">
-              <CardTitle className="text-sm font-semibold uppercase tracking-widest text-slate-500">Order Summary</CardTitle>
+              <CardTitle className="text-sm font-semibold uppercase tracking-widest text-slate-500">{t("summaryTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
               
@@ -209,37 +210,37 @@ export default function CheckoutPage() {
               </div>
 
               <div className="pt-4 border-t border-slate-100 space-y-3">
-                <Label className="text-[10px] font-semibold uppercase text-slate-400">Payment Method</Label>
+                <Label className="text-[10px] font-semibold uppercase text-slate-400">{t("paymentMethod")}</Label>
                 <div className="grid grid-cols-3 gap-2">
                   <button 
                     onClick={() => setPaymentType("card")}
                     className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "card" ? "border-chart-1 bg-chart-1/5 text-chart-1" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}
                   >
                     <CreditCard size={14} />
-                    <span className="text-[9px] font-semibold uppercase tracking-tighter">Card</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-tighter">{t("card")}</span>
                   </button>
                   <button 
                     onClick={() => setPaymentType("wallet")}
                     className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "wallet" ? "border-chart-1 bg-chart-1/5 text-chart-1" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}
                   >
                     <Wallet size={14} />
-                    <span className="text-[9px] font-semibold uppercase tracking-tighter">Wallet</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-tighter">{t("wallet")}</span>
                   </button>
                   <button 
                     onClick={() => setPaymentType("cash")}
                     className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "cash" ? "border-chart-1 bg-chart-1/5 text-chart-1" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}
                   >
                     <Banknote size={14} />
-                    <span className="text-[9px] font-semibold uppercase tracking-tighter">Cash</span>
+                    <span className="text-[9px] font-semibold uppercase tracking-tighter">{t("cash")}</span>
                   </button>
                 </div>
 
-                <div className="py-1 min-h-[20px] flex items-center justify-center gap-3 animate-in fade-in zoom-in-95 duration-300">
+                <div className="py-1 min-h-5 flex items-center justify-center gap-3 animate-in fade-in zoom-in-95 duration-300">
                   {paymentType === "cash" ? (
-                     <span className="text-[10px] text-slate-400 font-medium italic">Pay upon receiving your order</span>
+                     <span className="text-[10px] text-slate-400 font-medium italic">{t("cashInfo")}</span>
                   ) : (
                     <>
-                      <span className="text-[10px] text-slate-300 font-medium">Supported:</span>
+                      <span className="text-[10px] text-slate-300 font-medium">{t("supported")}:</span>
                       {paymentType === "card" ? (
                         <>
                           <img src="/photo/payment/visa.svg" className="h-3 w-auto opacity-10 grayscale" alt="visa" />
@@ -260,7 +261,7 @@ export default function CheckoutPage() {
                 {paymentType === "wallet" && (
                   <div className="animate-in fade-in slide-in-from-top-1 relative">
                     <Input 
-                      placeholder="Enter wallet number" 
+                      placeholder={t("walletPlaceholder")} 
                       value={walletNumber}
                       onChange={(e) => setWalletNumber(e.target.value)}
                       className="h-9 text-[11px] border-chart-1/20 focus-visible:ring-chart-1 pl-10"
@@ -272,7 +273,7 @@ export default function CheckoutPage() {
 
               <div className="pt-2 border-t border-slate-100">
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-xs font-semibold text-slate-900 uppercase">Total</span>
+                  <span className="text-xs font-semibold text-slate-900 uppercase">{t("total")}</span>
                   <span className="text-lg font-semibold text-slate-900">${totalPrice.toFixed(2)}</span>
                 </div>
 
@@ -282,11 +283,11 @@ export default function CheckoutPage() {
                   className="w-full h-11 rounded-xl font-semibold bg-chart-1 hover:brightness-110 text-white transition-all text-[11px] tracking-widest flex items-center justify-center gap-2"
                 >
                   {isLoading ? (
-                    <><Loader2 className="animate-spin" size={16} /> PROCESSING...</>
+                    <><Loader2 className="animate-spin" size={16} /> {t("processing")}</>
                   ) : (
                     <>
                       {paymentType === "cash" ? <Banknote size={16} /> : <CreditCard size={16} />}
-                      {paymentType === "cash" ? "CONFIRM CASH ORDER" : "COMPLETE PURCHASE"}
+                      {paymentType === "cash" ? t("btnConfirmCash") : t("btnComplete")}
                     </>
                   )}
                 </Button>

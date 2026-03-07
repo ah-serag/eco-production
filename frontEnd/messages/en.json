@@ -10,6 +10,8 @@
     "grand_total": "Grand Total",
     "prev": "Prev",
     "next": "Next",
+    "currency": "EGP",
+
     "status": {
       "completed": "Completed",
       "cancelled": "Cancelled",
@@ -29,7 +31,56 @@
     "add_to_cart": "Add to Cart",
     "buy_now": "Buy Now",
     "out_of_stock": "Out of Stock"
-  }
+  },
+  
+  "user_nav": {
+  "sign_in": "Sign In",
+  "profile": "Profile",
+  "orders": "Orders",
+  "settings": "Settings",
+  "sign_out": "Sign Out"
+} ,
 
+"search": {
+    "placeholder": "Search products..."
+  } ,
+  "mobileNav": {
+    "contact": "Contact",
+    "cart": "Cart",
+    "menu": "Menu",
+    "more": "More"
+  },
+
+  "checkout": {
+    "contactTitle": "Contact Information",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "family",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "shippingTitle": "Shipping Address",
+    "city": "City",
+    "cityPlaceholder": "Cairo",
+    "state": "State",
+    "statePlaceholder": "Cairo",
+    "street": "Street Address",
+    "streetPlaceholder": "Street name",
+    "building": "Building",
+    "buildingPlaceholder": "Building, apartment...",
+    "summaryTitle": "Order Summary",
+    "paymentMethod": "Payment Method",
+    "card": "Card",
+    "wallet": "Wallet",
+    "cash": "Cash",
+    "cashInfo": "Pay upon receiving your order",
+    "supported": "Supported",
+    "walletPlaceholder": "Enter wallet number",
+    "walletError": "Please enter wallet number",
+    "total": "Total",
+    "processing": "PROCESSING...",
+    "btnConfirmCash": "CONFIRM CASH ORDER",
+    "btnComplete": "COMPLETE PURCHASE"
+  }
 
 }

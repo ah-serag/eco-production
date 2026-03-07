@@ -6,10 +6,12 @@
     "ship_to": "شحن إلى",
     "payment": "طريقة الدفع",
     "items_overview": "نظرة عامة على المنتجات",
-    "products_count": "{count} منتج(ات)",
+    "products_count": "{count} منتجات",
     "grand_total": "الإجمالي الكلي",
     "prev": "السابق",
     "next": "التالي",
+    "currency": "جنية",
+
     "status": {
       "completed": "مكتمل",
       "cancelled": "ملغي",
@@ -30,6 +32,54 @@
     "add_to_cart": "أضف للعربة",
     "buy_now": "شراء الآن",
     "out_of_stock": "نفذت الكمية"
+  } ,
+   "user_nav": {
+   "sign_in": "تسجيل",
+   "profile": "الملف الشخصي",
+   "orders": "طلباتي",
+   "settings": "الإعدادات",
+   "sign_out": "تسجيل الخروج"
+   } ,
+
+   "search": {
+    "placeholder": "ابحث عن المنتجات..."
+  } ,
+  "mobileNav": {
+    "contact": "تواصل",
+    "cart": "السلة",
+    "menu": "القائمة",
+    "more": "المزيد"
+  },
+  "checkout": {
+    "contactTitle": "معلومات الاتصال",
+    "firstName": "الاسم الأول",
+    "firstNamePlaceholder": "الاسم",
+    "lastName": "اسم العائلة",
+    "lastNamePlaceholder":"العائلة",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "shippingTitle": "عنوان الشحن",
+    "city": "المدينة",
+    "cityPlaceholder": "القاهرة",
+    "state": "المحافظة",
+    "statePlaceholder": "القاهرة",
+    "street": "اسم الشارع",
+    "streetPlaceholder": "اسم الشارع",
+    "building": "المبنى",
+    "buildingPlaceholder": "رقم المبنى، الشقة...",
+    "summaryTitle": "ملخص الطلب",
+    "paymentMethod": "طريقة الدفع",
+    "card": "بطاقة",
+    "wallet": "محفظة",
+    "cash": "كاش",
+    "cashInfo": "الدفع عند استلام الطلب",
+    "supported": "مدعوم",
+    "walletPlaceholder": "أدخل رقم المحفظة",
+    "walletError": "يرجى إدخال رقم المحفظة",
+    "total": "الإجمالي",
+    "processing": "جاري المعالجة...",
+    "btnConfirmCash": "تأكيد طلب الكاش",
+    "btnComplete": "إتمام الشراء"
   }
 
 }

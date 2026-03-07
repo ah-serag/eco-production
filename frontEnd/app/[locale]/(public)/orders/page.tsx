@@ -6,18 +6,19 @@ import { Clock, MapPin, CreditCard, CheckCircle2, Hash, Calendar, Box, XCircle }
 import { useTranslations, useLocale } from "next-intl"; 
 
 export default function ClientOrdersPage() {
-  const t =  useTranslations("order_client");
+  const t = useTranslations("order_client");
   const locale = useLocale(); 
+  const isAr = locale === 'ar';
   
   const [page, setPage] = useState(1);
   const limit = 5;
-  const { data, isLoading, isError } = useGetClientOrdersQuery({
+  const { data, isLoading } = useGetClientOrdersQuery({
     offset: (page - 1) * limit,
     limit: limit,
   });
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-GB', {
+    return new Date(dateString).toLocaleDateString(isAr ? 'ar-EG' : 'en-GB', {
       day: '2-digit', month: 'short', year: 'numeric'
     });
   };
@@ -26,32 +27,38 @@ export default function ClientOrdersPage() {
   const totalOrders = data?.total || 0;
   const totalPages = Math.ceil(totalOrders / limit);
 
-  if (isLoading) return <div className="p-4 bg-[#FAFAFA] min-h-screen flex items-center justify-center text-[10px] font-semibold uppercase tracking-widest text-slate-400">{t('loading')}</div>;
+  // حجم الخط بيزيد درجة لو عربي عشان التناسق
+  const labelSize = isAr ? "text-[11px]" : "text-[10px]";
+  const headingSize = isAr ? "text-lg md:text-2xl" : "text-lg md:text-xl";
+
+  if (isLoading) return <div className={`p-4 bg-[#FAFAFA] min-h-screen flex items-center justify-center ${labelSize} font-semibold uppercase tracking-widest text-slate-500`}>{t('loading')}</div>;
 
   return (
     <div className="p-4 md:p-12 bg-[#FAFAFA] min-h-screen antialiased pb-20 font-sans text-slate-900">
       <div className="max-w-4xl mx-auto space-y-5">
         
-        <header className="space-y-1">
-          <h1 className="text-lg md:text-xl font-semibold tracking-tight uppercase text-slate-800">{t('title')}</h1>
-          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em]">{t('history')}</p>
+        <header className="space-y-1 text-start">
+          <h1 className={`${headingSize} font-bold tracking-tight uppercase text-slate-800`}>{t('title')}</h1>
+          <p className={`${isAr ? "text-[13px]" : "text-[10px]"} text-slate-500 font-bold uppercase tracking-[0.2em]`}>{t('history')}</p>
         </header>
-         <hr />
+        <hr className="border-slate-200" />
+
         <div className="grid grid-cols-1 gap-6">
           {orders.map((order: any) => {
-            const isCompleted = order.status === 'completed';
-            const isCancelled = order.status === 'cancelled';
-            const isProcessing = order.status === 'processing';
-            const isPending = order.status === 'pending';
+            const status = order.status;
+            const isCompleted = status === 'completed';
+            const isCancelled = status === 'cancelled';
+            const isProcessing = status === 'processing';
+            const isPending = status === 'pending';
 
             return (
-              <div key={order.id} className="relative bg-white border border-slate-100  shadow-sm overflow-hidden transition-all">
+              <div key={order.id} className="relative bg-white border border-slate-100 shadow-sm overflow-hidden transition-all hover:shadow-md">
                 
                 {/* Status Sidebar */}
-                <div className={`absolute inset-y-0 start-0 w-1 ${
+                <div className={`absolute inset-y-0 ${isAr ? 'right-0' : 'left-0'} w-1 ${
                   isCompleted ? 'bg-emerald-500' : 
                   isCancelled ? 'bg-rose-500' : 
-                  isProcessing ? 'bg-blue-400' : 
+                  isProcessing ? 'bg-blue-600' : 
                   'bg-amber-500'
                 }`} />
 
@@ -59,27 +66,27 @@ export default function ClientOrdersPage() {
                 <div className="flex items-center justify-between px-4 py-3 bg-slate-50/50 border-b border-slate-50">
                   <div className="flex gap-4 items-center">
                     <div className="flex items-center gap-1">
-                      <Hash size={10} className="text-slate-400" />
-                      <span className="text-[10px] font-semibold font-mono">{order.id.split('-')[0].toUpperCase()}</span>
+                      <Hash size={10} className="text-slate-500" />
+                      <span className="text-[10px] font-semibold font-mono text-slate-700">{order.id.split('-')[0].toUpperCase()}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Calendar size={10} className="text-slate-400" />
-                      <span className="text-[10px] font-semibold uppercase">{formatDate(order.created_at)}</span>
+                      <Calendar size={10} className="text-slate-500" />
+                      <span className="text-[10px] font-semibold uppercase text-slate-700">{formatDate(order.created_at)}</span>
                     </div>
                   </div>
                   
                   {/* Status Badge */}
-                  <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full ${
+                  <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full ${
                     isCompleted ? 'bg-emerald-50 text-emerald-700' : 
                     isCancelled ? 'bg-rose-50 text-rose-700' : 
                     isProcessing ? 'bg-blue-50 text-blue-600' : 
                     'bg-amber-50 text-amber-700'
                   }`}>
-                    {isCompleted && <CheckCircle2 size={8} />}
-                    {isCancelled && <XCircle size={8} />}
-                    {(isProcessing || isPending) && <Clock size={8} />}
-                    <span className="text-[8px] font-bold uppercase tracking-tighter">
-                      {t(`status.${order.status}`)}
+                    {isCompleted && <CheckCircle2 size={9} />}
+                    {isCancelled && <XCircle size={9} />}
+                    {(isProcessing || isPending) && <Clock size={9} />}
+                    <span className={`${isAr ? "text-[13px]" : "text-[9px]"} font-black uppercase tracking-tight`}>
+                      {t(`status.${status}`)}
                     </span>
                   </div>
                 </div>
@@ -88,37 +95,39 @@ export default function ClientOrdersPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     
                     {/* Shipping & Payment */}
-                    <div className="space-y-4">
+                    <div className="space-y-4 text-start">
                       <div className="flex items-start gap-3">
                         <MapPin size={12} className="text-slate-300 mt-1" />
-                        <div className="flex flex-col text-[10px]">
-                          <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest">{t('ship_to')}</span>
-                          <span className="font-semibold text-slate-700 leading-tight">
+                        <div className="flex flex-col">
+                          <span className={`${labelSize} font-bold text-slate-500 text-[12px] uppercase tracking-widest`}>{t('ship_to')}</span>
+                          <span className={`${isAr ? "text-[13px]" : "text-[11px]"} font-bold text-slate-700 leading-tight`}>
                             {order.billing_details?.first_name} {order.billing_details?.last_name}
                           </span>
-                          <span className="text-[9px] text-slate-500">{order.billing_details?.street}, {order.billing_details?.city}</span>
+                          <span className="text-[10px] text-slate-500 mt-0.5">{order.billing_details?.street}, {order.billing_details?.city}</span>
                         </div>
                       </div>
 
                       <div className="flex items-start gap-3">
                         <CreditCard size={12} className="text-slate-300 mt-1" />
-                        <div className="flex flex-col text-[10px]">
-                          <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest">{t('payment')}</span>
-                          <span className="font-semibold text-slate-700 uppercase">{order.payment_provider?.replace('_', ' ')}</span>
+                        <div className="flex flex-col">
+                          <span className={`${labelSize} font-bold text-[12px] text-slate-500 uppercase tracking-widest`}>{t('payment')}</span>
+                          <span className={`${isAr ? "text-[12px]" : "text-[10px]"} font-bold text-slate-700 uppercase`}>{order.payment_provider?.replace('_', ' ')}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Items Overview */}
-                    <div className="space-y-2">
-                      <span className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest block mb-2">{t('items_overview')}</span>
+                    <div className="space-y-2 text-start">
+                      <span className={`${labelSize} font-bold text-slate-500 text-[12px] uppercase tracking-widest block mb-2`}>{t('items_overview')}</span>
                       <div className="space-y-1.5">
                         {order.items.map((item: any, idx: number) => (
-                          <div key={idx} className="flex justify-between items-center bg-slate-50/40 p-2 rounded-lg border border-slate-100">
-                            <span className="text-[10px] font-semibold text-slate-700 truncate max-w-[150px]">{item.product_title}</span>
+                          <div key={idx} className="flex justify-between items-center bg-slate-50/60 p-2.5 rounded-lg border border-slate-100">
+                            <span className={`${isAr ? "text-[12px]" : "text-[11px]"} font-bold text-slate-700 truncate max-w-[150px]`}>{item.product_title}</span>
                             <div className="flex gap-3 items-center shrink-0">
-                              <span className="text-[9px] font-bold text-slate-400">x{item.quantity}</span>
-                              <span className="text-[10px] font-bold text-slate-700">{item.price} <span className="text-[8px] font-medium opacity-50">{order.currency}</span></span>
+                              <span className="text-[10px] font-black text-slate-500">x{item.quantity}</span>
+                              <span className={`${isAr ? "text-[12px]" : "text-[11px]"} font-semibold text-slate-800`}>
+                                {item.price} <span className="text-[13px] font-bold opacity-40">{t('currency')}</span>
+                              </span>
                             </div>
                           </div>
                         ))}
@@ -127,23 +136,22 @@ export default function ClientOrdersPage() {
                   </div>
 
                   {/* Price Section */}
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-                     <div className="flex items-center gap-2">
-                        <Box size={12} className="text-slate-300" />
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
-                          {t('products_count', { count: order.items.length })}
-                        </span>
-                     </div>
-                     
-                     <div className="bg-chart-1 px-4 py-2 rounded-xl text-white shadow-sm flex flex-col items-end">
-                        <span className="text-[8px] font-bold uppercase opacity-80 tracking-widest">{t('grand_total')}</span>
-                        <div className="flex items-baseline gap-0.5">
-                           <span className="text-sm font-semibold tracking-tighter">{order.total_amount}</span>
-                           <span className="text-[8px] font-bold uppercase">{order.currency}</span>
-                        </div>
-                     </div>
+                  <div className="flex items-center justify-between pt-5 border-t border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <Box size={14} className="text-slate-300" />
+                      <span className={`${isAr ? "text-[11px]" : "text-[9px]"} font-bold text-slate-600 uppercase tracking-tighter`}>
+                        {t('products_count', { count: order.items.length })}
+                      </span>
+                    </div>
+                    
+                    <div className="bg-chart-1 px-4 py-2   text-white shadow-sm flex flex-col items-end min-w-[100px]">
+                      <span className="text-[12px]  font-bold uppercase  tracking-widest">{t('grand_total')}</span>
+                      <div className="flex items-baseline gap-1" dir="ltr">
+                        <span className="text-base font-semibold tracking-tighter">{order.total_amount}</span>
+                        <span className="text-[13px] font-bold uppercase">{t('currency')}</span>
+                      </div>
+                    </div>
                   </div>
-
                 </div>
               </div>
             );
@@ -152,19 +160,21 @@ export default function ClientOrdersPage() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center gap-4 pt-4 pb-10">
+          <div className="flex justify-center items-center gap-8 pt-8 pb-10">
             <button 
               disabled={page === 1} 
               onClick={() => setPage(p => p - 1)} 
-              className="text-[10px] font-bold uppercase tracking-widest disabled:opacity-20 text-slate-400"
+              className={`${labelSize} font-black uppercase tracking-widest disabled:opacity-20 text-slate-500 hover:text-slate-800 transition-colors`}
             >
               {t('prev')}
             </button>
-            <span className="text-[10px] font-bold text-slate-800">{page} / {totalPages}</span>
+            <div className="bg-white border border-slate-200 px-3 py-1 rounded-full shadow-sm">
+               <span className="text-[11px] font-bold text-slate-800">{page} / {totalPages}</span>
+            </div>
             <button 
               disabled={page === totalPages} 
               onClick={() => setPage(p => p + 1)} 
-              className="text-[10px] font-bold uppercase tracking-widest disabled:opacity-20 text-chart-1"
+              className={`${labelSize} font-black uppercase tracking-widest disabled:opacity-20 text-chart-1 hover:scale-105 transition-transform`}
             >
               {t('next')}
             </button>

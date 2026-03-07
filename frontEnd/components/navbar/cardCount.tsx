@@ -18,14 +18,14 @@ export default function CartBadge() {
   // Prevent hydration mismatch
   if (!mounted) {
     return (
-      <span className="bg-slate-200 text-slate-600  px-1.5 py-0.5 rounded-md text-[11px] opacity-0">
+      <span className="  sm:bg-slate-200 text-slate-600  px-1.5 py-0.5 rounded-md text-[11px] ">
         0
       </span>
     );
   }
 
   return (
-    <span className="bg-slate-200 text-slate-600 px-1 text-[5px] py-0.5 sm:px-1.5 sm:py-0.5 rounded-md sm:text-[11px] transition-all duration-300">
+    <span className=" px-1 text-slate-600 text-[5px] py-0.5 sm:px-1.5 sm:py-0.5 rounded-md sm:text-[11px] transition-all duration-300">
       {count}
     </span>
   );
