@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation"; // أضفنا useSearchParams
 
 import { Input } from "@/components/ui/input";
@@ -14,6 +13,7 @@ import { toast } from "sonner";
 
 import { loginSchema } from "@/lib/zodSchema";
 import { useLoginMutation } from "../../../../../redux/features/auth/AuthapiSlice";
+import { Link } from "@/i18n/navigation";
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
@@ -53,8 +53,8 @@ export default function LoginPage() {
             <div className="text-center mb-4">
               <div className="flex flex-col items-center gap-5 mb-2">
                 <Link href="/">
-                  <Image 
-                    src="/photo/logoVexa.svg" 
+                   <Image 
+                   src="/photo/tmara.svg" 
                     alt="Logo" 
                     width={90} 
                     height={35} 

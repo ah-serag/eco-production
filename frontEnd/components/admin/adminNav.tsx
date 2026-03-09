@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -33,6 +32,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"; 
 import { UserNav } from "../navbar/userNav";
+import { Link } from "@/i18n/navigation";
 
 export function AdminNav() {
   const pathname = usePathname();

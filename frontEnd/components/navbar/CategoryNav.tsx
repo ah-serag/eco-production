@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useRef } from "react";
-import Link from "next/link";
 import { ChevronDown, ArrowRight, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGetCagegoryAndSubOptionClientQuery } from "../../redux/features/home/homeclientslice";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Link } from "@/i18n/navigation";
 
 interface SubCategory {
   id: number;
@@ -63,8 +63,8 @@ export function MegaMenuNavbar() {
                   className={cn(
                     "px-4 flex items-center gap-1.5 text-[13px] font-medium transition-all h-full relative outline-none",
                     activeCategory === category.id 
-                      ? "text-chart-1" 
-                      : "text-slate-600 hover:text-chart-1"
+                      ? "text-secondary" 
+                      : "text-slate-600 hover:text-secondary"
                   )}
                 >
                   {category.categoryName}
@@ -77,7 +77,7 @@ export function MegaMenuNavbar() {
                   
                   <div 
                     className={cn(
-                      "absolute bottom-0 left-0 w-full h-px bg-chart-1 transition-transform duration-500 scale-x-0 origin-left",
+                      "absolute bottom-0 left-0 w-full h-px bg-secondary transition-transform duration-500 scale-x-0 origin-left",
                       activeCategory === category.id && "scale-x-100"
                     )} 
                   />
@@ -115,11 +115,11 @@ export function MegaMenuNavbar() {
                     )}
                     style={{ transitionDelay: `${index * 30}ms` }}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-chart-1/40 group-hover:bg-chart-1 transition-colors shrink-0" />
-                    <span className="text-[14px] text-slate-500 group-hover:text-chart-1 transition-colors duration-300 font-normal truncate">
+                    <span className="w-1.5 h-1.5 rounded-full bg-secondary/40 group-hover:bg-secondary transition-colors shrink-0" />
+                    <span className="text-[14px] text-slate-500 group-hover:text-secondary transition-colors duration-300 font-normal truncate">
                       {sub.name}
                     </span>
-                    <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-chart-1/30 transition-all duration-300 group-hover:w-full" />
+                    <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-secondary/30 transition-all duration-300 group-hover:w-full" />
                   </Link>
                 ))}
               </div>
@@ -137,12 +137,12 @@ export function MegaMenuNavbar() {
           <div className="col-span-3 p-10 bg-slate-50/40 border-l border-slate-100/60">
             <div className="h-full flex flex-col justify-between animate-in fade-in slide-in-from-right-4 duration-700">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white text-chart-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-6 border border-slate-100 shadow-sm">
-                  <Zap size={10} className="fill-chart-1" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white text-neutral-700 rounded-full text-[10px] font-bold uppercase tracking-wider mb-6 border border-slate-100 shadow-sm">
+                  <Zap size={10} className="fill-secondary" />
                   Featured
                 </div>
                 
-                <h3 className="text-xl font-bold text-slate-800 leading-tight mb-2">
+                <h3 className="text-xl font-bold text-slate-700 leading-tight mb-2">
                   {currentCategoryData?.categoryName}
                 </h3>
                 <p className="text-[12px] text-slate-400 font-medium mb-4">Handpicked selection</p>
@@ -155,7 +155,7 @@ export function MegaMenuNavbar() {
               <Link 
                 href={`/products/${activeCategory}`}
                 onClick={closeMenu}
-                className="group flex items-center justify-center gap-3 p-4 bg-chart-1 text-white rounded-xl text-[12px] font-bold hover:shadow-xl hover:shadow-chart-1/20 transition-all duration-500 active:scale-95"
+                className="group flex items-center  justify-start gap-3  bg-transparent text-secondary rounded-xl text-[12px] font-bold  transition-all duration-500 active:scale-95"
               >
                 View Collection
                 <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform" />

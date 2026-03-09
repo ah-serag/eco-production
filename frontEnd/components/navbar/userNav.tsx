@@ -36,7 +36,7 @@ export function UserNav() {
     return (
       <Link 
         href="/auth/sign_in" 
-        className={`${isAr ? "text-[10px]" : "text-[11px]"}  text-slate-500 font-bold rounded-full border px-3 py-1.5 border-slate-200 bg-white hover:bg-slate-50 transition-all shadow-sm active:scale-95`}
+        className={`${isAr ? "text-[10px]" : "text-[11px]"} text-slate-500 font-normal rounded-full border px-3 py-1.5 border-slate-200 bg-white hover:bg-slate-50 transition-all shadow-sm active:scale-95`}
       >
         {t("sign_in")}
       </Link>
@@ -54,14 +54,14 @@ export function UserNav() {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <button className={`flex items-center gap-2 group border  shadow-sm  bg-slate-50 outline-none hover:bg-slate-100 p-1 ${isAr ? 'pl-2.5 pr-2 flex-row-reverse' : 'pr-2.5 pl-1.5'} rounded-full transition-all border border-slate-100/50 hover:border-slate-200`}>
+        <button className={`flex items-center gap-2 group border bg-slate-50 outline-none hover:bg-slate-100 p-1 ${isAr ? 'pl-2.5 pr-2 flex-row-reverse' : 'pr-2.5 pl-1.5'} rounded-full transition-all border-slate-100/50 hover:border-slate-200 shadow-sm`}>
           
-          <div className="h-7 w-7 flex items-center justify-center border rounded-full bg-white text-chart-1 shadow-sm text-[10px] font-bold  shrink-0">
+          <div className="h-7 w-7 flex items-center justify-center border rounded-full bg-white text-chart-1 shadow-sm text-[10px] font-bold shrink-0">
             {firstLetter}
           </div>
           
           <div className={`flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : ""}`}>
-            <span className={`${isAr ? "text-[13px]" : "text-[12px]"} font-bold text-slate-600 hidden sm:block truncate max-w-20`}>
+            <span className={`${isAr ? "text-[13px]" : "text-[12px]"} font-normal text-slate-600 hidden sm:block truncate max-w-20`}>
               {firstName}
             </span>
             <ChevronDown size={11} className="text-slate-400 group-hover:text-slate-500 transition-colors" />
@@ -75,8 +75,8 @@ export function UserNav() {
       >
         <DropdownMenuLabel className="p-2">
           <div className={`flex flex-col space-y-0.5 ${isAr ? "text-right" : "text-left"}`}>
-            <p className={`${isAr ? "text-[13.5px]" : "text-[12.5px]"} font-bold text-slate-700 tracking-tight`}>{user.full_name}</p>
-            <p className="text-[10.5px] text-slate-400 font-medium truncate lowercase">{user.email}</p>
+            <p className={`${isAr ? "text-[13.5px]" : "text-[12.5px]"} font-normal text-slate-700 tracking-tight`}>{user.full_name}</p>
+            <p className="text-[10.5px] text-slate-400 font-normal truncate lowercase">{user.email}</p>
           </div>
         </DropdownMenuLabel>
         
@@ -91,7 +91,7 @@ export function UserNav() {
             <DropdownMenuItem key={idx} asChild className="cursor-pointer py-2.5 px-2 focus:bg-slate-50 rounded-lg group">
               <Link href={item.href} className={`flex items-center w-full ${isAr ? "flex-row-reverse text-right" : ""}`}>
                 <item.icon className={`${isAr ? "ml-2.5" : "mr-2.5"} h-3.5 w-3.5 text-slate-400 group-hover:text-slate-500 transition-colors`} />
-                <span className={`${isAr ? "text-[13px]" : "text-[12px]"} font-semibold text-slate-600 group-hover:text-slate-800`}>
+                <span className={`${isAr ? "text-[13px]" : "text-[12px]"} font-normal text-slate-600 group-hover:text-slate-800`}>
                   {item.label}
                 </span>
               </Link>
@@ -105,8 +105,8 @@ export function UserNav() {
           className={`flex items-center w-full cursor-pointer py-2.5 px-2 focus:bg-rose-50/50 rounded-lg group ${isAr ? "flex-row-reverse text-right" : ""}`}
           onClick={() => handleLogout()}
         >
-          <LogOut className={`${isAr ? "ml-2.5" : "mr-2.5"} h-3.5 w-3.5 text-blue-900  transition-colors`} />
-          <span className={`${isAr ? "text-[13px]" : "text-[12px]"} font-bold text-blue-900 `}>
+          <LogOut className={`${isAr ? "ml-2.5" : "mr-2.5"} h-3.5 w-3.5 text-blue-900 transition-colors`} />
+          <span className={`${isAr ? "text-[13px]" : "text-[12px]"} font-normal text-blue-900`}>
             {t("sign_out")}
           </span>
         </DropdownMenuItem>

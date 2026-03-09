@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import EditProduct from "@/components/manage/editingProduct";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import Link from "next/link"; // أضفت Link لدعم الانتقال للمنتج
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +24,7 @@ import {
   useDeleteProductMutation,
 } from "../../../../../redux/features/productAdmin/productapiSlice";
 import { cn } from "@/lib/utils";
+import { Link } from "@/i18n/navigation";
 
 // Types
 type Product = {
@@ -145,7 +145,7 @@ export default function ProductsAdmin() {
         {/* Filters Bar */}
         <div className="flex flex-wrap gap-3 items-center">
           {/* Search Box */}
-          <div className="relative flex-1 min-w-[240px]">
+          <div className="relative flex-1 min-w-60">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
             <Input
               placeholder="Search by title..."

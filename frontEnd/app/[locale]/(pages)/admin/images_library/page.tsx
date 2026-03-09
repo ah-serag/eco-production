@@ -134,8 +134,8 @@ export default function ImagesTablePage() {
           <TableBody>
             {isLoading ? (
               <TableRow><TableCell colSpan={5} className="text-center py-20 text-[10px] font-bold text-slate-300 uppercase tracking-widest">Syncing Cloud Assets...</TableCell></TableRow>
-            ) : images.map((img) => (
-              <TableRow key={img.image_id} className="border-slate-50 hover:bg-slate-50/50 transition-colors group">
+            ) : images.map((img ,index) => (
+              <TableRow key={index} className="border-slate-50 hover:bg-slate-50/50 transition-colors group">
                 <TableCell className="pl-6 py-3">
                   <div className="p-1 bg-slate-50 rounded border border-slate-100 w-11 h-11 flex items-center justify-center">
                     <img src={img.image_url} alt="asset" className="max-w-full max-h-full object-contain rounded-sm shadow-sm" />

@@ -21,7 +21,7 @@
   },
 
   "product_preview": {
-    "available_stock": "متاح للطلب: {count}",
+    "available_stock": "متاح للطلب : {count}",
     "sku": "رمز المنتج",
     "currency": "جنية",
     "off": "خصم",
@@ -79,7 +79,25 @@
     "total": "الإجمالي",
     "processing": "جاري المعالجة...",
     "btnConfirmCash": "تأكيد طلب الكاش",
-    "btnComplete": "إتمام الشراء"
+    "btnComplete": "إتمام الشراء" ,
+   "support" : "الدعم"  ,
+      "currency": "جنية"
+
+
+  } ,
+
+  "cart": {
+    "empty_cart": "حقيبة التسوق الخاصة بك فارغة حالياً",
+    "explore_products": "استكشف المنتجات",
+    "back_to_shop": "العودة للمتجر",
+    "your_cart": "سلة المشتريات",
+    "items": "منتجات",
+    "currency": "جنية",
+    "max_reached": "تم الوصول للحد الأقصى المتاح",
+    "summary": "ملخص الطلب",
+    "subtotal": "المجموع الفرعي",
+    "total": "الإجمالي الحالي",
+    "checkout": "إتمام الشراء"
   }
 
 }

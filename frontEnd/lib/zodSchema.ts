@@ -1,33 +1,45 @@
 import { z } from "zod";
 
 export const productSchema = z.object({
+  // العناوين
   title: z.string().min(1, "Title is required"),
+  title_ar: z.string().min(1, "العنوان بالعربية مطلوب"), // إجباري لضمان جودة المحتوى العربي
+  
   slug: z.string().min(1),
+  
+  // الوصف
   description: z.string().optional(),
+  description_ar: z.string().optional(), // اختياري ولكن يفضل إضافته
 
-  price: z.string().min(1),
-  discount_price: z.string().optional(),
+  // الأسعار (تم الإبقاء عليها كـ string لأن الـ Input يعود بقيمة نصية)
+  price: z.string().min(1, "Price is required"),
+  discount_price: z.string().optional().nullable(),
 
-  stock: z.coerce.number().optional(),
+  // المخزون
+  stock: z.coerce.number().min(0, "Stock cannot be negative").optional(),
 
+  // معلومات البراند
   sku: z.string().optional(),
   brand: z.string().optional(),
 
+  // الأبعاد والأوزان
   weight: z.string().optional().nullable(),
   length: z.string().optional().nullable(),
   width: z.string().optional().nullable(),
   height: z.string().optional().nullable(),
 
+  // التصنيفات
   category_id: z.string().min(1, "Category is required"),
   subcategory_id: z.string().min(1, "Subcategory is required"),
 
+  // الحالة
   is_active: z.boolean()
 });
 
 
 export const registerSchema = z.object({
   full_name: z.string().min(3, "Full name must be at least 3 characters"),
-username: z.string().min(3, "Username must be at least 3 characters").optional().or(z.literal('')),
+  username: z.string().min(3, "Username must be at least 3 characters").optional().or(z.literal('')),
   email: z.string().email("Invalid email format"),
   phone: z.string().min(5, "Invalid phone number"),
   password: z.string().min(8, "Password must be at least 8 characters"),

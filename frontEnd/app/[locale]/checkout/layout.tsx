@@ -17,7 +17,7 @@ export default async function CheckoutLayout({
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <CheckoutNavbar />
 
-      <main className="mx-auto py-4 px-4 w-full max-w-7xl">
+      <main className="mx-auto p-2 w-full max-w-7xl">
         {children}
       </main>
       

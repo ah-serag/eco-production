@@ -65,7 +65,7 @@ export function SearchInput() {
           type="submit"
           variant="default"
           size="icon"
-          className="bg-chart-1 text-white h-full w-12 rounded-none hover:bg-chart-1/80 transition-colors shrink-0"
+          className="bg-secondary text-white h-full w-12 rounded-none hover:bg-chart-1/80 transition-colors shrink-0"
         >
           <SearchIcon size={18} />
         </Button>
@@ -74,7 +74,7 @@ export function SearchInput() {
       {/* زر فتح البحث في الموبايل */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden flex items-center justify-center w-15 h-8 rounded-2xl bg-white text-chart-1 shadow-sm active:scale-90 transition-all"
+        className="md:hidden flex items-center justify-center w-15 h-8 rounded-2xl bg-white  text-neutral-500 shadow-sm active:scale-90 transition-all"
       >
         {isOpen ? <X size={15} /> : <SearchIcon size={15} />}
       </button>

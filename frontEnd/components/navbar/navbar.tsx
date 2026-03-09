@@ -8,10 +8,14 @@ import { UserNav } from "./userNav";
 import { Link } from "@/i18n/navigation";
 import LanguageSwitcher from "../public/langSwitcher";
 import { CartNav } from "./cartNav";
+import { useLocale } from "next-intl";
 
 export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+   const locale = useLocale()
+   const isAribac = locale === "ar" ? true : false ;
+
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -41,14 +45,14 @@ export default function Navbar() {
         <div className="flex items-center gap-2 shrink-0">
           <Link href="/" className="block transition-opacity hover:opacity-80">
             <Image 
-              src="/photo/logoVexa.svg" 
+              src={`/photo/${isAribac ? "tmara_ar.svg"  :  "tmara.svg"}` }
               alt="vexa Logo" 
-              width={80} 
+              width={90} 
               height={35}  
               priority 
               className="object-contain"
             />
-          </Link>
+          </Link>  
         </div>
 
         {/* Search Section */}

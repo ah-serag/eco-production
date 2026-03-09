@@ -20,7 +20,7 @@
     }
   } ,
   "product_preview": {
-    "available_stock": "Available to order: {count}",
+    "available_stock": "Available to order : {count}",
     "sku": "SKU",
     "currency": "EGP",
     "off": "OFF",
@@ -80,7 +80,25 @@
     "total": "Total",
     "processing": "PROCESSING...",
     "btnConfirmCash": "CONFIRM CASH ORDER",
-    "btnComplete": "COMPLETE PURCHASE"
+    "btnComplete": "COMPLETE PURCHASE" ,
+     "support" : "support" ,
+      "currency": "EGP"
+
+  } ,
+
+  "cart": {
+    "empty_cart": "Your shopping bag is empty",
+    "explore_products": "Explore Products",
+    "back_to_shop": "Back to shop",
+    "your_cart": "Your Cart",
+    "items": "items",
+    "currency": "EGP",
+    "max_reached": "Max available reached",
+    "summary": "Summary",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "checkout": "Checkout"
   }
+
 
 }

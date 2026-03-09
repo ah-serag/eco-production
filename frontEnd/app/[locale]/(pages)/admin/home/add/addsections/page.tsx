@@ -33,7 +33,9 @@ export default function AddHomeSectionPage() {
     order_index: 0,
     content: `{
   "title": "",
-  "subtitle": ""
+  "subtitle": "" ,
+  "title_ar": "",
+  "subtitle_ar": ""
 }`,
   });
 

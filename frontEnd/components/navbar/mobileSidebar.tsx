@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { X, ChevronDown, ChevronRight, Zap, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGetCagegoryAndSubOptionClientQuery } from "../../redux/features/home/homeclientslice";
 import { Button } from "../ui/button";
+import { Link } from "@/i18n/navigation";
 
 export function MobileSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { data: categories } = useGetCagegoryAndSubOptionClientQuery(undefined);
@@ -27,8 +27,8 @@ export function MobileSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: (
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex items-center justify-between p-4 border-b">
-          <span className="font-bold text-slate-800">Menu</span>
+        <div className="flex items-center text-white bg-secondary justify-between p-4 border-b">
+          <span className="font-bold text-white">Menu</span>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X size={20} />
           </Button>

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { ArrowRight, ArrowLeft } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { useLocale } from "next-intl";
+import { cn } from "@/lib/utils";
 
 interface LimitedOfferBanner {
   image_url: string;
@@ -16,9 +18,14 @@ interface Props {
 }
 
 export default function LimitedOfferSection({ section }: Props) {
+  const locale = useLocale();
+  const isAr = locale === "ar";
   const [timeLeft, setTimeLeft] = useState<{ [key: number]: any }>({});
   const info = section?.info;
   const banners: LimitedOfferBanner[] = section?.content || [];
+
+  const displayTitle = isAr ? info?.title_ar : info?.title;
+  const displaySubtitle = isAr ? info?.subtitle_ar : info?.subtitle;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -49,95 +56,87 @@ export default function LimitedOfferSection({ section }: Props) {
   if (!banners.length) return null;
 
   return (
-    <section className="w-full bg-transparent rounded-[2.5rem] border-b border-gray-100 overflow-hidden my-6">
+    <section dir={isAr ? "rtl" : "ltr"} className="w-full bg-transparent my-12 text-start px-4 md:px-8">
       
-      {/* ===== Header المتناسق والمصغر ===== */}
-      {info?.title && (
-        <div className="pt-6 px-8 flex flex-col gap-0.5">
-          <h2 className="text-[14px] md:text-[20px] font-semibold text-gray-900 tracking-tight">
-            {info.title}
+      {displayTitle && (
+        <div className="mb-8 flex flex-col gap-1">
+          <h2 className="font-normal text-gray-900 text-lg md:text-xl tracking-tight">
+            {displayTitle}
           </h2>
-          {info.subtitle && (
-            <span className="text-[8px] md:text-[9px]  font-medium uppercase tracking-[0.3em] mt-1">
-              {info.subtitle}
+          {displaySubtitle && (
+            <span className="font-normal uppercase text-slate-400 text-[10px] tracking-[0.2em]">
+              {displaySubtitle}
             </span>
           )}
         </div>
       )}
 
-      {/* Banners Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 md:p-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {banners.map((banner, index) => {
           const time = timeLeft[index];
           const isExpired = time === "Expired";
 
           return (
-            <Link 
-              key={index} 
-              href={banner.link_url || "#"} 
-              className="group relative block aspect-[16/9] w-full overflow-hidden rounded-[2rem] bg-gray-50"
-            >
-              {/* Image with Ultra-Smooth Zoom */}
-              <img
-                src={banner.image_url}
-                alt="Limited Offer"
-                className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105"
-              />
+            <div key={index} className="flex flex-col gap-4">
+              <Link 
+                href={banner.link_url || "#"} 
+                className="group relative block aspect-[16/8] w-full overflow-hidden rounded-2xl bg-gray-50 border border-gray-100"
+              >
+                <img
+                  src={banner.image_url}
+                  alt="Offer"
+                  className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                />
 
-              {/* Overlay ناعم جداً */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                <div className={`absolute top-4 ${isAr ? "right-4" : "left-4"} flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full border border-gray-100 z-20`}>
+                  <span className="relative flex h-1.5 w-1.5">
+                    {!isExpired && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>}
+                    <span className={cn("relative inline-flex rounded-full h-1.5 w-1.5", isExpired ? "bg-gray-400" : "bg-rose-500")}></span>
+                  </span>
+                  <span className="text-[8px] font-normal text-gray-600 uppercase tracking-wider">
+                    {isExpired ? (isAr ? "انتهى" : "Ended") : (isAr ? "مباشر" : "Live")}
+                  </span>
+                </div>
 
-              {/* العداد التنازلي - Glassmorphism Style */}
+                {isExpired && (
+                  <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex items-center justify-center z-10 transition-all duration-500">
+                    <div className="flex flex-col items-center gap-2">
+                      <span className="text-gray-900 text-[11px] font-normal uppercase tracking-[0.4em] border-y border-gray-900/10 py-2 px-4">
+                        {isAr ? "انتهى العرض" : "Offer Ended"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </Link>
+
               {!isExpired && time && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="flex gap-2 md:gap-3 px-4 py-3 rounded-3xl backdrop-blur-md bg-white/5 border border-white/10">
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex gap-4" dir="ltr">
                     {[
-                      { label: "D", val: time.d },
-                      { label: "H", val: time.h },
-                      { label: "M", val: time.m },
-                      { label: "S", val: time.s },
+                      { label: isAr ? "يوم" : "D", val: time.d },
+                      { label: isAr ? "ساعة" : "H", val: time.h },
+                      { label: isAr ? "دقيقة" : "M", val: time.m },
+                      { label: isAr ? "ثانية" : "S", val: time.s },
                     ].map((unit, i) => (
-                      <div key={i} className="flex flex-col items-center min-w-[35px] md:min-w-[45px]">
-                        <span className="text-xl md:text-2xl font-bold text-white tracking-tighter leading-none">
+                      <div key={i} className="flex flex-col items-start">
+                        <span className="text-sm font-normal text-gray-900 tabular-nums">
                           {unit.val.toString().padStart(2, "0")}
                         </span>
-                        <span className="text-[7px] md:text-[8px] font-bold text-white/50 uppercase tracking-widest mt-1">
-                          {unit.label}
-                        </span>
+                        <span className="text-[8px] text-gray-400 uppercase font-normal">{unit.label}</span>
                       </div>
                     ))}
                   </div>
+
+                  <Link 
+                    href={banner.link_url || "#"}
+                    className="flex items-center gap-1.5 text-[10px] font-normal uppercase tracking-widest text-gray-900 hover:gap-3 transition-all underline underline-offset-4 decoration-gray-200 hover:decoration-gray-900"
+                  >
+                    {isAr ? "اكتشف الآن" : "Explore"}
+                    {isAr ? <ArrowLeft size={12} /> : <ArrowRight size={12} />}
+                  </Link>
                 </div>
               )}
-
-              {/* Status Indicator - Top Left */}
-              <div className="absolute top-5 left-5 flex items-center gap-2 bg-black/20 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
-                </span>
-                <span className="text-[8px] font-bold text-white uppercase tracking-[0.15em]">
-                  Live Offer
-                </span>
-              </div>
-
-              {/* SHOP NOW Button - Minimalist */}
-              <div className="absolute bottom-5 right-5 flex items-center gap-2 bg-white text-black pl-4 pr-3 py-2 rounded-full font-bold text-[9px] tracking-widest transition-all duration-300 group-hover:bg-black group-hover:text-white group-active:scale-95">
-                SHOP NOW
-                <div className="bg-gray-100 group-hover:bg-white/20 w-5 h-5 rounded-full flex items-center justify-center transition-colors">
-                  <ArrowRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
-                </div>
-              </div>
-
-              {/* Expired Mask */}
-              {isExpired && (
-                <div className="absolute inset-0 z-40 bg-black/40 backdrop-blur-md rounded-[2.5rem]  flex items-center justify-center">
-                  <span className="bg-white/10 border border-white/20 px-5 py-2 text-white font-bold text-[10px] uppercase tracking-[0.3em] rounded-full">
-                    Offer Ended
-                  </span>
-                </div>
-              )}
-            </Link>
+            </div>
           );
         })}
       </div>

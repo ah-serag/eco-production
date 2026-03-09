@@ -1,12 +1,13 @@
 "use client";
 
-import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { useParams, useSearchParams,  } from "next/navigation";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { useGetFilterCategoryQuery } from "@/redux/features/home/homeclientslice";
 import { useEffect, useState, useCallback } from "react";
 import { Star, RotateCcw, SlidersHorizontal, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "@/i18n/navigation";
 
 export default function FilterSidebar() {
   const params = useParams();
@@ -64,7 +65,7 @@ export default function FilterSidebar() {
   };
 
   const FilterContent = () => (
-    <div className="space-y-5">
+    <div className="space-y-5 pl-3">
       <div className="hidden md:flex w-full items-center justify-between py-4 bg-gray-50">
         <h2 className="text-[15px] font-semibold text-neutral-800">Filters</h2>
         <button 

@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -16,6 +14,7 @@ import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { registerSchema } from "@/lib/zodSchema";
 import { useRegisterMutation } from "../../../../../redux/features/auth/AuthapiSlice";
+import { Link, useRouter } from "@/i18n/navigation";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -44,7 +43,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="h-screen overflow-hidden flex items-center justify-center bg-linear-to-t from-chart-1/10 via-white to-white px-4">
+    <div className="h-screen overflow-hidden flex items-center justify-center bg-linear-to-t from-secondary via-white to-white px-4">
       
       {/* Success Overlay */}
       {successMessage && (
@@ -65,7 +64,8 @@ export default function RegisterPage() {
             <div className="text-center mb-5">
                        {/* Logo - Small */}
            <div className="flex justify-center mb-7">
-            <Link href="/"><Image src="/photo/logoVexa.svg" alt="Logo" width={100} height={28} priority /></Link>
+            <Link href="/"><Image src="/photo/tmara.svg" 
+                   alt="Logo" width={100} height={28} priority /></Link>
 
             </div>
             </div>

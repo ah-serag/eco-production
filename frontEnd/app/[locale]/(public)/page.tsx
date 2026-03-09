@@ -15,7 +15,7 @@ export default function HomePage() {
   if (isLoading) return <HomeLoading />;
 
   return (
-    <div className="space-y-3 bg-white rounded-md   pb-10 scroll-smooth">
+    <div className="space-y-3 bg-white rounded-md   pb-15 scroll-smooth">
       {data?.sections.map((section: any) => {
         switch (section.type) {
           case "hero":

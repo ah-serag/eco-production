@@ -170,46 +170,42 @@ const deleteProduct = async (req, res) => {
 const addProductWithImages = async (req, res) => {
   const client = await pool.connect();
   try {
-
     const {
-      title, slug, description, price, discount_price, stock,
-      sku, brand, weight, length, width, height, category_id, subcategory_id, is_active
+      title, title_ar, slug, description, description_ar, price, 
+      discount_price, stock, sku, brand, weight, length, width, 
+      height, category_id, subcategory_id, is_active
     } = req.body;
 
-  if (!req.files?.mainImage || req.files.mainImage.length === 0) {
-    throw new Error("Main image is required");
-  }
+    const slugCheck = await client.query("SELECT 1 FROM products WHERE slug = $1 LIMIT 1", [slug]);
+    if (slugCheck.rowCount > 0) {
+      return res.status(400).json({ message: "Slug already exists. Please use a unique title." });
+    }
+
+    if (!req.files?.mainImage || req.files.mainImage.length === 0) {
+      throw new Error("Main image is required");
+    }
 
     await client.query("BEGIN");
 
     const queryProduct = `
-      SELECT add_product($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) AS product_id
+      SELECT add_product($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) AS product_id
     `;
 
-
-
     const valuesProduct = [
-      title, slug, price, description, discount_price, stock, sku, brand,
-      weight, length, width, height, category_id, subcategory_id, is_active
+      title, title_ar, slug, price, description, description_ar, 
+      discount_price, stock, sku, brand, weight, length, width, 
+      height, category_id, subcategory_id, is_active
     ];
-    
-
 
     const result = await client.query(queryProduct, valuesProduct);
     const productId = result.rows[0].product_id;
-
 
     if(req?.user.role == "vendor"){
       await client.query(`INSERT INTO vendors_products (product_id, vendor_id)
         VALUES ($1, $2)`, [productId ,req.user.id])
     }
 
-
-
-
     const queryImages = `SELECT add_image($1, $2) AS id`;
-
-    
     const mainImageFile = req.files?.mainImage?.[0] ?? null;
     const galleryFiles = req.files?.gallery ?? [];
 
@@ -221,21 +217,17 @@ const addProductWithImages = async (req, res) => {
       streamifier.createReadStream(mainImageFile.buffer).pipe(stream);
     });
 
-   const addMainImage =  await client.query(queryImages , [mainResult.secure_url , mainResult.public_id])
+    const addMainImage = await client.query(queryImages , [mainResult.secure_url , mainResult.public_id])
 
-       await client.query(
-       `INSERT INTO product_images (product_id, image_id, is_main, position)
-        VALUES ($1, $2, true, 0)`,
-       [productId, addMainImage.rows[0].id]
-       );
-
-
-
-
+    await client.query(
+      `INSERT INTO product_images (product_id, image_id, is_main, position)
+       VALUES ($1, $2, true, 0)`,
+      [productId, addMainImage.rows[0].id]
+    );
 
     for (let i = 0; i < galleryFiles.length; i++) {
       const file = galleryFiles[i];
-      const result = await new Promise((resolve, reject) => {
+      const uploadResult = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           { folder: "products", public_id: `${productId}_gallery_${Date.now()}_${i}` },
           (err, result) => (err ? reject(err) : resolve(result))
@@ -243,21 +235,17 @@ const addProductWithImages = async (req, res) => {
         streamifier.createReadStream(file.buffer).pipe(stream);
       });
       
-      const addImages = await client.query(queryImages, [result.secure_url , result.public_id]);
+      const addImages = await client.query(queryImages, [uploadResult.secure_url , uploadResult.public_id]);
     
       await client.query(
         `INSERT INTO product_images (product_id, image_id, is_main, position)
          VALUES ($1, $2, false, $3)`,
         [productId, addImages.rows[0].id, i + 1]
       );
-      
-
     }
 
-
-
     await client.query("COMMIT");
-    res.status(201).json({ message: "Product with images added successfully", product_id: productId });
+    res.status(201).json({ message: "Product added successfully", product_id: productId });
   } catch (err) {
     await client.query("ROLLBACK");
     console.error(err);
@@ -266,8 +254,6 @@ const addProductWithImages = async (req, res) => {
     client.release();
   }
 };
-
-
 
 
 

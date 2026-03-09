@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Home, ShoppingBag, Menu, MoreHorizontal, Phone } from "lucide-react";
+import { Home, ShoppingBag, Menu, MoreHorizontal,MessageCircleMore } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation"; // تحديث الـ Link للـ i18n
 import { MobileSidebar } from "./mobileSidebar";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,7 @@ export default function MobileBottomNav() {
       <div className="flex flex-col items-center justify-center gap-1 transition-all active:scale-90">
         <div className={cn(
           "relative p-2 rounded-xl border border-slate-100 transition-all duration-300", 
-          active ? "bg-chart-1 " : "bg-transparent"
+          active ? "bg-secondary " : "bg-transparent"
         )}>
           <Icon 
             size={18} 
@@ -31,7 +31,7 @@ export default function MobileBottomNav() {
           {isBadge && (
             <span className={cn(
               "absolute -top-1 -right-1 text-[7px] font-bold h-3.5 w-3.5 flex items-center justify-center rounded-full border-2",
-              active ? "bg-white text-chart-1 " : " text-white border-white"
+              active ? "bg-white text-secondary " : " text-white border-white"
             )}>
               <CartBadge />
             </span>
@@ -39,7 +39,7 @@ export default function MobileBottomNav() {
         </div>
         <span className={cn(
           "text-[8px] font-medium tracking-widest uppercase",
-          active ? "text-chart-1 font-bold" : "text-slate-400"
+          active ? "text-secondary font-bold" : "text-slate-400"
         )}>{label}</span>
       </div>
     );
@@ -60,7 +60,7 @@ export default function MobileBottomNav() {
           <Link href="https://wa.me/201091714419" target="_blank" className="flex-1">
              <div className="flex flex-col items-center justify-center gap-1 active:scale-90 transition-all">
                 <div className="p-2 rounded-xl bg-transparent border border-slate-50">
-                   <Phone size={18} strokeWidth={1.2} className="text-slate-400" />
+                   <MessageCircleMore size={18} strokeWidth={1.2} className="text-slate-400" />
                 </div>
                 <span className="text-[8px] font-medium tracking-widest uppercase text-slate-400">{t("contact")}</span>
              </div>
@@ -73,7 +73,7 @@ export default function MobileBottomNav() {
           <Link href="/" className="flex-1 flex flex-col items-center justify-center">
              <div className={cn(
                "p-2.5 rounded-2xl transition-all duration-300",
-               isActive("/") ? "bg-chart-1 " : "bg-slate-50 border border-slate-100"
+               isActive("/") ? "bg-secondary " : "bg-slate-50 border border-slate-100"
              )}>
                 <Home 
                   size={22} 
