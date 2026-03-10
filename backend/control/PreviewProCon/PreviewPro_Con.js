@@ -8,7 +8,9 @@ const getProductBySlug = async (req, res) => {
             SELECT 
                 p.*, 
                 c.name AS category_name, 
+                c.name_ar AS category_name_ar,
                 s.name AS subcategory_name,
+                s.name_ar AS subcategory_name_ar,
                 COALESCE(
                     (
                         SELECT json_agg(

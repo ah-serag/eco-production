@@ -119,30 +119,36 @@ const getSubcategoryOptions = async (req, res) => {
   }
 };
 
-
 const getCategoryAndSubAdmin = async (req, res) => {
-
   try {
     const query = `
       SELECT 
-        c.id AS category_id, 
-        c.name AS category_name,
+        c.id AS id, 
+        c.name AS "categoryName", 
+        c.name_ar AS "categoryName_ar",
+        c.is_active AS "is_active", -- إضافة حالة القسم الرئيسي
         json_agg(
-          json_build_object('id', s.id, 'name', s.name)
+            json_build_object(
+                'id', s.id, 
+                'name', s.name, 
+                'name_ar', s.name_ar,
+                'is_active', s.is_active -- إضافة حالة القسم الفرعي
+            )
         ) FILTER (WHERE s.id IS NOT NULL) AS items
       FROM categories c
       LEFT JOIN subcategories s ON c.id = s.category_id
-      GROUP BY c.id, c.name
+      GROUP BY c.id, c.name, c.name_ar, c.is_active 
       ORDER BY c.name ASC;
     `;
 
     const { rows } = await pool.query(query);
-    
-  
+
     const result = rows.map(row => ({
-      id: row.category_id,
-      categoryName: row.category_name,
-      items: row.items || [] 
+      id: row.id,
+      categoryName: row.categoryName,
+      categoryName_ar: row.categoryName_ar,
+      is_active: row.is_active, // التأكد من رجوعها في الـ Map
+      items: row.items || []
     }));
 
     return res.status(200).json(result);
@@ -152,8 +158,7 @@ const getCategoryAndSubAdmin = async (req, res) => {
   }
 };
 
-
-
+// delete 
 const deleteCategory = async (req, res) => {
   const { id } = req.params; 
 
@@ -196,7 +201,106 @@ const deleteSubcategory = async (req, res) => {
 };
 
 
-module.exports = {getCategory ,addCategories , deleteCategory ,deleteSubcategory, addSubcategories  , getCategoryOptions ,getSubcategoryOptions ,getCategoryAndSubAdmin}
+
+//ediet 
+const editCategoryName = async (req, res) => {
+    const { id } = req.params;
+    const { name, name_ar } = req.body;
+
+    try {
+        const result = await pool.query(
+            "UPDATE categories SET name = $1, name_ar = $2 WHERE id = $3 RETURNING *",
+            [name, name_ar, id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Category not found" });
+        }
+
+        res.status(200).json({
+            message: "Category updated successfully",
+            data: result.rows[0]
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Update failed", error: error.message });
+    }
+};
+
+
+const editSubcategoryName = async (req, res) => {
+    const { id } = req.params;
+    const { name, name_ar } = req.body;
+
+    try {
+        const result = await pool.query(
+            "UPDATE subcategories SET name = $1, name_ar = $2 WHERE id = $3 RETURNING *",
+            [name, name_ar, id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Subcategory not found" });
+        }
+
+        res.status(200).json({
+            message: "Subcategory updated successfully",
+            data: result.rows[0]
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Update failed", error: error.message });
+    }
+};
+
+// ediet state 
+const toggleCategoryStatus = async (req, res) => {
+    const { id } = req.params;
+    const { is_active } = req.body;
+
+    try {
+        const result = await pool.query(
+            "UPDATE categories SET is_active = $1 WHERE id = $2 RETURNING *",
+            [is_active, id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Category not found" });
+        }
+
+        res.status(200).json({
+            message: `Category ${is_active ? 'activated' : 'deactivated'} successfully`,
+            data: result.rows[0]
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Status update failed", error: error.message });
+    }
+};
+
+const toggleSubcategoryStatus = async (req, res) => {
+    const { id } = req.params;
+    const { is_active } = req.body;
+
+    try {
+        const result = await pool.query(
+            "UPDATE subcategories SET is_active = $1 WHERE id = $2 RETURNING *",
+            [is_active, id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Subcategory not found" });
+        }
+
+        res.status(200).json({
+            message: `Subcategory ${is_active ? 'activated' : 'deactivated'} successfully`,
+            data: result.rows[0]
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Status update failed", error: error.message });
+    }
+};
+module.exports = {getCategory ,addCategories , deleteCategory ,deleteSubcategory, addSubcategories  ,
+   getCategoryOptions ,getSubcategoryOptions ,getCategoryAndSubAdmin ,
+   editCategoryName ,editSubcategoryName ,
+   toggleCategoryStatus ,toggleSubcategoryStatus
+  }
 
 
 

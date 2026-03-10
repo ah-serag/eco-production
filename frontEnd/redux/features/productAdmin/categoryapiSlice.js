@@ -62,10 +62,54 @@ export const categoriesApiSlice = apiSlice.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: ["Categories"],
-    }) 
+    })  ,
+
+      
+    editCategoryName: builder.mutation({
+      query: ({ id, name, name_ar }) => ({
+        url: `/products/editCategoryName/${id}`,
+        method: "PATCH",
+        body: {
+          name,
+          name_ar
+        }
+      }),
+      invalidatesTags: ["Categories"],
+    }),
+
+    editSubcategoryName: builder.mutation({
+      query: ({ id, name, name_ar }) => ({
+        url: `/products/editSubcategoryName/${id}`,
+        method: "PATCH",
+        body: {
+          name,
+          name_ar
+        }
+      }),
+      invalidatesTags: ["Categories"],
+    }),
 
 
 
+     toggleCategoryStatus: builder.mutation({
+      query: ({ id, is_active }) => ({
+        url: `/products/toggleCategoryStatus/${id}`,
+        method: 'PATCH',
+        body: { is_active },
+      }),
+      invalidatesTags: ['Categories'],
+    }),
+
+
+     toggleSubcategoryStatus: builder.mutation({
+      query: ({ id, is_active }) => ({
+        url: `/products/toggleSubcategoryStatus/${id}`,
+        method: 'PATCH',
+        body: { is_active },
+      }),
+      invalidatesTags: ['Categories'],
+    }),
+   
   }),
 });
 
@@ -78,4 +122,8 @@ export const {
   useGetCategoryAndSubAdminQuery,
   useDeleteCategoryMutation,
   useDeleteSubcategoryMutation,
+  useEditCategoryNameMutation ,
+  useEditSubcategoryNameMutation ,
+  useToggleCategoryStatusMutation ,
+  useToggleSubcategoryStatusMutation
 } = categoriesApiSlice;

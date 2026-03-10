@@ -29,7 +29,7 @@ export default function SubcategoryBannerRender({ section }: any) {
   const bannerImage = section?.content[0]?.image_url;
   const isImageRight = section?.content?.direct_image === true;
   const info = section?.info;
-
+   
   const displayTitle = isArabic ? info?.title_ar : info?.title;
   const displaySubtitle = isArabic ? info?.subtitle_ar : info?.subtitle;
 
@@ -40,8 +40,11 @@ export default function SubcategoryBannerRender({ section }: any) {
     { subcategoryId, page, limit: 6 },
     { skip: !subcategoryId }
   );
+   
 
+   
   useEffect(() => {
+
     if (data?.data) {
       setProducts((prev) =>
         page === 1 ? data.data : [...prev, ...data.data]
@@ -64,7 +67,9 @@ export default function SubcategoryBannerRender({ section }: any) {
   }, [isArabic]);
 
   if (!subcategoryId) return null;
-
+   if(data?.data.length == 0){
+    return ;
+  }
   const hasMore = data?.pagination?.page < data?.pagination?.totalPages;
 
   return (

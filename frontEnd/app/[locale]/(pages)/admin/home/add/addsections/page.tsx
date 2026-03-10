@@ -136,8 +136,7 @@ export default function AddHomeSectionPage() {
                 <SelectItem value="Limited_Offer">Limited Offer</SelectItem>
                 <SelectItem value="product_category">products category</SelectItem>
                 <SelectItem value="subcategory_banner">Sub Category Banner</SelectItem>
-                <SelectItem value="offers">Offers</SelectItem>
-                <SelectItem value="newsletter">Newsletter</SelectItem>
+           
               </SelectContent>
             </Select>
           </div>

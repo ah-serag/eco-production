@@ -18,5 +18,12 @@ router.post('/addcategories',authenticate,attachUser,auhtorize("admin" ,"Super A
 router.delete('/deleteCategory/:id',authenticate,attachUser,auhtorize("admin" ,"Super Admin"), catagoryControll.deleteCategory);
 router.delete('/deleteSubcategory/:id',authenticate,attachUser,auhtorize("admin" ,"Super Admin"), catagoryControll.deleteSubcategory);
 
+router.patch('/editCategoryName/:id',authenticate,attachUser,auhtorize("admin" ,"Super Admin"), catagoryControll.editCategoryName);
+router.patch('/editSubcategoryName/:id',authenticate,attachUser,auhtorize("admin" ,"Super Admin"), catagoryControll.editSubcategoryName);
+
+
+router.patch('/toggleCategoryStatus/:id',authenticate,attachUser,auhtorize("admin" ,"Super Admin"), catagoryControll.toggleCategoryStatus);
+router.patch('/toggleSubcategoryStatus/:id',authenticate,attachUser,auhtorize("admin" ,"Super Admin"), catagoryControll.toggleSubcategoryStatus);
+
 
 module.exports = router;

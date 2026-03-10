@@ -17,7 +17,11 @@ interface Product {
 
 export default function ProductsHomeCarouselPro({ section }: any) {
   const locale = useLocale(); 
-  const categoryId = section?.content[0].category_id;
+  const categoryId = section?.content?.[0]?.category_id || null;
+
+if (!categoryId || section.content.length === 0) {
+  return null; 
+}
   const info = section?.info;
 
   const isArabic = locale === "ar";

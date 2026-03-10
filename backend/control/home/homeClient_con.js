@@ -21,13 +21,20 @@ const getHomePage = async (req, res) => {
           WHEN s.type = 'category' THEN (
             SELECT COALESCE(json_agg(c.*), '[]')
             FROM home_categories c 
+            INNER JOIN categories cat ON c.category_id = cat.id
             WHERE c.section_id = s.id AND c.is_active = true
+             AND cat.is_active = true  
           )
           WHEN s.type = 'product_category' THEN (
             SELECT COALESCE(json_agg(p.*), '[]')
             FROM (
-              SELECT * FROM home_products hp 
-              WHERE hp.section_id = s.id AND hp.is_active = true 
+              SELECT hp.* FROM home_products hp
+              INNER JOIN categories cat ON hp.category_id = cat.id
+              INNER JOIN subcategories sub ON sub.category_id = cat.id
+              WHERE hp.section_id = s.id 
+                AND hp.is_active = true 
+                AND cat.is_active = true  
+                AND sub.is_active = true 
             ) p
           )
           WHEN s.type = 'Limited_Offer' THEN (
@@ -69,7 +76,11 @@ const searchProductscatAndSub = async (req, res) => {
     const queryParams = [];
     let paramIndex = 1;
 
-    let whereClause = `WHERE p.is_active = true`;
+    let whereClause = `
+      WHERE p.is_active = true 
+      AND c.is_active = true 
+      AND (s.id IS NULL OR s.is_active = true)
+    `;
 
     if (category) {
       whereClause += ` AND p.category_id = $${paramIndex}`;
@@ -120,7 +131,7 @@ const searchProductscatAndSub = async (req, res) => {
         i.url AS image_url
       FROM products p
       JOIN categories c ON c.id = p.category_id
-      LEFT JOIN subcategories s ON s.id = p.subcategory_id
+      LEFT JOIN subcategories s ON s.id = p.subcategory_id 
       LEFT JOIN product_images pi ON pi.product_id = p.id AND pi.is_main = true
       LEFT JOIN images i ON i.id = pi.image_id
       ${whereClause}
@@ -131,6 +142,8 @@ const searchProductscatAndSub = async (req, res) => {
     const countQuery = `
       SELECT COUNT(*) AS total
       FROM products p
+      JOIN categories c ON c.id = p.category_id
+      LEFT JOIN subcategories s ON s.id = p.subcategory_id
       ${whereClause}
     `;
 
@@ -162,9 +175,6 @@ const searchProductscatAndSub = async (req, res) => {
 };
 
 
-
-
-// get products home only
 const getProductCategory = async (req, res) => {
   const { categoryId } = req.params;
 
@@ -172,7 +182,7 @@ const getProductCategory = async (req, res) => {
   const limit = Math.min(parseInt(req.query.limit) || 12, 50);
   const offset = (page - 1) * limit;
 
-  const { sub } = req.query; // optional: "1,2,3"
+  const { sub } = req.query;
 
   try {
     const queryParams = [categoryId];
@@ -180,10 +190,11 @@ const getProductCategory = async (req, res) => {
 
     let whereClause = `
       WHERE p.is_active = true
+      AND c.is_active = true
+      AND (s.id IS NULL OR s.is_active = true)
       AND p.category_id = $1
     `;
 
-    // فلترة Subcategory (اختياري)
     if (sub) {
       const subArray = sub
         .split(",")
@@ -204,8 +215,8 @@ const getProductCategory = async (req, res) => {
         s.name AS subcategory,
         i.url AS image_url
       FROM products p
-      JOIN categories c ON c.id = p.category_id
-      LEFT JOIN subcategories s ON s.id = p.subcategory_id
+      JOIN categories c ON c.id = p.category_id -- JOIN ضروري للتحقق من نشاط القسم
+      LEFT JOIN subcategories s ON s.id = p.subcategory_id -- LEFT JOIN للتحقق من نشاط الفرعي إن وجد
       LEFT JOIN product_images pi ON pi.product_id = p.id AND pi.is_main = true
       LEFT JOIN images i ON i.id = pi.image_id
       ${whereClause}
@@ -216,6 +227,8 @@ const getProductCategory = async (req, res) => {
     const countQuery = `
       SELECT COUNT(*) AS total
       FROM products p
+      JOIN categories c ON c.id = p.category_id
+      LEFT JOIN subcategories s ON s.id = p.subcategory_id
       ${whereClause}
     `;
 
@@ -255,12 +268,15 @@ const getProductsBySubcategory = async (req, res) => {
   const offset = (page - 1) * limit;
 
   try {
-    
     const countResult = await pool.query(
       `
       SELECT COUNT(*) AS total
       FROM products p
+      JOIN categories c ON c.id = p.category_id
+      JOIN subcategories s ON s.id = p.subcategory_id
       WHERE p.is_active = true
+        AND c.is_active = true
+        AND s.is_active = true
         AND p.subcategory_id = $1
       `,
       [subcategoryId]
@@ -276,11 +292,13 @@ const getProductsBySubcategory = async (req, res) => {
       FROM products p
       JOIN categories c ON c.id = p.category_id
       JOIN subcategories s ON s.id = p.subcategory_id
-      JOIN product_images pi 
+      LEFT JOIN product_images pi 
         ON pi.product_id = p.id AND pi.is_main = true
-      JOIN images i 
+      LEFT JOIN images i 
         ON i.id = pi.image_id
       WHERE p.is_active = true
+        AND c.is_active = true
+        AND s.is_active = true
         AND p.subcategory_id = $1
       ORDER BY p.created_at DESC
       LIMIT $2 OFFSET $3
@@ -299,14 +317,13 @@ const getProductsBySubcategory = async (req, res) => {
       data: productsResult.rows,
     });
   } catch (error) {
-    console.error(error);
+    console.error("getProductsBySubcategory error:", error);
     res.status(500).json({
       success: false,
       message: "Failed to fetch products by subcategory",
     });
   }
 };
-
 
 
 const filterCategory = async (req, res) => {
@@ -353,32 +370,39 @@ const CategoryAndSubcategoyOption = async (req, res) => {
       SELECT 
         c.id AS category_id, 
         c.name AS category_name,
+        c.name_ar AS category_name_ar,
         json_agg(
-          json_build_object('id', s.id, 'name', s.name)
-        ) FILTER (WHERE s.id IS NOT NULL) AS items
+          json_build_object(
+            'id', s.id, 
+            'name', s.name,
+            'name_ar', s.name_ar
+          )
+        ) FILTER (WHERE s.id IS NOT NULL AND s.is_active = true) AS items 
       FROM categories c
       LEFT JOIN subcategories s ON c.id = s.category_id
-      GROUP BY c.id, c.name
+      WHERE c.is_active = true 
+      GROUP BY c.id, c.name, c.name_ar
       ORDER BY c.name ASC;
     `;
 
     const { rows } = await pool.query(query);
-    
-  
+
     const result = rows.map(row => ({
       id: row.category_id,
       categoryName: row.category_name,
+      categoryName_ar: row.category_name_ar, 
       items: row.items || [] 
     }));
 
     return res.status(200).json(result);
   } catch (error) {
-    console.error("Error fetching categories:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error fetching categories for storefront:", error);
+    return res.status(500).json({ 
+      message: "Internal Server Error",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    });
   }
 };
-
-
 
 
 const searchProducts = async (req, res) => {
@@ -390,7 +414,6 @@ const searchProducts = async (req, res) => {
       return res.status(400).json({ success: false, message: "Search query is required" });
     }
 
-    // 1. الاستعلام المتقدم - يستخدم Ranking لترتيب النتائج حسب الأهمية
     const productsResult = await pool.query(
       `
       WITH search_results AS (
@@ -406,10 +429,12 @@ const searchProducts = async (req, res) => {
           ) AS rank
         FROM products p
         JOIN categories c ON c.id = p.category_id
-        JOIN subcategories s ON s.id = p.subcategory_id
+        LEFT JOIN subcategories s ON s.id = p.subcategory_id -- استخدام LEFT لضمان ظهور المنتجات التي ليس لها قسم فرعي
         JOIN product_images pi ON pi.product_id = p.id AND pi.is_main = true
         JOIN images i ON i.id = pi.image_id
         WHERE p.is_active = true
+          AND c.is_active = true -- التأكد من نشاط القسم الرئيسي
+          AND (s.id IS NULL OR s.is_active = true) -- التأكد من نشاط القسم الفرعي إن وجد
           AND (
             to_tsvector('arabic', COALESCE(p.title, '') || ' ' || COALESCE(p.description, '')) 
             @@ websearch_to_tsquery('arabic', $1)

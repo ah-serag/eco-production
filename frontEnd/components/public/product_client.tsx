@@ -26,7 +26,9 @@ interface Product {
   description_ar?: string;
   sku: string;
   category_name: string;
+  category_name_ar?: string;
   subcategory_name: string;
+  subcategory_name_ar?: string;
   images_list: ProductImage[];
   stock: string;
 }
@@ -41,6 +43,7 @@ export default function ProductPreview({ product }: { product: Product }) {
   
   const displayTitle = isArabic ? (product.title_ar || product.title) : product.title;
   const displayDescription = isArabic ? (product.description_ar || product.description) : product.description;
+  const displayCategory = isArabic ? (product.category_name_ar || product.category_name) : product.category_name;
 
   const stockCount = Number(product.stock) || 0;
   const mainImage = product.images_list.find((img) => img.is_main) || product.images_list[0];
@@ -148,7 +151,7 @@ export default function ProductPreview({ product }: { product: Product }) {
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none text-[10px] font-normal tracking-tight">
-                {product.category_name}
+                {displayCategory}
               </Badge>
               <div className="flex items-center gap-1 px-2 py-0.5 bg-chart-1 border rounded-2xl">
                  <Box size={8} className="text-white" />

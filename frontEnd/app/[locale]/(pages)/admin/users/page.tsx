@@ -102,8 +102,8 @@ export default function UsersPage() {
         </div>
         <div className=" border bg-transparent rounded-lg px-4 py-1.5  text-right">
            <span className="text-[10px] text-slate-400 font-black m-2 leading-tight uppercase tracking-wider">Total Directory :</span>
-           <span className="text-sm  text-chart-1 tracking-tighter">
-             {(data?.total || 0).toLocaleString()} <span className="text-slate-900 m-1 text-[12px]">Profiles</span>
+           <span className="text-sm  text-secondary tracking-tighter">
+             {data?.total} 
            </span>
         </div>
       </div>

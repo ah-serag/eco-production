@@ -6,10 +6,14 @@ import Link from "next/link";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export default function CategorySection({ section }: any) {
-  const category = section?.content ?? [];
+  const category = section?.content || null ;
   const info = section?.info;
+   
+ if (!category || section.content.length === 0) {
+  return null; 
+} 
 
-  // تأثير الـ Hint Scroll للهواتف لجذب الانتباه
+
   useEffect(() => {
     const timer = setTimeout(() => {
       const viewport = document.querySelector('[data-radix-scroll-area-viewport]');
