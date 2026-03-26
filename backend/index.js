@@ -45,6 +45,9 @@ app.use("/api/payment", require("./modules/payment/paymob.routes"));
 //orders clients 
 app.use("/clientOrders", require("./routes/orders_client/ordersClientRoute"));
 
+//checkout data
+app.use("/api/checkoutdData", require("./routes/checkoutdataRoute/checkdataRoute"));
+
 
 
 

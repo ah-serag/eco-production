@@ -1,74 +1,65 @@
 "use client";
 
 import Image from "next/image";
-import {  ShieldCheck, MessageCircleMore } from "lucide-react";
+import { ShieldCheck, MessageCircleMore } from "lucide-react";
 import LanguageSwitcher from "../public/langSwitcher";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
- 
-export default function CheckoutNavbar() {
 
-  const t = useTranslations("checkout") ;
+export default function CheckoutNavbar() {
+  const t = useTranslations("checkout");
+
+  const secondaryImageStyle = "grayscale opacity-30 hover:opacity-70 transition-opacity duration-300";
+
   return (
     <nav className="bg-white shadow-sm py-2 px-6 sticky top-0 z-50 border-b border-slate-100">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         
         <div className="flex items-center gap-4 sm:gap-6">
           <Link href="/" className="flex items-center">
-            <Image src="/photo/tmara.svg" alt="Logo" width={90} height={35} priority />
+            <Image 
+              src="/photo/gotiy.svg" 
+              alt="Logo" 
+              width={130} 
+              height={35} 
+              priority 
+            />
           </Link>
-      
-          
-       
         </div>
 
         <div className="flex self-center items-center gap-8">
-          
-       
-          
-           <Image 
+          <Image 
             src="/photo/payment/ABS-Egypt.webp" 
             alt="Egypt Post" 
             width={90} 
             height={30} 
-            className="hidden sm:block opacity-10"
+            className={`hidden sm:block ${secondaryImageStyle}`}
           /> 
-          <Image 
-            src="/photo/payment/EGYPT_POST.svg" 
-            alt="Egypt Post" 
-            width={90} 
-            height={30} 
-            className="hidden sm:block opacity-10"
-          />
 
           <div className="hidden sm:flex items-center gap-2">
-            <ShieldCheck size={20} className="text-green-400 opacity-10  " />
+            <ShieldCheck size={20} className="text-slate-300" />
             <Image 
               src="/photo/maymob.png" 
               alt="Paymob" 
               width={100} 
               height={30} 
-              className="opacity-10 hidden sm:block"
+              className={secondaryImageStyle}
             />
-            </div>
-
+          </div>
         </div> 
-            <div className="flex gap-4">
 
-              <a 
+        <div className="flex gap-4">
+          <a 
             href="https://wa.me/201091714419" 
             target="_blank" 
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full border shadow border-slate-100 bg-se hover:bg-green-50 transition-colors group"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm border-slate-100 hover:bg-green-50 transition-colors group"
           >
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <MessageCircleMore  size={14} className="text-slate-600" />
+            <MessageCircleMore size={14} className="text-slate-600" />
             <span className="text-xs font-semibold text-slate-700">{t("support")}</span>
           </a>
           <LanguageSwitcher />
-
-            </div>
+        </div>
         
-
       </div>
     </nav>
   );

@@ -98,6 +98,40 @@
     "subtotal": "المجموع الفرعي",
     "total": "الإجمالي الحالي",
     "checkout": "إتمام الشراء"
-  }
+  } , 
+  "auth": {
+  "register": {
+      "full_name_label": "الاسم الكامل",
+      "full_name_placeholder": "الاسم الكامل",
+      "email_label": "البريد الإلكتروني",
+      "email_placeholder": "email@example.com",
+      "password_label": "كلمة المرور",
+      "confirm_password_label": "تأكيد",
+      "submit_btn": "إنشاء حساب",
+      "loading": "جاري الإنشاء...",
+      "already_have_account": "انضممت إلينا من قبل؟",
+      "login_link": "تسجيل الدخول",
+      "required": "الاسم والبريد وكلمة المرور مطلوبة.",
+      "already_registered": "هذا البريد مسجل بالفعل." ,
+            "internal_error": "خطأ داخلي في الخادم"
 
+    },
+
+    "signin": {
+      "email_label": "البريد الإلكتروني",
+      "password_label": "كلمة المرور",
+      "forgot_password": "نسيت كلمة المرور؟",
+      "submit_btn": "استمرار",
+      "loading": "جاري الدخول...",
+      "no_account": "ليس لديك حساب؟",
+      "signup_link": "سجل الآن",
+      "login_success": "تم تسجيل الدخول بنجاح",
+      "incorrect_password": "كلمة السر غير صحيحة" ,
+      "invalid_credentials": "بيانات الدخول غير صحيحة" ,
+      "internal_error": "خطأ داخلي في الخادم"
+
+    }
+
+  }
 }
+

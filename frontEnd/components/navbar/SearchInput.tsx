@@ -67,14 +67,14 @@ export function SearchInput() {
           size="icon"
           className="bg-secondary text-white h-full w-12 rounded-none hover:bg-chart-1/80 transition-colors shrink-0"
         >
-          <SearchIcon size={18} />
+          <SearchIcon size={15} />
         </Button>
       </form>
 
       {/* زر فتح البحث في الموبايل */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden flex items-center justify-center w-15 h-8 rounded-2xl bg-white  text-neutral-500 shadow-sm active:scale-90 transition-all"
+        className="md:hidden flex items-center justify-center py-1.5 px-3 rounded-2xl bg-white  text-neutral-500 shadow-sm active:scale-90 transition-all"
       >
         {isOpen ? <X size={15} /> : <SearchIcon size={15} />}
       </button>

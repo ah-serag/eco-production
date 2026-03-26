@@ -23,7 +23,7 @@ export default function HeroSlider({ section }: any) {
   const nextSlide = () => setCurrent((prev) => (prev === length - 1 ? 0 : prev + 1));
 
   return (
-    <section className="relative w-full aspect-[2/1] md:aspect-[2/1] overflow-hidden shadow-sm group/slider">
+    <section className="relative w-full px-4    aspect-7/3 md:aspect-7/2 overflow-hidden shadow-sm group/slider">
       <style jsx>{`
         @keyframes soft-pulse {
           0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
@@ -39,7 +39,7 @@ export default function HeroSlider({ section }: any) {
         <div
           key={index}
           className={cn(
-            "absolute inset-0 transition-all duration-[1500ms] ease-in-out",
+            "absolute inset-0  transition-all duration-1500 ease-in-out",
             index === current ? "opacity-100 scale-100 z-20" : "opacity-0 scale-105 z-10"
           )}
           style={{
@@ -51,7 +51,6 @@ export default function HeroSlider({ section }: any) {
         >
           <div className="absolute inset-0 bg-black/10" />
 
-          {/* السهم المعدل بحركة انسيابية (Smooth & Minimal) */}
        {banner.cta_link && (
          <div className={cn(
         "absolute left-4 bottom-4 sm:left-12 sm:bottom-12 z-40 transition-all duration-1000 delay-500",
@@ -77,7 +76,6 @@ export default function HeroSlider({ section }: any) {
         </div>
       ))}
 
-      {/* أزرار التحكم - تظهر وتختفي بنعومة */}
       <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-black/5 hover:bg-white hover:text-black backdrop-blur-md text-white opacity-0 group-hover/slider:opacity-100 transition-all duration-700">
         <ChevronLeft size={20} />
       </button>

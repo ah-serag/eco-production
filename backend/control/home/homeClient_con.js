@@ -337,12 +337,15 @@ const filterCategory = async (req, res) => {
       SELECT 
         c.id AS category_id, 
         c.name AS category_name,
+        c.name_ar AS category_name_ar , 
         json_agg(
-          json_build_object('id', s.id, 'name', s.name)
+          json_build_object('id', s.id, 'name', s.name , 'name_ar' , s.name_ar)
         ) FILTER (WHERE s.id IS NOT NULL) AS items
       FROM categories c
       LEFT JOIN subcategories s ON c.id = s.category_id
       WHERE c.id = $1
+      AND s.is_active = true 
+      AND c.is_active = true 
       GROUP BY c.id, c.name;
     `;
 
@@ -352,6 +355,7 @@ const filterCategory = async (req, res) => {
     const result = rows.map(row => ({
       id: row.category_id,
       categoryName: row.category_name,
+      categoryName_ar: row.category_name_ar,
       items: row.items || [] 
     }));
 

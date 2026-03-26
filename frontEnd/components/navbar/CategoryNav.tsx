@@ -99,7 +99,7 @@ export function MegaMenuNavbar() {
       <div
         dir="ltr"
         className={cn(
-          "absolute top-full left-0 w-full bg-white border-b shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform origin-top",
+          "absolute top-full left-0 w-full h-[300px] bg-white border-b shadow-[0_25px_50px_-12px_rgba(0,0,0,0.1)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform origin-top",
           activeCategory 
             ? "opacity-100 translate-y-0 scale-y-100 pointer-events-auto" 
             : "opacity-0 -translate-y-2 scale-y-95 pointer-events-none"
@@ -111,7 +111,7 @@ export function MegaMenuNavbar() {
            className={cn("col-span-9 p-10", isAr ? "pl-6" : "pr-6")}>
             <ScrollArea className="h-[250px]">
               <div            dir={isAr ? "rtl" : "ltr"}
-  className="grid grid-cols-3 gap-x-10 gap-y-5">
+               className="grid grid-cols-3 gap-x-10 gap-y-5">
                 {currentCategoryData?.items.map((sub, index) => (
                   <Link
                     key={sub.id}
@@ -149,7 +149,7 @@ export function MegaMenuNavbar() {
           <div 
             dir={isAr ? "rtl" : "ltr"}
             className={cn(
-            "col-span-3 p-10 bg-slate-50/40",
+            "col-span-3 p-10 bg-slate-50/40 h-[300px]" ,
             isAr ? "border-r border-slate-100/60" : "border-l border-slate-100/60"
           )}>
             <div className={cn(

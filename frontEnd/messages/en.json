@@ -98,7 +98,40 @@
     "subtotal": "Subtotal",
     "total": "Total",
     "checkout": "Checkout"
-  }
+  } ,
 
+  "auth": {
+  "register": {
+      "full_name_label": "Full Name",
+      "full_name_placeholder": "Full Name",
+      "email_label": "Email Address",
+      "email_placeholder": "email@example.com",
+      "password_label": "Password",
+      "confirm_password_label": "Confirm",
+      "submit_btn": "Create Account",
+      "loading": "Creating...",
+      "already_have_account": "Joined before?",
+      "login_link": "Log in",
+      "internal_error": "Internal Server Error",
+      "required": "Full name, email, and password are required.",
+      "already_registered": "Email is already registered as a member."
+    },
+   "signin": {
+      "email_label": "Email Address",
+      "password_label": "Password",
+      "forgot_password": "Forgot?",
+      "submit_btn": "Continue",
+      "loading": "Signing in...",
+      "no_account": "Don't have an account?",
+      "signup_link": "Sign up",
+      "login_success": "Login successful.",
+      "incorrect_password": "Incorrect password." ,
+      "invalid_credentials": "Incorrect information" ,
+       "internal_error": "Internal Server Error"
+
+
+    }
+
+  }
 
 }

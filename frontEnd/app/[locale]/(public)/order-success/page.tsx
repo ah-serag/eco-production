@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, ArrowRight, ArrowLeft, Package, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "@/i18n/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
+import { useLocale, } from "next-intl";
+import { useSearchParams } from "next/navigation";
 
 export default function OrderSuccessPage() {
   const locale = useLocale();

@@ -31,12 +31,21 @@ export default function AddHomeSectionPage() {
     name: "",
     type: "",
     order_index: 0,
-    content: `{
-  "title": "",
-  "subtitle": "" ,
-  "title_ar": "",
-  "subtitle_ar": ""
-}`,
+    content:
+     `{
+     -------------------
+     "title": "",
+     "subtitle": "" ,
+     "title_ar": "",
+     "subtitle_ar": "" ,
+     --------------------
+     "wideBinner_items" : [
+      {"url_image" : "" , "link" :"/"},
+      {"url_image" : "" , "link" :"/"},
+      ],
+     -----------------------
+     "strip_images" : [""]
+    }`,
   });
 
   const submit = async () => {
@@ -131,12 +140,13 @@ export default function AddHomeSectionPage() {
                 <SelectValue placeholder="Select section type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="hero">Hero Slider</SelectItem>
+                <SelectItem value="hero">Hero Slider 7 : 2</SelectItem>
                 <SelectItem value="category">category</SelectItem>
                 <SelectItem value="Limited_Offer">Limited Offer</SelectItem>
                 <SelectItem value="product_category">products category</SelectItem>
                 <SelectItem value="subcategory_banner">Sub Category Banner</SelectItem>
-           
+                <SelectItem value="wide_banner">wide_banner 4 : 1 </SelectItem>
+                <SelectItem value="strip_banner">strip_banner 5: 1 </SelectItem>
               </SelectContent>
             </Select>
           </div>

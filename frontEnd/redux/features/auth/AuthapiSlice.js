@@ -14,7 +14,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         url: '/auth/sign_in',
         method: 'POST',
         body: { ...credentials },
-       invalidatesTags:["userInfo"]
+       invalidatesTags:["userInfo" , 'BillingData']
 
       }),
     }),
@@ -25,7 +25,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         
       }),
-      invalidatesTags:["userInfo"]
+      invalidatesTags:["userInfo" ,'BillingData']
     }),
   }),
 });

@@ -39,9 +39,7 @@ export const productSchema = z.object({
 
 export const registerSchema = z.object({
   full_name: z.string().min(3, "Full name must be at least 3 characters"),
-  username: z.string().min(3, "Username must be at least 3 characters").optional().or(z.literal('')),
   email: z.string().email("Invalid email format"),
-  phone: z.string().min(5, "Invalid phone number"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(8),
 }).refine((data) => data.password === data.confirmPassword, {

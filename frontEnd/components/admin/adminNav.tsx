@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/accordion"; 
 import { UserNav } from "../navbar/userNav";
 import { Link } from "@/i18n/navigation";
+import Image from "next/image";
 
 export function AdminNav() {
   const pathname = usePathname();
@@ -158,11 +159,19 @@ export function AdminNav() {
           </div>
 
           {/* اللوجو - ظاهر دائماً */}
-          <Link href="/admin/dashboard" className="flex items-center gap-2 mr-4 group"> 
-            <span className="text-[18px] lg:text-[20px] font-semibold tracking-tighter text-gray-900">
-              Vexa <span className="text-chart-1">Admin</span>
-            </span>
-          </Link>
+            <div className="items-center hidden md:flex gap-2 shrink-0">
+               <Link href="/admin"  className="block transition-opacity hover:opacity-80">
+                 <Image 
+                   src={`/photo/gotiy.svg` }
+                   alt="vexa Logo" 
+                   width={110} 
+                   height={35}  
+                   priority 
+                   className="object-contain"
+                 />
+               </Link>  
+             </div>
+     
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-1">
@@ -201,7 +210,7 @@ export function AdminNav() {
             <MenuDropdown label="Home UI" icon={<House size={16} />} active={pathname.includes("home")}>
               <div className="grid grid-cols-2 w-[400px]">
                 <div className="border-r p-1">
-                  <SectionHeader title="Add Content" />
+                  <SectionHeader title="Add Content " />
                   <MenuLink href="/admin/home/add/addsections">Sections</MenuLink>
                   <MenuLink href="/admin/home/add/addherobanner">Hero Banner</MenuLink>
                   <MenuLink href="/admin/home/add/addCategoryHome">Category</MenuLink>
@@ -210,7 +219,7 @@ export function AdminNav() {
                   <MenuLink href="/admin/home/add/addsubCategoryBanner">add subCategory Banner</MenuLink>
                 </div>
                 <div className="p-1">
-                  <SectionHeader title="Edit & Preview" />
+                  <SectionHeader  title="Edit & Preview" />
                   <MenuLink href="/admin/home/edit/editAllsections">Preview All</MenuLink>
                   <MenuLink href="/admin/home/edit/editHerobanner">Edit Banner</MenuLink>
                   <MenuLink href="/admin/home/edit/editCategoryHome">Edit Category</MenuLink>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useTranslations } from "next-intl";
 import {
@@ -18,6 +18,7 @@ import {
   useCheckoutWalletMutation,
   useCheckoutCashMutation 
 } from "@/redux/features/paybom/paybomSlice";
+import { useGetBillingDataQuery } from "@/redux/features/checkoutData/checkoutDataSlice"; 
 import {
   checkoutSchema,
   type CheckoutFormData,
@@ -28,7 +29,9 @@ export default function CheckoutPage() {
   const t = useTranslations("checkout"); 
   const checkoutItems = useSelector((state: any) => state.cart.checkoutItems);
   const router = useRouter();
-  const checkout_url = usePathname();
+
+  // 1. جلب بيانات الفوترة المسجلة (تعتمد على الكوكيز من السيرفر)
+  const { data: savedBillingData, isLoading: isGettingData } = useGetBillingDataQuery(undefined);
 
   const [checkoutCard, { isLoading: isCardLoading }] = useCheckoutMutation();
   const [checkoutWallet, { isLoading: isWalletLoading }] = useCheckoutWalletMutation();
@@ -50,12 +53,31 @@ export default function CheckoutPage() {
 
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({});
 
+  // 2. تعبئة النموذج تلقائيًا عند وصول البيانات
+  useEffect(() => {
+    if (savedBillingData) {
+      setForm({
+        first_name: savedBillingData.first_name || "",
+        last_name: savedBillingData.last_name || "",
+        email: savedBillingData.email || "",
+        phone_number: savedBillingData.phone_number || "",
+        city: savedBillingData.city || "",
+        state: savedBillingData.state || "",
+        street: savedBillingData.street || "",
+        building: savedBillingData.building || "",
+      });
+    }
+  }, [savedBillingData]);
+
   const totalPrice = checkoutItems.reduce(
     (acc: number, item: any) => acc + Number(item.price) * item.quantity,
     0
   );
 
   const isLoading = isCardLoading || isWalletLoading || isCashLoading;
+
+  // 3. ستايل "الملء التلقائي" المخصص
+  const autoFillStyle = "bg-secondary/10 border-blue-100/90 transition-all duration-500";
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -104,9 +126,7 @@ export default function CheckoutPage() {
         router.push(res.redirectUrl);
       }
     } catch (err: any) {
-      if (err.status === 403) {
-        router.push(`/auth/sign_in?checkout_url=${checkout_url}`);
-      }
+       console.log(err);
     }
   }
 
@@ -114,7 +134,8 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-[#F8FAFC] p-2 antialiased">
       <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-        <div className="lg:col-span-7  space-y-6">
+        {/* القسم الأيسر: بيانات المستخدم والشحن */}
+        <div className="lg:col-span-7 space-y-6">
           <Card className="border rounded-none border-slate-100 shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2 text-md font-normal text-slate-800">
@@ -126,24 +147,48 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label className="text-[11px] uppercase tracking-wider text-slate-500 font-normal">{t("firstName")}</Label>
-                  <Input name="first_name" value={form.first_name} onChange={handleChange} className="h-10 text-sm font-normal" placeholder={t("firstNamePlaceholder")} />
+                  <Input 
+                    name="first_name" 
+                    value={form.first_name} 
+                    onChange={handleChange} 
+                    className={`h-10 text-sm font-normal ${savedBillingData?.first_name ? autoFillStyle : ""}`} 
+                    placeholder={t("firstNamePlaceholder")} 
+                  />
                   {errors.first_name && <p className="text-[10px] text-red-500 ml-1 font-normal">{errors.first_name}</p>}
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[11px] uppercase tracking-wider text-slate-500 font-normal">{t("lastName")}</Label>
-                  <Input name="last_name" value={form.last_name} onChange={handleChange} className="h-10 text-sm font-normal" placeholder={t("lastNamePlaceholder")} />
+                  <Input 
+                    name="last_name" 
+                    value={form.last_name} 
+                    onChange={handleChange} 
+                    className={`h-10 text-sm font-normal ${savedBillingData?.last_name ? autoFillStyle : ""}`} 
+                    placeholder={t("lastNamePlaceholder")} 
+                  />
                   {errors.last_name && <p className="text-[10px] text-red-500 ml-1 font-normal">{errors.last_name}</p>}
                 </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px] uppercase tracking-wider text-slate-500 font-normal">{t("email")}</Label>
-                <Input name="email" value={form.email} onChange={handleChange} className="h-10 text-sm font-normal" placeholder="you@email.com" />
+                <Input 
+                  name="email" 
+                  value={form.email} 
+                  onChange={handleChange} 
+                  className={`h-10 text-sm font-normal ${savedBillingData?.email ? autoFillStyle : ""}`} 
+                  placeholder="you@email.com" 
+                />
                 {errors.email && <p className="text-[10px] text-red-500 ml-1 font-normal">{errors.email}</p>}
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px] uppercase tracking-wider text-slate-500 font-normal">{t("phone")}</Label>
                 <div className="relative">
-                  <Input name="phone_number" value={form.phone_number} onChange={handleChange} className="h-10 text-sm pl-10 font-normal" placeholder="01000000000" />
+                  <Input 
+                    name="phone_number" 
+                    value={form.phone_number} 
+                    onChange={handleChange} 
+                    className={`h-10 text-sm pl-10 font-normal ${savedBillingData?.phone_number ? autoFillStyle : ""}`} 
+                    placeholder="01000000000" 
+                  />
                   <img src="/photo/payment/Flag_of_Egypt.svg" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-auto" alt="EG" />
                 </div>
                 {errors.phone_number && <p className="text-[10px] text-red-500 ml-1 font-normal">{errors.phone_number}</p>}
@@ -162,29 +207,54 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label className="text-[11px] uppercase tracking-wider text-slate-500 font-normal">{t("city")}</Label>
-                  <Input name="city" value={form.city} onChange={handleChange} className="h-10 text-sm font-normal" placeholder={t("cityPlaceholder")} />
+                  <Input 
+                    name="city" 
+                    value={form.city} 
+                    onChange={handleChange} 
+                    className={`h-10 text-sm font-normal ${savedBillingData?.city ? autoFillStyle : ""}`} 
+                    placeholder={t("cityPlaceholder")} 
+                  />
                   {errors.city && <p className="text-[10px] text-red-500 ml-1 font-normal">{errors.city}</p>}
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[11px] uppercase tracking-wider text-slate-500 font-normal">{t("state")}</Label>
-                  <Input name="state" value={form.state} onChange={handleChange} className="h-10 text-sm font-normal" placeholder={t("statePlaceholder")} />
+                  <Input 
+                    name="state" 
+                    value={form.state} 
+                    onChange={handleChange} 
+                    className={`h-10 text-sm font-normal ${savedBillingData?.state ? autoFillStyle : ""}`} 
+                    placeholder={t("statePlaceholder")} 
+                  />
                   {errors.state && <p className="text-[10px] text-red-500 ml-1 font-normal">{errors.state}</p>}
                 </div>
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px] uppercase tracking-wider text-slate-500 font-normal">{t("street")}</Label>
-                <Input name="street" value={form.street} onChange={handleChange} className="h-10 text-sm font-normal" placeholder={t("streetPlaceholder")} />
+                <Input 
+                  name="street" 
+                  value={form.street} 
+                  onChange={handleChange} 
+                  className={`h-10 text-sm font-normal ${savedBillingData?.street ? autoFillStyle : ""}`} 
+                  placeholder={t("streetPlaceholder")} 
+                />
                 {errors.street && <p className="text-[10px] text-red-500 ml-1 font-normal">{errors.street}</p>}
               </div>
               <div className="space-y-1.5">
                 <Label className="text-[11px] uppercase tracking-wider text-slate-500 font-normal">{t("building")}</Label>
-                <Input name="building" value={form.building} onChange={handleChange} className="h-10 text-sm font-normal" placeholder={t("buildingPlaceholder")} />
+                <Input 
+                  name="building" 
+                  value={form.building} 
+                  onChange={handleChange} 
+                  className={`h-10 text-sm font-normal ${savedBillingData?.building ? autoFillStyle : ""}`} 
+                  placeholder={t("buildingPlaceholder")} 
+                />
                 {errors.building && <p className="text-[10px] text-red-500 ml-1 font-normal">{errors.building}</p>}
               </div>
             </CardContent>
           </Card>
         </div>
 
+        {/* القسم الأيمن: ملخص الطلب والدفع */}
         <div className="lg:col-span-5 rounded-none space-y-4">
           <Card className="border border-slate-100 shadow-sm sticky top-6 overflow-hidden">
             <CardHeader className="bg-slate-50/50 border-b border-slate-100">

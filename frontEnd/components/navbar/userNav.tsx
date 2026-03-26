@@ -36,7 +36,7 @@ export function UserNav() {
     return (
       <Link 
         href="/auth/sign_in" 
-        className={`${isAr ? "text-[10px]" : "text-[11px]"} text-slate-500 font-normal rounded-full border px-3 py-1.5 border-slate-200 bg-white hover:bg-slate-50 transition-all shadow-sm active:scale-95`}
+        className={`${isAr ? "text-[10px]" : "text-[10px]"} text-slate-500 font-bold rounded-full border px-3 py-1.5 border-slate-200 bg-white hover:bg-slate-50 transition-all shadow-sm active:scale-95`}
       >
         {t("sign_in")}
       </Link>
@@ -56,15 +56,15 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <button className={`flex items-center gap-2 group border bg-slate-50 outline-none hover:bg-slate-100 p-1 ${isAr ? 'pl-2.5 pr-2 flex-row-reverse' : 'pr-2.5 pl-1.5'} rounded-full transition-all border-slate-100/50 hover:border-slate-200 shadow-sm`}>
           
-          <div className="h-7 w-7 flex items-center justify-center border rounded-full bg-white text-chart-1 shadow-sm text-[10px] font-bold shrink-0">
+          <div className="h-6 w-6 flex items-center justify-center border rounded-full bg-white text-chart-1 shadow-sm text-[10px] font-bold shrink-0">
             {firstLetter}
           </div>
           
           <div className={`flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : ""}`}>
-            <span className={`${isAr ? "text-[13px]" : "text-[12px]"} font-normal text-slate-600 hidden sm:block truncate max-w-20`}>
+            <span className={` text-[12px] uppercase  font-bold text-secondary hidden sm:block truncate max-w-20`}>
               {firstName}
             </span>
-            <ChevronDown size={11} className="text-slate-400 group-hover:text-slate-500 transition-colors" />
+            <ChevronDown size={11} className="text-secondary group-hover:text-slate-500 transition-colors" />
           </div>
         </button>
       </DropdownMenuTrigger>
@@ -79,7 +79,7 @@ export function UserNav() {
             <p className="text-[10.5px] text-slate-400 font-normal truncate lowercase">{user.email}</p>
           </div>
         </DropdownMenuLabel>
-        
+           
         <DropdownMenuSeparator className="bg-slate-100" />
         
         <div className="py-1">

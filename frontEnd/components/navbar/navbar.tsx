@@ -42,12 +42,12 @@ export default function Navbar() {
       <div className="container mx-auto flex h-13 items-center justify-between px-4 gap-4">
         
         {/* Logo Section */}
-        <div className="flex items-center gap-2 shrink-0">
-          <Link href="/" className="block transition-opacity hover:opacity-80">
+        <div className="items-center hidden md:flex gap-2 shrink-0">
+          <Link href="/"  className="block transition-opacity hover:opacity-80">
             <Image 
-              src={`/photo/${isAribac ? "tmara_ar.svg"  :  "tmara.svg"}` }
+              src={`/photo/gotiy.svg` }
               alt="vexa Logo" 
-              width={90} 
+              width={130} 
               height={35}  
               priority 
               className="object-contain"
@@ -59,7 +59,19 @@ export default function Navbar() {
         <div className="flex flex-1 justify-center max-w-2xl px-2">
           <SearchInput />
         </div>
-
+        
+             <div className="items-center not-odd:flex md:hidden gap-2 shrink-0">
+          <Link href="/"  className="block transition-opacity hover:opacity-80">
+            <Image 
+              src={`/photo/gotiy.svg` }
+              alt="vexa Logo" 
+              width={110} 
+              height={35}  
+              priority 
+              className="object-contain"
+            />
+          </Link>  
+        </div>
         {/* Icons Section */}
         <div className="flex items-center gap-3 shrink-0">
           <LanguageSwitcher />
