@@ -8,7 +8,11 @@ import {
   LucidePackagePlus, ImageIcon, House, ChevronDown,
   PlusCircle, FileSpreadsheet, ImageUp, 
   ClipboardList, Receipt, CreditCard, Search,
-  Menu
+  Menu,
+  Video,
+  VideoIcon,
+  TvMinimalPlay,
+  MonitorUp
 } from "lucide-react";
 
 import {
@@ -40,7 +44,6 @@ export function AdminNav() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // حل مشكلة Hydration: الانتظار حتى يتم تحميل المكون على المتصفح
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -52,7 +55,6 @@ export function AdminNav() {
       <div className="flex h-13 items-center justify-between px-6">
         
         <div className="flex items-center gap-4">
-          {/* زر قائمة الموبايل */}
           <div className="lg:hidden">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
@@ -128,6 +130,21 @@ export function AdminNav() {
                       </AccordionContent>
                     </AccordionItem>
 
+
+                    {/* videos  */} 
+                        <AccordionItem value="videos" className="border-none">
+                      <AccordionTrigger className="hover:no-underline py-2 px-3 rounded-md hover:bg-slate-50 text-[13px] font-medium text-slate-600">
+                        <div className="flex items-center gap-3"><Video size={18} />videos</div>
+                      </AccordionTrigger>
+                      <AccordionContent className="pb-1 pl-9 space-y-1">
+                        <SectionHeader title="Upload" />
+                        <MobileSubLink href="/admin/videos/add_videos" icon={<ImageUp size={14} />} onClick={() => setOpen(false)}>Upload New</MobileSubLink>
+                        <SectionHeader title="Library" />
+                        <MobileSubLink href="/admin/images_library" icon={<ImageIcon size={14} />} onClick={() => setOpen(false)}>videos</MobileSubLink>
+                      </AccordionContent>
+                    </AccordionItem>
+
+
                     <MobileSimpleLink href="/admin/users" active={pathname.includes("users")} icon={<Users size={18} />} onClick={() => setOpen(false)}>Users</MobileSimpleLink>
                     <MobileSimpleLink href="/admin/vendors" active={pathname.includes("vendors")} icon={<ShoppingBag size={18} />} onClick={() => setOpen(false)}>Vendors</MobileSimpleLink>
 
@@ -158,19 +175,11 @@ export function AdminNav() {
             </Sheet>
           </div>
 
-          {/* اللوجو - ظاهر دائماً */}
-            <div className="items-center hidden md:flex gap-2 shrink-0">
-               <Link href="/admin"  className="block transition-opacity hover:opacity-80">
-                 <Image 
-                   src={`/photo/gotiy.svg` }
-                   alt="vexa Logo" 
-                   width={110} 
-                   height={35}  
-                   priority 
-                   className="object-contain"
-                 />
-               </Link>  
-             </div>
+              <div className="md:flex hidden shrink-0">
+                <Link href="/" className="group flex items-center">
+                  <span className="text-2xl font-serif font-bold tracking-widest uppercase text-primary">GOTIY</span>
+                </Link>
+              </div> 
      
 
           {/* Desktop Nav */}
@@ -203,6 +212,15 @@ export function AdminNav() {
               <SectionHeader title="Library" />
               <MenuLink href="/admin/images_library" icon={<ImageIcon size={14} />}>Gallery</MenuLink>
             </MenuDropdown>
+
+
+               <MenuDropdown label="videos" icon={<TvMinimalPlay  size={16} />} active={pathname.includes("videos")}>
+              <SectionHeader title="Upload" />
+              <MenuLink href="/admin/video/upload_videos" icon={<MonitorUp size={14} />}>Upload New</MenuLink>
+              <SectionHeader title="Library" />
+              <MenuLink href="/admin/images_library" icon={<TvMinimalPlay size={14} />}>videos</MenuLink>
+            </MenuDropdown>
+            
             
             <NavItem href="/admin/users" active={pathname.includes("users")} icon={<Users size={16} />}>Users</NavItem>
             <NavItem href="/admin/vendors" active={pathname.includes("vendors")} icon={<ShoppingBag size={16} />}>Vendors</NavItem>

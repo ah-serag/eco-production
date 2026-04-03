@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Loader2, CreditCard, MapPin, User, Wallet, Banknote } from "lucide-react";
+import { Loader2, CreditCard, MapPin, User, Wallet, Banknote, Truck, ShieldCheck } from "lucide-react";
 import { 
   useCheckoutMutation, 
   useCheckoutWalletMutation,
@@ -30,7 +30,7 @@ export default function CheckoutPage() {
   const checkoutItems = useSelector((state: any) => state.cart.checkoutItems);
   const router = useRouter();
 
-  // 1. جلب بيانات الفوترة المسجلة (تعتمد على الكوكيز من السيرفر)
+  // 1. جلب بيانات الفوترة المسجلة
   const { data: savedBillingData, isLoading: isGettingData } = useGetBillingDataQuery(undefined);
 
   const [checkoutCard, { isLoading: isCardLoading }] = useCheckoutMutation();
@@ -53,7 +53,7 @@ export default function CheckoutPage() {
 
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({});
 
-  // 2. تعبئة النموذج تلقائيًا عند وصول البيانات
+  // 2. تعبئة النموذج تلقائيًا
   useEffect(() => {
     if (savedBillingData) {
       setForm({
@@ -76,8 +76,7 @@ export default function CheckoutPage() {
 
   const isLoading = isCardLoading || isWalletLoading || isCashLoading;
 
-  // 3. ستايل "الملء التلقائي" المخصص
-  const autoFillStyle = "bg-secondary/10 border-blue-100/90 transition-all duration-500";
+  const autoFillStyle = "bg-blue-50 transition-all duration-500";
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -258,7 +257,7 @@ export default function CheckoutPage() {
         <div className="lg:col-span-5 rounded-none space-y-4">
           <Card className="border border-slate-100 shadow-sm sticky top-6 overflow-hidden">
             <CardHeader className="bg-slate-50/50 border-b border-slate-100">
-              <CardTitle className="text-sm font-normal uppercase tracking-widest text-slate-500">{t("summaryTitle")}</CardTitle>
+              <CardTitle className="text-sm font-semibold uppercase tracking-widest text-slate-500">{t("summaryTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
               
@@ -273,32 +272,54 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-[13px] font-normal text-slate-800 truncate">{item.title}</h3>
-                      <p className="text-[11px] text-slate-400 font-normal mt-0.5">{(Number(item.price) * item.quantity).toFixed(2)} {t("currency")}</p>
+                      <p className="text-[11px] text-slate-500 font-semibold mt-0.5">{(Number(item.price) * item.quantity).toFixed(2)} {t("currency")}</p>
                     </div>
                   </div>
                 ))}
               </div>
+
+              {/* --- قسم حوافز الشراء المتجاوب مع الترجمة --- */}
+              <div className="flex flex-col sm:flex-row gap-2 mb-2">
+               <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100 bg-slate-50/50 flex-1">
+                  <div className="bg-white p-1.5 rounded-lg shadow-sm shrink-0">
+                     <Truck size={14} className="text-primary" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                     <span className="text-[10.5px] font-bold text-slate-700 truncate">{t("freeShippingTitle")}</span>
+                     <span className="text-[9px] text-slate-400 truncate">{t("freeShippingDesc")}</span>
+                  </div>
+               </div>
+               <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100 bg-slate-50/50 flex-1">
+                  <div className="bg-white p-1.5 rounded-lg shadow-sm shrink-0">
+                     <ShieldCheck size={14} className="text-emerald-500" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                     <span className="text-[10.5px] font-bold text-slate-700 truncate">{t("securePayTitle")}</span>
+                     <span className="text-[9px] text-slate-400 truncate">{t("securePayDesc")}</span>
+                  </div>
+               </div>
+            </div>
 
               <div className="pt-4 border-t border-slate-100 space-y-3">
                 <Label className="text-[10px] font-normal uppercase text-slate-400">{t("paymentMethod")}</Label>
                 <div className="grid grid-cols-3 gap-2">
                   <button 
                     onClick={() => setPaymentType("card")}
-                    className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "card" ? "border-chart-1 bg-chart-1/5 text-chart-1" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}
+                    className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "card" ? "border-gray-200 bg-primary/5 text-slate-700" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}
                   >
                     <CreditCard size={14} />
                     <span className="text-[9px] font-normal uppercase tracking-tighter">{t("card")}</span>
                   </button>
                   <button 
                     onClick={() => setPaymentType("wallet")}
-                    className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "wallet" ? "border-chart-1 bg-chart-1/5 text-chart-1" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}
+                    className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "wallet" ? "border-gray-200 bg-primary/5 text-slate-700" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}
                   >
                     <Wallet size={14} />
                     <span className="text-[9px] font-normal uppercase tracking-tighter">{t("wallet")}</span>
                   </button>
                   <button 
                     onClick={() => setPaymentType("cash")}
-                    className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "cash" ? "border-chart-1 bg-chart-1/5 text-chart-1" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}
+                    className={`h-11 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all ${paymentType === "cash" ? "border-gray-200 bg-primary/5 text-slate-700" : "border-slate-100 text-slate-500 hover:bg-slate-50"}`}
                   >
                     <Banknote size={14} />
                     <span className="text-[9px] font-normal uppercase tracking-tighter">{t("cash")}</span>
@@ -334,7 +355,7 @@ export default function CheckoutPage() {
                       placeholder={t("walletPlaceholder")} 
                       value={walletNumber}
                       onChange={(e) => setWalletNumber(e.target.value)}
-                      className="h-9 text-[11px] border-chart-1/20 focus-visible:ring-chart-1 pl-10 font-normal"
+                      className="h-9 text-[11px] border-primary/20 focus-visible:ring-primary pl-10 font-normal"
                     />
                     <img src="/photo/payment/Flag_of_Egypt.svg" className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-auto" alt="EG" />
                   </div>
@@ -343,14 +364,14 @@ export default function CheckoutPage() {
 
               <div className="pt-2 border-t border-slate-100">
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-xs font-normal text-slate-900 uppercase">{t("total")}</span>
-                  <span className="text-lg font-normal text-slate-900">{totalPrice.toFixed(2)} {t("currency")}</span>
+                  <span className="text-xs font-semibold text-slate-900 uppercase">{t("total")}</span>
+                  <span className="text-lg font-semibold text-slate-900">{totalPrice.toFixed(2)} {t("currency")}</span>
                 </div>
 
                 <Button
                   onClick={handleCheckout}
                   disabled={isLoading || checkoutItems.length === 0}
-                  className="w-full h-11 rounded-xl font-normal bg-chart-1 hover:brightness-110 text-white transition-all text-[11px] tracking-widest flex items-center justify-center gap-2 shadow-none"
+                  className="w-full h-11 rounded-xl font-semibold bg-primary hover:brightness-110 text-white transition-all text-[11px] tracking-widest flex items-center justify-center gap-2 shadow-none"
                 >
                   {isLoading ? (
                     <><Loader2 className="animate-spin" size={16} /> {t("processing")}</>

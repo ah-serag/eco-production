@@ -59,22 +59,23 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-t from-chart-1/10 via-white to-white px-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-t from-chart-1/5 via-white to-white px-4">
       <div className="w-full max-w-[400px] space-y-6">
         <Card className="rounded-[20px] border border-slate-200/60 bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] overflow-hidden">
           <CardContent className="pt-10 pb-10 px-8">
-            <div className="text-center mb-8">
-              <Link href="/">
-                <Image 
-                  src="/photo/gotiy.svg" 
-                  alt="Logo" 
-                  width={140} 
-                  height={32} 
-                  priority 
-                  className="mx-auto"
-                />
-              </Link>
-            </div>
+
+   <div className=" w-full flex justify-center  text-center mb-8  ">
+     <Link
+       href="/"
+       className="group "
+     >
+       <span className="relative  text-4xl font-serif font-bold tracking-widest uppercase text-primary">
+         
+         <span className="">GOTIY</span>
+   
+       </span>
+     </Link>
+   </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-2">

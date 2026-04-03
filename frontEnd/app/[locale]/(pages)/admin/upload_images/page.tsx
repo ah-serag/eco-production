@@ -44,7 +44,6 @@ export default function UploadImagesPage() {
       setFiles([]);
       setPreviews([]);
     } catch (err: any) {
-      console.error(err);
       toast.error(err?.data?.message || "Upload failed");
     }
   };
@@ -57,12 +56,11 @@ export default function UploadImagesPage() {
   return (
     <div className="w-full ">
 
-      {/* ================= Banner ================= */}
-      <div className="relative overflow-hidden mb-10 rounded-md  p-10 bg-secondary text-white">
+      <div className="relative overflow-hidden mb-5 w-full text-slate-600 shadow-sm p-10 ">
 
 
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-center">
-          <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-chart-1">
+        <div className="relative z-10 grid grid-cols-1  w-full md:grid-cols-[auto_1fr] gap-6 items-center">
+          <div className="flex items-center justify-center shadow-sm  w-16 h-16 text-secondary rounded-xl ">
             <Upload/>
           </div>
 
@@ -73,7 +71,7 @@ export default function UploadImagesPage() {
             <span className="inline-block text-xs uppercase tracking-widest ">
               Media Infrastructure
             </span>
-            <p className="max-w-2xl text-slate-300 text-sm leading-relaxed">
+            <p className="max-w-2xl  text-sm leading-relaxed">
               Centralized image upload and URL management system.  
               Optimized for enterprise workflows, product catalogs, and content delivery.
             </p>
@@ -82,12 +80,26 @@ export default function UploadImagesPage() {
       </div>
 
 
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Upload Images</h2>
+      <div className="space-y-6  border p-5 shadow-sm">
+       <div className="space-y-1 p-2 bg-gray-100">
+      <h2 className="text-lg font-semibold text-slate-800">
+        Upload Images
+      </h2>
+       <p className="text-md text-slate-600">
+        Allowed formats: <span className="font-sm text-blue-500">JPG, PNG, SVG, WEBP</span>
+       </p>
+       <p className="text-md text-slate-600">
+        MAX Size : <span className="font-sm text-blue-500">5M</span>
+       </p>
+        <p className="text-md text-slate-600">
+         Limit : <span className="font-sm text-blue-500">10</span>
+       </p>
+       </div>
 
         <div className="space-y-4">
           <Label>Select Images</Label>
-          <Input
+     
+              <Input
             type="file"
             multiple
             accept="image/*"
@@ -101,9 +113,9 @@ export default function UploadImagesPage() {
             {previews.map((src, i) => (
               <div
                 key={i}
-                className="relative w-24 h-24 rounded-lg overflow-hidden shadow-md border border-slate-700"
+                className="relative w-24 h-24 rounded-lg overflow-hidden shadow-md border "
               >
-                <img src={src} className="w-full h-full object-cover" />
+                <img src={src} className="w-full h-full object-contain" />
                 <button
                   onClick={() => removeFile(i)}
                   className="absolute top-1 right-1 bg-red-600 text-white w-5 h-5 flex items-center justify-center rounded-full text-xs"
@@ -116,7 +128,7 @@ export default function UploadImagesPage() {
         )}
 
         <Button
-          className="bg-secondary hover:bg-secondary/90 transition-all"
+          className="bg-gray-100 shadow-md border w-full text-secondary hover:bg-gray-200/90 transition-all"
           onClick={handleUpload}
           disabled={uploading}
         >
@@ -127,8 +139,8 @@ export default function UploadImagesPage() {
       {/* ================= Uploaded URLs ================= */}
       {uploadedUrls.length > 0 && (
         <div className="overflow-x-auto mt-6">
-          <table className="min-w-full bg-white rounded-lg shadow-md overflow-hidden">
-            <thead className="bg-gray-100 text-sm">
+          <table className="min-w-full bg-white  shadow-md overflow-hidden">
+            <thead className=" text-slate-400 text-sm">
               <tr>
                 <th className="px-4 py-2 text-left">Preview</th>
                 <th className="px-4 py-2 text-left">URL</th>
@@ -141,10 +153,10 @@ export default function UploadImagesPage() {
                   <td className="px-4 py-2">
                     <img
                       src={url}
-                      className="w-16 h-16 object-cover rounded"
+                      className="w-16 h-16 object-contain rounded"
                     />
                   </td>
-                  <td className="px-4 py-2 text-secondary underline break-all">
+                  <td className="px-4 py-2 text-blue-500 underline break-all">
                     {url}
                   </td>
                   <td className="px-4 py-2">

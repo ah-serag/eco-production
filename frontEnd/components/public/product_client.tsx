@@ -6,10 +6,11 @@ import { setDirectCheckout, addToCart } from "../../redux/features/cartSlice/car
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Zap, Plus, Minus, Box, Check, AlertCircle } from "lucide-react";
+import { ShoppingCart, Zap, Plus, Minus, Box, Check, AlertCircle, Truck, ShieldCheck, HandCoins } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 interface ProductImage {
   url: string;
@@ -111,38 +112,59 @@ export default function ProductPreview({ product }: { product: Product }) {
     <div className="p-2 md:p-8 max-w-7xl mx-auto antialiased">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" style={{ direction: 'ltr' }}>
         
-        {/* LEFT SIDE — IMAGES */}
-        <div className="col-span-2 sm:flex-row flex-col flex gap-4">
-          <div className="flex flex-col sm:order-1 order-2 gap-3 w-20 shrink-0">
-            {[mainImage, ...secondaryImages].map((img, index) => (
-              <div
-                key={index}
-                onClick={() => setSelectedImage(img.url)}
-                className={cn(
-                  "aspect-square overflow-hidden cursor-pointer rounded-lg border-2 transition-all duration-200",
-                  selectedImage === img.url ? "border-chart-1" : "border-transparent bg-gray-50 hover:border-gray-200"
-                )}
-              >
-                <img src={img?.url} alt="thumbnail" className="w-full h-full object-contain p-1" />
-              </div>
-            ))}
-          </div>
+     {/* LEFT SIDE — IMAGES */}
+        <div className="col-span-2 flex flex-col sm:flex-row gap-4">
+          
+          {/* Thumbnails Container using ScrollArea */}
+          <ScrollArea className="order-2 sm:order-1 w-full sm:w-24 h-[100px] sm:h-[520px]">
+            <div className="flex flex-row sm:flex-col sm:pr-4 gap-3 p-1">
+              {[mainImage, ...secondaryImages].map((img, index) => (
+                <div
+                  key={index}
+                  onClick={() => setSelectedImage(img.url)}
+                  className={cn(
+                    "aspect-square h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden cursor-pointer rounded-lg border-2 transition-all duration-200",
+                    selectedImage === img.url 
+                      ? "border-primary shadow-sm" 
+                      : "border-transparent bg-gray-50 hover:border-gray-200"
+                  )}
+                >
+                  <img src={img?.url} alt="thumbnail" className="w-full h-full object-contain p-1" />
+                </div>
+              ))}
+            </div>
+            {/* ScrollBars */}
+            <ScrollBar orientation="horizontal" className="sm:hidden " />
+            <ScrollBar orientation="vertical" className="hidden sm:block w-1.5" />
+          </ScrollArea>
 
+          {/* Main Image View */}
           <div
             ref={imgRef}
-            className="relative w-full overflow-hidden sm:order-2 border border-slate-100 rounded-2xl bg-[#fafafa] cursor-zoom-in"
+            className="relative w-full order-1 sm:order-2 overflow-hidden h-[350px] md:h-[520px] border border-slate-100 rounded-2xl bg-[#fafafa] cursor-zoom-in"
             onMouseMove={handleMouseMove}
             onMouseLeave={() => setZoom({ ...zoom, active: false })}
           >
-            <img src={selectedImage} alt={displayTitle} className="object-contain py-6 w-full h-[400px] md:h-[520px] transition-transform duration-500" />
+            <img 
+              src={selectedImage} 
+              alt={displayTitle} 
+              className="object-contain py-6 w-full h-full transition-transform duration-500" 
+            />
+            
             {zoom.active && (
               <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
-                <div className="absolute inset-0 w-full h-full" style={{ backgroundImage: `url(${selectedImage})`, backgroundPosition: `${zoom.x}% ${zoom.y}%`, backgroundSize: "220%" }} />
+                <div 
+                  className="absolute inset-0 w-full h-full" 
+                  style={{ 
+                    backgroundImage: `url(${selectedImage})`, 
+                    backgroundPosition: `${zoom.x}% ${zoom.y}%`, 
+                    backgroundSize: "220%" 
+                  }} 
+                />
               </div>
             )}
           </div>
         </div>
-
         {/* RIGHT SIDE — INFO */}
         <div 
           className={cn("flex flex-col space-y-6", isArabic ? "text-right" : "text-left")} 
@@ -153,30 +175,30 @@ export default function ProductPreview({ product }: { product: Product }) {
               <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-none text-[10px] font-normal tracking-tight">
                 {displayCategory}
               </Badge>
-              <div className="flex items-center gap-1 px-2 py-0.5 bg-chart-1 border rounded-2xl">
-                 <Box size={8} className="text-white" />
-                 <span className="sm:text-[11px] text-[10px] font-normal  text-white">
+              <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-2xl">
+                 <Box size={8} />
+                 <span className="sm:text-[11px] text-[10px] font-normal">
                     {t('available_stock', { count : stockCount } )}
                  </span>
               </div>
             </div>
 
-            <h1 className={cn("text-2xl md:text-2xl text-slate-900 tracking-tight leading-snug font-normal", isArabic && "font-tajawal")}>
+            <h1 className={cn("text-xl md:text-2xl text-slate-900 tracking-tight leading-snug font-normal", isArabic && "font-tajawal")}>
               {displayTitle}
             </h1>
-            <p className="text-[11px] text-slate-400 font-normal tracking-widest uppercase">
+            <p className="text-[10px] text-slate-400 font-normal tracking-widest uppercase">
               {t('sku')}: {product.sku}
             </p>
           </div>
 
           <Separator className="bg-slate-100" />
 
-          <div className="flex  text-nowrap items-center gap-3">
-            <span className="text-xl  font-normal text-slate-900">{product.discount_price} {t('currency')}</span>
+          <div className="flex text-nowrap items-center gap-3">
+            <span className="text-xl font-semibold text-slate-900">{product.discount_price} {t('currency')}</span>
             {product.discount_price < product.price && (
               <div className="flex items-center gap-2">
-                <span className="line-through text-[11px] sm:text-[15px] text-slate-300 text-sm font-normal">{product.price} {t('currency')}</span>
-                <span className="bg-secondary text-amber-50 text-nowrap text-[8px] sm:text-[10px] px-3 py-1 rounded-2xl font-normal">{discountPercent}% {t('off')}</span>
+                <span className="line-through text-[11px] sm:text-[15px] text-slate-300 font-semibold">{product.price} {t('currency')}</span>
+                <span className="bg-primary text-white text-nowrap text-[8px] sm:text-[10px] px-3 py-1 rounded-2xl font-semibold">{discountPercent}% {t('off')}</span>
               </div>
             )}
           </div>
@@ -184,7 +206,7 @@ export default function ProductPreview({ product }: { product: Product }) {
           <Separator className="bg-slate-100" />
 
           <div className="space-y-2">
-            <h3 className="text-[11px] font-normal text-slate-400 uppercase tracking-widest">
+            <h3 className="text-[10px] font-normal text-slate-400 uppercase tracking-widest">
               {t('details_title')}
             </h3>
             <p className={cn("text-sm text-slate-600 leading-relaxed font-normal", isArabic && "font-tajawal")}>
@@ -194,14 +216,35 @@ export default function ProductPreview({ product }: { product: Product }) {
 
           <Separator className="bg-slate-100" />
 
-          <div className="flex flex-col gap-3 pt-2">
+          <div className="flex flex-col gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row gap-2 mb-2">
+               <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100 bg-slate-50/50 flex-1">
+                  <div className="bg-white p-1.5 rounded-lg shadow-sm shrink-0">
+                     <Truck size={14} className="text-primary" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                     <span className="text-[10.5px] font-bold text-slate-700 truncate">{t("freeShippingTitle")}</span>
+                     <span className="text-[9px] text-slate-400 truncate">{t("freeShippingDesc")}</span>
+                  </div>
+               </div>
+               <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-100 bg-slate-50/50 flex-1">
+                  <div className="bg-white p-1.5 rounded-lg shadow-sm shrink-0">
+                     <ShieldCheck size={14} className="text-emerald-500" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                     <span className="text-[10.5px] font-bold text-slate-700 truncate">{t("securePayTitle")}</span>
+                     <span className="text-[9px] text-slate-400 truncate">{t("securePayDesc")}</span>
+                  </div>
+               </div>
+            </div>
+
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-4">
                 <span className="text-xs font-normal text-slate-500">{t('quantity')}</span>
                 <div className="flex items-center border rounded-xl overflow-hidden bg-white">
-                  <button onClick={decreaseQuantity} disabled={quantity <= 1} className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 transition-colors"><Minus size={16} /></button>
-                  <span className="w-12 text-center font-normal text-sm">{quantity}</span>
-                  <button onClick={increaseQuantity} disabled={quantity >= stockCount} className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 transition-colors"><Plus size={16} /></button>
+                  <button onClick={decreaseQuantity} disabled={quantity <= 1} className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 transition-colors"><Minus size={14} /></button>
+                  <span className="w-10 text-center font-normal text-sm">{quantity}</span>
+                  <button onClick={increaseQuantity} disabled={quantity >= stockCount} className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 transition-colors"><Plus size={14} /></button>
                 </div>
               </div>
 
@@ -214,26 +257,26 @@ export default function ProductPreview({ product }: { product: Product }) {
               </div>
             </div>
 
-            <div className="flex flex-row gap-3">
+            <div className="flex flex-row gap-2">
               <Button
                 onClick={handleAddToCart}
                 variant="outline"
                 disabled={isAdding || stockCount === 0}
                 className={cn(
-                  "flex-1 h-12 rounded-xl text-xs font-normal transition-all duration-300 border-slate-200 shadow-none",
+                  "flex-1 h-12 rounded-xl text-[11px] font-normal transition-all duration-300 border-slate-200 shadow-none",
                   isAdding ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "text-slate-700 hover:bg-slate-50"
                 )}
               >
-                {isAdding ? <Check className="mr-2 h-4 w-4 animate-bounce" /> : <ShoppingCart className="mr-2 h-4 w-4" />}
+                {isAdding ? <Check className="mr-1.5 h-4 w-4 animate-bounce" /> : <ShoppingCart className="mr-1.5 h-4 w-4" />}
                 {isAdding ? t('added') : t('add_to_cart')}
               </Button>
 
               <Button
                 onClick={handleBuyNow}
                 disabled={stockCount === 0}
-                className="flex-[1.8] h-12 rounded-xl bg-chart-1 text-white text-xs font-normal shadow-none hover:bg-chart-1/90"
+                className="flex-[1.5] text-white h-12 rounded-xl bg-primary text-[11px] font-semibold shadow-none hover:bg-primary/80"
               >
-                <Zap className="mr-2 h-4 w-4 fill-current" />
+                <HandCoins size={20} className="mr-1.5 h-7 w-7 " />
                 {stockCount === 0 ? t('out_of_stock') : t('buy_now')}
               </Button>
             </div>

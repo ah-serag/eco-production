@@ -65,21 +65,19 @@ export function SearchInput() {
           type="submit"
           variant="default"
           size="icon"
-          className="bg-secondary text-white h-full w-12 rounded-none hover:bg-chart-1/80 transition-colors shrink-0"
+          className="bg-primary text-white shadow-sm h-full w-12 rounded-none hover:bg-gray-100 transition-colors shrink-0"
         >
           <SearchIcon size={15} />
         </Button>
       </form>
 
-      {/* زر فتح البحث في الموبايل */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden flex items-center justify-center py-1.5 px-3 rounded-2xl bg-white  text-neutral-500 shadow-sm active:scale-90 transition-all"
+        className="md:hidden flex items-center justify-center py-1.5 px-3  text-neutral-500  active:scale-90 transition-all"
       >
         {isOpen ? <X size={15} /> : <SearchIcon size={15} />}
       </button>
 
-      {/* 3. شريط البحث المنبثق في الموبايل */}
       {isOpen && (
         <div className="absolute top-full left-0 w-full z-100 md:hidden p-0 animate-in slide-in-from-top-1 duration-200">
           <form 

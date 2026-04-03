@@ -11,6 +11,8 @@
     "prev": "Prev",
     "next": "Next",
     "currency": "EGP",
+    "load_more": "Load More",
+    "no_more": "End of your order history" ,
 
     "status": {
       "completed": "Completed",
@@ -30,16 +32,24 @@
     "added": "Added!",
     "add_to_cart": "Add to Cart",
     "buy_now": "Buy Now",
-    "out_of_stock": "Out of Stock"
+    "out_of_stock": "Out of Stock" ,
+    "freeShippingTitle": "Free Shipping",
+    "freeShippingDesc": "On all orders",
+    "securePayTitle": "Secure Payment",
+    "securePayDesc": "Fully encrypted"
   },
   
-  "user_nav": {
-  "sign_in": "Sign In",
-  "profile": "Profile",
-  "orders": "Orders",
-  "settings": "Settings",
-  "sign_out": "Sign Out"
-} ,
+   "user_nav": {
+   "login_title": "Login",
+    "welcome_msg": "Welcome to GOTIY",
+    "sign_in": "Sign In",
+    "create_account": "Create Account",
+    "profile": "Profile",
+    "orders": "My Orders",
+    "settings": "Settings",
+    "sign_out": "Sign Out",
+    "guest": "Guest"
+   } ,
 
 "search": {
     "placeholder": "Search products..."
@@ -82,7 +92,11 @@
     "btnConfirmCash": "CONFIRM CASH ORDER",
     "btnComplete": "COMPLETE PURCHASE" ,
      "support" : "support" ,
-      "currency": "EGP"
+      "currency": "EGP" ,
+      "freeShippingTitle": "Free Shipping",
+  "freeShippingDesc": "On all orders",
+  "securePayTitle": "Secure Payment",
+  "securePayDesc": "Fully encrypted"
 
   } ,
 
@@ -130,8 +144,18 @@
        "internal_error": "Internal Server Error"
 
 
-    }
+    } 
 
+  } ,
+    "orderSuccess": {
+    "title": "Order Confirmed",
+    "description": "Thank you for your purchase. Your order <orderId></orderId> has been received and is now being prepared.",
+    "statusLabel": "Status",
+    "statusValue": "Confirmed",
+    "expectedLabel": "Expected",
+    "expectedValue": "2-3 Days",
+    "trackBtn": "TRACK YOUR ORDER",
+    "backBtn": "Back to Shop"
   }
 
 }

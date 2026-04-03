@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const productsControll = require("../../../control/Admin/AdminProductsCon/products_con");
-const {uploadExcel , uploadImage} = require("../../../config/multer")
+const {handleExcelUpload ,handleProductMediaUpload} = require("../../../config/multer")
 const authenticate = require("../../../middleware/auth/authenticate")
 const attachUser = require("../../../middleware/auth/atachUser")
 const auhtorize = require("../../../middleware/auth/authorize")
@@ -19,15 +19,19 @@ router.delete("/deleteProduct/:id",authenticate,attachUser,auhtorize("admin" ,"S
 
 
 /// add product 
-router.post('/addProductWithImages', uploadImage.fields([
+router.post('/addProductWithImages',
+  handleProductMediaUpload([
     { name: "mainImage", maxCount: 1 },
     { name: "gallery", maxCount: 10 },
-  ])  ,authenticate,attachUser,auhtorize("admin" ,"Super Admin","vendor") , productsControll.addProductWithImages);
+    { name: "mainVideo", maxCount: 1 } ,
+    { name: "videoGallery", maxCount: 3 } ,
+  ]) , 
+  authenticate,attachUser,auhtorize("admin" ,"Super Admin","vendor") , productsControll.addProductWithImages);
 
 
 // ai product 
 router.post('/addProductFromAI' ,authenticate,attachUser,auhtorize("admin" ,"Super Admin","vendor") , productsControll.addProductFromAI);
-router.post('/addProductsFromExcel', uploadExcel.single("excelFile") ,authenticate,attachUser,auhtorize("admin" ,"Super Admin")  , productsControll.addProductsFromExcel);
+router.post('/addProductsFromExcel',  handleExcelUpload("excelFile") ,authenticate,attachUser,auhtorize("admin" ,"Super Admin")  , productsControll.addProductsFromExcel);
 
 
 

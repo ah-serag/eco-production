@@ -2,7 +2,9 @@ const paymobService = require("./paymob.service");
 const pool = require("../../config/condb");
 const { integrationIdWallet, integrationIdCard } = require("../../config/paymob.config");
 const axios = require("axios");
-const bcrypt =  require("bcrypt") 
+const bcrypt =  require("bcrypt"); 
+const sendMailNodemailer = require("../../config/nodemailer");
+const { orderConfirmationEmail } = require("../../config/orderConfirmationEmail");
 
 
 
@@ -243,7 +245,13 @@ exports.checkoutCash = async (req, res) => {
 
     await addBillingDataToUser(client ,userId ,billingData)
     const OrderAndItems = await processOrderAndItems(client ,userId,items,"processing", "cash on delivary" ,billingData)
+    
+
     await client.query("COMMIT");
+
+    const htmlTemp = orderConfirmationEmail({name : billingData.first_name , orderId :OrderAndItems.orderId ,total : OrderAndItems.totalAmount})
+    const sendemail = sendMailNodemailer({ to:billingData.email , subject: htmlTemp.subject , text :htmlTemp.text ,html : htmlTemp.html})
+
     res.status(201).json({ success: true, orderId: OrderAndItems.orderId, redirectUrl: `/order-success?success=true&id=${OrderAndItems.orderId}` });
 
   } catch (err) {

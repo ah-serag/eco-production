@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { SearchInput } from "./SearchInput"; 
 import { UserNav } from "./userNav";
@@ -13,9 +12,7 @@ import { useLocale } from "next-intl";
 export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-   const locale = useLocale()
-   const isAribac = locale === "ar" ? true : false ;
-
+  const locale = useLocale();
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -39,45 +36,32 @@ export default function Navbar() {
         isVisible ? "translate-y-0" : "-translate-y-full"
       )}
     >
-      <div className="container mx-auto flex h-13 items-center justify-between px-4 gap-4">
+      <div className="container mx-auto flex h-14 items-center justify-between px-4 gap-2 md:gap-4 relative">
         
-        {/* Logo Section */}
-        <div className="items-center hidden md:flex gap-2 shrink-0">
-          <Link href="/"  className="block transition-opacity hover:opacity-80">
-            <Image 
-              src={`/photo/gotiy.svg` }
-              alt="vexa Logo" 
-              width={130} 
-              height={35}  
-              priority 
-              className="object-contain"
-            />
-          </Link>  
+        <div className="md:flex hidden shrink-0">
+          <Link href="/" className="group flex items-center">
+            <span className="text-2xl font-serif font-bold tracking-widest uppercase text-primary">GOTIY</span>
+          </Link>
         </div>
 
-        {/* Search Section */}
-        <div className="flex flex-1 justify-center max-w-2xl px-2">
+        <div className="flex flex-1 md:justify-center max-w-2xl z-10 order-1 md:order-none">
           <SearchInput />
         </div>
         
-             <div className="items-center not-odd:flex md:hidden gap-2 shrink-0">
-          <Link href="/"  className="block transition-opacity hover:opacity-80">
-            <Image 
-              src={`/photo/gotiy.svg` }
-              alt="vexa Logo" 
-              width={110} 
-              height={35}  
-              priority 
-              className="object-contain"
-            />
-          </Link>  
+        <div className="md:hidden absolute left-1/2 -translate-x-1/2 shrink-0 z-20">
+          <Link href="/" className="group flex items-center">
+            <span className="text-2xl font-serif font-bold tracking-widest uppercase text-primary">GOTIY</span>
+          </Link>
         </div>
-        {/* Icons Section */}
-        <div className="flex items-center gap-3 shrink-0">
-          <LanguageSwitcher />
+
+        <div className="flex items-center gap-3 md:gap-5 shrink-0 z-10 order-2 md:order-none">
+          <div className="hidden sm:block">
+            <LanguageSwitcher />
+          </div>
           <CartNav /> 
           <UserNav />
         </div>
+
       </div>
     </header>
   );

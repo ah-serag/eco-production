@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { Loader2, PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle, PlusSquare } from "lucide-react";
 
 export default function AddSubcategoryBannerPage() {
   const [sectionId, setSectionId] = useState("");
@@ -88,12 +88,11 @@ export default function AddSubcategoryBannerPage() {
 
   return (
     <div className="mx-auto">
-      <Card className="shadow-md">
+      <Card className="shadow-md rounded-none">
         <CardHeader>
-          <CardTitle className="text-xl flex items-center gap-2">
-            <PlusCircle className="w-5 h-5" />
-            Add Subcategory Banner
-          </CardTitle>
+           <CardTitle className="text-xl flex w-fit py-2 items-center gap-2">
+           <PlusSquare className="w-5 h-5" />Add banner image <span className="text-bold text-emerald-600">product</span> from <span className="text-bold text-emerald-600">sub Category</span>
+            </CardTitle>
           <CardDescription>
             Create a banner linked to a specific subcategory
           </CardDescription>

@@ -101,10 +101,16 @@ export default function SubcategoryBannersAdminPage() {
           >
             {/* Header */}
             <div className="flex justify-between items-center">
-              <AccordionTrigger className="flex-1 px-4 py-3 font-medium hover:bg-gray-100">
-                Section : ( {banner.section_name} ) / Sub Name : (
-                {banner.subcategory_name} )
-              </AccordionTrigger>
+               <AccordionTrigger className="flex-1 text-chart-1 px-4 py-3 font-medium hover:bg-gray-100">
+                <div>
+                 section name : <span className="text-black">{banner.section_name}</span> 
+                </div>
+                  ---
+                <div>
+                 Banner name : <span className="text-black">{banner.subcategory_name}</span> 
+                </div>
+               </AccordionTrigger>
+            
 
               <div className="flex items-center gap-3 px-4">
                 <Switch

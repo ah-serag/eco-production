@@ -19,8 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { LayoutGrid } from "lucide-react";
+
 
 import { useAddHomeSectionMutation } from "../../../../../../../redux/features/home/AllsectionsSlice";
 
@@ -31,22 +30,39 @@ export default function AddHomeSectionPage() {
     name: "",
     type: "",
     order_index: 0,
-    content:
-     `{
-     -------------------
-     "title": "",
-     "subtitle": "" ,
-     "title_ar": "",
-     "subtitle_ar": "" ,
-     --------------------
-     "wideBinner_items" : [
-      {"url_image" : "" , "link" :"/"},
-      {"url_image" : "" , "link" :"/"},
-      ],
-     -----------------------
-     "strip_images" : [""]
+    content: `{
+      "title": "",
+      "subtitle": "" ,
+      "title_ar": "",
+      "subtitle_ar": "" 
     }`,
   });
+
+  const handleTypeChange = (value: string) => {
+    let newContent = "";
+
+    if (value === "wide_banner") {
+      newContent = `{
+      "wideBinner_items" : [
+        {"url_image" : "" , "link" : "/"},
+        {"url_image" : "" , "link" : "/"}
+      ]
+    }`;
+    } else if (value === "strip_banner") {
+      newContent = `{
+      "strip_images" : [""]
+    }`;
+    } else {
+      newContent = `{
+      "title": "",
+      "subtitle": "" ,
+      "title_ar": "",
+      "subtitle_ar": "" 
+    }`;
+    }
+
+    setForm({ ...form, type: value, content: newContent });
+  };
 
   const submit = async () => {
     try {
@@ -65,9 +81,11 @@ export default function AddHomeSectionPage() {
         type: "",
         order_index: 0,
         content: `{
-  "title": "",
-  "subtitle": ""
-}`,
+          "title": "",
+          "subtitle": "" ,
+          "title_ar": "",
+          "subtitle_ar": "" 
+        }`,
       });
     } catch (err) {
       toast.error("Invalid JSON or server error");
@@ -75,42 +93,9 @@ export default function AddHomeSectionPage() {
   };
 
   return (
-    <div className="mx-auto space-y-8">
-      {/* ================= Page Banner ================= */}
-      <div className="relative overflow-hidden mb-10 rounded-md p-10 bg-secondary text-white shadow-lg">
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-center">
-          {/* Icon */}
-          <div className="flex items-center justify-center w-20 h-20 rounded-xl bg-white/20">
-            <LayoutGrid size={32} />
-          </div>
-
-          {/* Text Content */}
-          <div className="space-y-3">
-            <h1 className="text-4xl font-bold tracking-tight">
-              Manage Home Sections
-            </h1>
-            <span className="inline-block text-sm uppercase tracking-widest text-white/70">
-              Dynamic Homepage Sections
-            </span>
-            <p className="max-w-3xl text-white/80 text-base leading-relaxed">
-              This page allows you to create and manage dynamic sections for
-              the homepage. Each section can have a type, order index, and
-              custom JSON content which will be rendered dynamically on the
-              frontend.
-            </p>
-            <p className="max-w-3xl text-white/70 text-sm leading-relaxed">
-              Use this interface to add hero sliders, featured products,
-              special offers, or newsletter signup sections. Make sure your JSON
-              content is valid to avoid rendering errors.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <Separator />
-
+    <div className="mx-auto  space-y-8">
       {/* ================= Form Card ================= */}
-      <Card className="shadow-sm">
+      <Card className="shadow-sm rounded-none ">
         <CardHeader>
           <CardTitle>Add New Section</CardTitle>
           <CardDescription>
@@ -134,19 +119,19 @@ export default function AddHomeSectionPage() {
             <label className="text-sm font-medium">Section Type</label>
             <Select
               value={form.type}
-              onValueChange={(value) => setForm({ ...form, type: value })}
+              onValueChange={handleTypeChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select section type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="hero">Hero Slider 7 : 2</SelectItem>
+                <SelectItem value="hero">Hero Slider (7 : 2)</SelectItem>
                 <SelectItem value="category">category</SelectItem>
                 <SelectItem value="Limited_Offer">Limited Offer</SelectItem>
                 <SelectItem value="product_category">products category</SelectItem>
-                <SelectItem value="subcategory_banner">Sub Category Banner</SelectItem>
-                <SelectItem value="wide_banner">wide_banner 4 : 1 </SelectItem>
-                <SelectItem value="strip_banner">strip_banner 5: 1 </SelectItem>
+                <SelectItem value="subcategory_banner">SubCategory products</SelectItem>
+                <SelectItem value="wide_banner">wide_banner  (4 : 1) </SelectItem>
+                <SelectItem value="strip_banner">strip_banner (5: 1)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -167,8 +152,8 @@ export default function AddHomeSectionPage() {
           <div className="space-y-2">
             <label className="text-sm font-medium">Section Content (JSON)</label>
             <Textarea
-              rows={8}
-              className="font-mono text-sm"
+              rows={10}
+              className="font-mono bg-slate-800 text-slate-100 text-sm"
               value={form.content}
               onChange={(e) => setForm({ ...form, content: e.target.value })}
             />

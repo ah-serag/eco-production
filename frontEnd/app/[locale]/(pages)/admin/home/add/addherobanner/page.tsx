@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import {  FileSliders } from "lucide-react";
+import {  FileSliders, PlusSquare } from "lucide-react";
 
 import {
   useGetHomeSectionsQuery,
@@ -41,8 +41,6 @@ export default function AddHeroBannerPage() {
 
   const [form, setForm] = useState({
     section_id: "",
-    title: "",
-    subtitle: "",
     image_url: "",
     cta_text: "",
     cta_link: "",
@@ -67,8 +65,6 @@ export default function AddHeroBannerPage() {
 
       setForm({
         section_id: "",
-        title: "",
-        subtitle: "",
         image_url: "",
         cta_text: "",
         cta_link: "",
@@ -83,44 +79,14 @@ export default function AddHeroBannerPage() {
 
   return (
     <div className="mx-auto space-y-8">
-      {/* ================= Page Banner ================= */}
-      <div className="relative overflow-hidden mb-10 rounded-md p-10 
-      bg-secondary text-white shadow-lg">
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-center">
-          {/* Icon */}
-          <div className="flex items-center justify-center w-20 h-20 rounded-xl bg-white/20">
-            <FileSliders size={32} />
-          </div>
-
-          {/* Text Content */}
-          <div className="space-y-3">
-            <h1 className="text-4xl font-bold tracking-tight">
-              Manage Hero Banners
-            </h1>
-            <span className="inline-block text-sm uppercase tracking-widest text-white/70">
-              Homepage Slider Management
-            </span>
-            <p className="max-w-3xl text-white/80 text-base leading-relaxed">
-              This page allows you to create, edit, and manage all hero banners
-              displayed on the homepage. You can select the target section,
-              upload an image, add a catchy title and subtitle, and define a
-              call-to-action button that drives users to your desired page.
-            </p>
-     
-          </div>
-        </div>
-
-     
-      </div>
-
-
-
-      <Separator />
-
+ 
       {/* ================= Form Card ================= */}
-      <Card>
+      <Card className="rounded-none">
         <CardHeader>
-          <CardTitle>Add New Hero Banner</CardTitle>
+          <CardTitle className="text-xl flex items-center gap-2">
+          <PlusSquare  size={30} />
+          Add New Hero Banner
+          </CardTitle>
           <CardDescription>This banner will appear inside the selected hero section</CardDescription>
         </CardHeader>
 
@@ -146,29 +112,10 @@ export default function AddHeroBannerPage() {
             </Select>
           </div>
 
-          {/* Title */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Title</label>
-            <Input
-              placeholder="Big Sale"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-            />
-          </div>
-
-          {/* Subtitle */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Subtitle</label>
-            <Input
-              placeholder="Up to 50% off"
-              value={form.subtitle}
-              onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
-            />
-          </div>
 
           {/* Image */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Image URL 3780 * 1890 px </label>
+            <label className="text-sm font-medium">Image URL size : 7 : 2 </label>
             <Input
               placeholder="/uploads/banner.jpg"
               value={form.image_url}

@@ -52,7 +52,7 @@ export function MegaMenuNavbar() {
 
   return (
     <nav 
-      className="relative w-full bg-white border-b z-40 hidden md:block shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+      className="relative w-full bg-gray-50 shadow-sm  z-40 hidden md:block "
       onMouseLeave={closeMenu}
       dir={isAr ? "rtl" : "ltr"}
     >
@@ -69,8 +69,8 @@ export function MegaMenuNavbar() {
                   className={cn(
                     "px-4 flex items-center gap-1.5 text-[13px] font-medium transition-all h-full relative outline-none",
                     activeCategory === category.id 
-                      ? "text-secondary" 
-                      : "text-slate-600 hover:text-secondary"
+                      ? "text-slate-600" 
+                      : "text-slate-500 "
                   )}
                 >
                   {isAr ? category.categoryName_ar : category.categoryName}
@@ -80,14 +80,7 @@ export function MegaMenuNavbar() {
                       activeCategory === category.id && "rotate-180 opacity-100"
                     )} 
                   />
-                  
-                  <div 
-                    className={cn(
-                      "absolute bottom-0 w-full h-px bg-secondary transition-transform duration-500 scale-x-0",
-                      isAr ? "origin-right" : "origin-left",
-                      activeCategory === category.id && "scale-x-100"
-                    )} 
-                  />
+                
                 </button>
               </li>
             ))}
@@ -176,10 +169,10 @@ export function MegaMenuNavbar() {
               <Link 
                 href={`/products/${activeCategory}`}
                 onClick={closeMenu}
-                className="group flex items-center justify-start gap-3 bg-transparent text-secondary rounded-xl text-[12px] font-bold transition-all duration-500 active:scale-95"
+                className="group flex items-center justify-start gap-3 bg-gray-100 p-3 text-slate-600  text-[15px] font-bold transition-all duration-500 active:scale-95"
               >
                 {isAr ? "عرض المجموعة" : "View Collection"}
-                <ArrowRight size={16} className={cn("transition-transform", isAr ? "rotate-180 group-hover:-translate-x-1.5" : "group-hover:translate-x-1.5")} />
+                <ArrowRight size={25} className={cn("transition-transform text-secondary/80", isAr ? "rotate-180 group-hover:-translate-x-1.5" : "group-hover:translate-x-1.5")} />
               </Link>
             </div>
           </div>

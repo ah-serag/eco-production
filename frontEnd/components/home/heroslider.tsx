@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 
 export default function HeroSlider({ section }: any) {
   const [current, setCurrent] = useState(0);
@@ -23,7 +24,7 @@ export default function HeroSlider({ section }: any) {
   const nextSlide = () => setCurrent((prev) => (prev === length - 1 ? 0 : prev + 1));
 
   return (
-    <section className="relative w-full px-4    aspect-7/3 md:aspect-7/2 overflow-hidden shadow-sm group/slider">
+    <section className="relative w-full px-4    aspect-7/2  overflow-hidden shadow-sm group/slider">
       <style jsx>{`
         @keyframes soft-pulse {
           0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
@@ -56,7 +57,7 @@ export default function HeroSlider({ section }: any) {
         "absolute left-4 bottom-4 sm:left-12 sm:bottom-12 z-40 transition-all duration-1000 delay-500",
          index === current ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
          )}>
-       <a 
+       <Link
          href={banner.cta_link}
          className="smooth-pulse group/btn relative flex items-center justify-center w-8 h-8 sm:w-16 sm:h-16 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-white transition-all duration-500 hover:bg-white hover:text-chart-1 shadow-2xl active:scale-90"
         >
@@ -70,7 +71,7 @@ export default function HeroSlider({ section }: any) {
         <span className="absolute left-full ml-3 whitespace-nowrap opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all duration-500 text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.5em] text-white pointer-events-none drop-shadow-md">
           explore
         </span>
-      </a>
+      </Link>
     </div>
         )}
         </div>

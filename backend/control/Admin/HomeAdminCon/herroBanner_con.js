@@ -6,8 +6,6 @@ const pool = require("../../../config/condb");
 const addHerobanner = async (req, res) => {
   const {
     section_id,
-    title,
-    subtitle,
     image_url,
     cta_text,
     cta_link
@@ -16,11 +14,11 @@ const addHerobanner = async (req, res) => {
   const result = await pool.query(
     `
     INSERT INTO hero_banners
-    (section_id, title, subtitle, image_url, cta_text, cta_link)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    (section_id,image_url, cta_text, cta_link)
+    VALUES ($1, $2, $3, $4)
     RETURNING *
     `,
-    [section_id, title, subtitle, image_url, cta_text, cta_link]
+    [section_id, image_url, cta_text, cta_link]
   );
 
   res.json({

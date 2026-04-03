@@ -1,25 +1,26 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import CartBadge from "./cardCount";
 
 export function CartNav() {
-
   return (
-    <Link 
-      href="/cart_product" 
-      className="md:flex hidden sm:flex text-slate-500 items-center  gap-1 px-3 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-100 transition-all shadow-sm active:scale-95 group"
+    <Link
+      href="/cart_product"
+      className="relative md:flex hidden sm:flex items-center justify-center text-slate-500 hover:text-secondary transition-all"
     >
-      <ShoppingBag 
-        size={15} 
-        strokeWidth={2} 
-        className="transition-colors " 
+      {/* Icon */}
+      <ShoppingCart
+        size={20}
+        strokeWidth={2}
+        className="transition-all"
       />
-      <span className="text-[5px] rounded-full  text-slate-500 font-bold ">
+
+      {/* Badge */}
+      <span className="absolute -top-1 -right-2 flex items-center justify-center min-w-4 h-4 px-1 text-[10px] font-semibold text-white bg-primary rounded-full">
         <CartBadge />
       </span>
-
     </Link>
   );
 }

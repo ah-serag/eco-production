@@ -37,7 +37,6 @@ services:
       CLOUDINARY_CLOUD_NAME: dxpzsx2ku
       CLOUDINARY_API_KEY: 831324653337694
       CLOUDINARY_API_SECRET: VYNq-7O43KRSGJX4KoSf_A-WoXs
-      SENDGRID_API_KEY: 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
       EMAIL_FROM: aserag877@gmail.com
       JWT_SECRET: "eco124@m34fde4r5@$ri$st#" 
       JWT_REFRESH_SECRET: "dfh$ggdh%d6*sjhf&sq#df"

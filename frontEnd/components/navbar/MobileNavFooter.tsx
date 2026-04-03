@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Home, ShoppingBag, Menu, MoreHorizontal,MessageCircleMore } from "lucide-react";
+import { Home, Menu, MoreHorizontal,MessageCircleMore, ShoppingCart } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation"; // تحديث الـ Link للـ i18n
 import { MobileSidebar } from "./mobileSidebar";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,7 @@ import CartBadge from "./cardCount";
 import { useTranslations } from "next-intl"; // استيراد الترجمة
 
 export default function MobileBottomNav() {
-  const t = useTranslations("mobileNav"); // استخدام مفتاح mobileNav
+  const t = useTranslations("mobileNav"); 
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -67,7 +67,7 @@ export default function MobileBottomNav() {
           </Link>
 
           {/* 2. Cart */}
-          <NavIcon path="/cart_product" icon={ShoppingBag} label={t("cart")} isBadge={true} />
+          <NavIcon path="/cart_product" icon={ShoppingCart} label={t("cart")} isBadge={true} />
 
           {/* 3. HOME (THE CENTER) */}
           <Link href="/" className="flex-1 flex flex-col items-center justify-center">

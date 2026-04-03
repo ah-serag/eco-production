@@ -83,7 +83,7 @@ export default function AddCategoryHomePage() {
 
   return (
     <div className=" mx-auto ">
-      <Card className="shadow-md">
+      <Card className="rounded-none border">
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <PlusCircle className="w-5 h-5" />

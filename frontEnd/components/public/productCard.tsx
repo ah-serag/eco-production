@@ -71,8 +71,8 @@ export default function ProductCard({ product }: { product: Product }) {
     >
       {discountPercent > 0 && (
         <div className={cn(
-          "absolute top-2 z-10 px-2 py-0.5  text-[8px]  sm:text-[10px] rounded-2xl font-normal tracking-tighter bg-secondary shadow-sm border-gray-200 text-amber-50",
-          isAr ? "right-2" : "left-2"
+          "absolute top-2 z-10 px-2 py-0.5  text-[8px] text-gray-600  sm:text-[12px] rounded-2xl font-normal tracking-tighter bg-transparent  ",
+          isAr ? "right-1" : "left-1"
         )}>
           {discountPercent}% {isAr ? "خصم" : "OFF"}
         </div>
@@ -111,16 +111,16 @@ export default function ProductCard({ product }: { product: Product }) {
           {discountPercent > 0 ? (
             <div className="flex flex-col gap-0.5">
               <div className="flex items-baseline gap-1.5">
-                <span className="text-neutral-900 font-normal text-[13px] md:text-base">
+                <span className="text-primary font-semibold text-[15px] md:text-base">
                   {product.discount_price} {t("currency")}
                 </span>
-                <span className="text-cyan-900 line-through text-[9px] md:text-[11px] font-normal">
+                <span className="text-gray-500 line-through text-[9px] md:text-[11px]  font-semibold">
                   {product.price} {t("currency")}
                 </span>
               </div>
             </div>
           ) : (
-            <span className="text-neutral-900 font-normal text-[12px] md:text-base">
+            <span className="text-neutral-900 font-semibold text-[12px] md:text-base">
               {product.price} {t("currency")}
             </span>
           )}
@@ -132,7 +132,7 @@ export default function ProductCard({ product }: { product: Product }) {
             size="sm"
             disabled={isAdded} 
             className={cn(
-              "h-6 md:h-7 px-2 md:px-3 border-neutral-200 transition-all text-secondary duration-300",
+              "h-6 md:h-7 px-2 md:px-3 border-neutral-200 transition-all text-gray-500 duration-300",
               "text-[8px] md:text-[9px] font-normal uppercase tracking-tight rounded-full flex items-center gap-0.5 md:gap-1",
               isAr ? "flex-row-reverse" : "",
               isAdded ? "bg-green-500 border-green-500 text-white" : " hover:text-green-500 "
@@ -149,7 +149,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <Link 
             href={`/product/${slug}`}
             className={cn(
-                "group/btn flex items-center gap-0.5 text-[8px] md:text-[10px] font-normal uppercase  text-neutral-400 hover:text-secondary",
+                "group/btn flex items-center gap-0.5 text-[8px] md:text-[10px] font-normal uppercase  text-gray-600 hover:text-secondary",
                 isAr ? "flex-row-reverse" : ""
             )}
           >

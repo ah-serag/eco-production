@@ -1,17 +1,17 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
-    port: 587,
+    service: "gmail" ,
     auth: {
-        user: 'winifred.kuhic@ethereal.email',
-        pass: 'hphyXyeQUX8y6v6452'
+        user: process.env.EMAIL_FROM,
+        pass: 'mkxk dsoy whqd yzqz'
     }
 });
 
 
 const sendMailNodemailer = async ({ to, subject, text, html }) => {
   try {
+
     const info = await transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to,
@@ -20,7 +20,6 @@ const sendMailNodemailer = async ({ to, subject, text, html }) => {
       html,
     });
 
-    console.log("Email sent:", info.messageId);
     return true;
   } catch (error) {
     console.error("Email error:", error);

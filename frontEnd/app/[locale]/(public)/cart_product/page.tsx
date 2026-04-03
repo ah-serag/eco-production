@@ -101,7 +101,7 @@ export default function CartPage() {
             {isAr ? <ArrowRight size={12} /> : <ArrowLeft size={12} />} {t("back_to_shop")}
           </Link>
           <div className="flex items-baseline gap-3">
-            <h1 className={`${isAr ? "text-xl" : "text-lg"} font-normal text-slate-900 tracking-tight`}>{t("your_cart")}</h1>
+            <h1 className={` font-semibold text-xl tracking-tight uppercase text-slate-800`}>{t("your_cart")}</h1>
             <span className="text-slate-400 text-[10px] font-normal uppercase tracking-widest">{cart.length} {t("items")}</span>
           </div>
         </div>
@@ -163,7 +163,7 @@ export default function CartPage() {
                           </button>
                         </div>
 
-                        <p className={`${isAr ? "text-[14px]" : "text-[13px]"} font-normal text-slate-900`}>
+                        <p className={`${isAr ? "text-[14px]" : "text-[13px]"} font-semibold text-slate-900`}>
                           {(Number(item.price) * item.quantity).toFixed(2)} {t("currency")}
                         </p>
                       </div>
@@ -182,25 +182,25 @@ export default function CartPage() {
 
           {/* RIGHT: ORDER SUMMARY */}
           <div className="lg:col-span-5 lg:sticky lg:top-10">
-            <div className="bg-white border border-slate-50 rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
-              <h2 className="text-[10px] font-normal text-slate-400 uppercase tracking-widest mb-6 text-center">{t("summary")}</h2>
+            <div className="bg-white  border-slate-100 rounded-2xl p-6 shadow-sm">
+              <h2 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-6 text-center">{t("summary")}</h2>
               
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between items-center">
-                  <span className="text-[11px] text-slate-500 uppercase tracking-tighter">{t("subtotal")}</span>
-                  <span className="text-[12px] font-normal text-slate-900">{subtotal.toFixed(2)} {t("currency")}</span>
+                  <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-tighter">{t("subtotal")}</span>
+                  <span className="text-[12px] font-semibold  text-slate-900">{subtotal.toFixed(2)} {t("currency")}</span>
                 </div>
          
                 <div className="h-px bg-slate-50 my-2" />
                 <div className="flex justify-between items-center pt-2">
-                  <span className="text-xs font-normal text-slate-900 uppercase">{t("total")}</span>
-                  <span className="text-xl font-normal text-slate-900 tracking-tighter">{subtotal.toFixed(2)} {t("currency")}</span>
+                  <span className="text-xs font-semibold text-slate-900 uppercase">{t("total")}</span>
+                  <span className="text-xl font-semibold text-slate-900 tracking-tighter">{subtotal.toFixed(2)} {t("currency")}</span>
                 </div>
               </div>
 
               <Button 
                 onClick={handleCheckout}
-                className="w-full h-11 rounded-lg text-[10px] font-normal tracking-widest bg-chart-1 hover:brightness-105 text-white border-none transition-all gap-2 uppercase"
+                className="w-full h-11 rounded-full text-[10px] font-semibold tracking-widest bg-secondary hover:brightness-105 text-white border-none transition-all gap-2 uppercase"
               >
                 {t("checkout")}
                 {isAr ? <ArrowLeft size={14} className="rotate-0" /> : <ArrowRight size={14} />}

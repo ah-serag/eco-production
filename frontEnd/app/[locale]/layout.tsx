@@ -1,6 +1,7 @@
+// @ts-ignore
+import "./globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Cairo } from "next/font/google";
-import "./globals.css";
 import { Toaster } from "sonner";
 import ReduxProvider from "@/redux/redux_provider";
 import { NextIntlClientProvider } from "next-intl";

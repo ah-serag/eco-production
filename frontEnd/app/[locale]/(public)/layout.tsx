@@ -4,7 +4,6 @@ import Footer from "@/components/public/footer";
 import Navbar from "@/components/navbar/navbar";
 import { MegaMenuNavbar } from "@/components/navbar/CategoryNav";
 import MobileBottomNav from "@/components/navbar/MobileNavFooter";
-import { setRequestLocale } from "next-intl/server";
 
 type Props = {
   children: React.ReactNode;

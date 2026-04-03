@@ -4,8 +4,8 @@ const pool = require("../../config/condb");
 
 const getClientOrders = async (req, res) => {
   try {
-    const customerId = req.userId; // القادم من التوكن
-    const { status, limit = 10, offset = 0 } = req.query;
+    const customerId = req.userId;
+    const { status, limit = 6, offset = 0 } = req.query;
 
     if (!customerId) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
@@ -37,12 +37,19 @@ const getClientOrders = async (req, res) => {
       WHERE o.user_id = $1
     `;
 
+    // 2. استعلام لجلب الإجمالي الكلي (Count Query)
+    let countQuery = `SELECT COUNT(*) FROM orders o WHERE o.user_id = $1`;
+
     const queryParams = [customerId];
+    const countParams = [customerId];
     let paramIndex = 2;
 
     if (status) {
-      dataQuery += ` AND o.status = $${paramIndex}`;
+      const statusCondition = ` AND o.status = $${paramIndex}`;
+      dataQuery += statusCondition;
+      countQuery += statusCondition; 
       queryParams.push(status);
+      countParams.push(status);
       paramIndex++;
     }
 
@@ -54,12 +61,17 @@ const getClientOrders = async (req, res) => {
     
     queryParams.push(parseInt(limit), parseInt(offset));
 
-    const result = await pool.query(dataQuery, queryParams);
+    const [result, countResult] = await Promise.all([
+      pool.query(dataQuery, queryParams),
+      pool.query(countQuery, countParams)
+    ]);
 
-    // إرسال البيانات بشكل منظم للـ Frontend
+    const totalOrders = parseInt(countResult.rows[0].count);
+
     res.status(200).json({
       success: true,
-      count: result.rows.length,
+      total: totalOrders,
+      count: result.rows.length, 
       data: result.rows
     });
 

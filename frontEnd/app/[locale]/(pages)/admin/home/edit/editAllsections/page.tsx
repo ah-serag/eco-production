@@ -158,9 +158,33 @@ export default function HomeSectionsAdminPage() {
             className="bg-white shadow rounded-lg border"
           >
             <div className="flex justify-between items-center">
-              <AccordionTrigger className="flex-1 px-4 py-3 font-medium hover:bg-gray-100">
-                {section.name}
-              </AccordionTrigger>
+                                   {/* Replace your AccordionTrigger with this improved version */}
+<AccordionTrigger className="flex-1 gap-4 px-6 py-4 hover:no-underline hover:bg-gray-50/50 transition-all">
+  <div className="flex items-center gap-6">
+    {/* Section Name Group */}
+    <div className="flex items-center gap-2">
+      <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+        Section type
+      </span>
+      <span className="px-3 py-1 bg-slate-100 text-slate-900 rounded-md text-sm font-semibold border border-slate-200">
+        {section.type}
+      </span>
+    </div>
+
+    {/* Decorative Separator */}
+    <div className="h-4 w-px bg-slate-200 hidden sm:block"></div>
+
+    {/* Type Group */}
+    <div className="flex items-center gap-2">
+      <span className=" uppercase tracking-wider text-emerald-500 font-semibold">
+        name :
+      </span>
+      <span className="text-sm text-slate-600 font-medium ">
+        {section.name}
+      </span>
+    </div>
+  </div>
+</AccordionTrigger>
 
               {/* Controls */}
               <div className="flex items-center gap-2 px-4">

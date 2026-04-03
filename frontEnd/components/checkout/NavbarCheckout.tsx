@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ShieldCheck, MessageCircleMore } from "lucide-react";
+import { ShieldCheck, MessageCircle } from "lucide-react";
 import LanguageSwitcher from "../public/langSwitcher";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -16,15 +16,11 @@ export default function CheckoutNavbar() {
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         
         <div className="flex items-center gap-4 sm:gap-6">
-          <Link href="/" className="flex items-center">
-            <Image 
-              src="/photo/gotiy.svg" 
-              alt="Logo" 
-              width={130} 
-              height={35} 
-              priority 
-            />
-          </Link>
+        <div className="flex  shrink-0">
+                 <Link href="/" className="group flex items-center">
+                   <span className="text-2xl font-serif font-bold tracking-widest uppercase text-primary">GOTIY</span>
+                 </Link>
+               </div>
         </div>
 
         <div className="flex self-center items-center gap-8">
@@ -52,9 +48,9 @@ export default function CheckoutNavbar() {
           <a 
             href="https://wa.me/201091714419" 
             target="_blank" 
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm border-slate-100 hover:bg-green-50 transition-colors group"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full border  hover:bg-green-50 transition-colors group"
           >
-            <MessageCircleMore size={14} className="text-slate-600" />
+            <MessageCircle fill="green" size={14} className="text-slate-600" />
             <span className="text-xs font-semibold text-slate-700">{t("support")}</span>
           </a>
           <LanguageSwitcher />

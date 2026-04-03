@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Layers } from "lucide-react";
+import { Layers, PlusSquare } from "lucide-react";
 
 /* ================= Queries ================= */
 
@@ -85,38 +85,13 @@ export default function AddHomeProductPage() {
 
   return (
     <div className="mx-auto space-y-8">
-      {/* ================= Page Banner ================= */}
-      <div
-        className="relative overflow-hidden mb-10 rounded-md p-10 
-        bg-secondary text-white shadow-lg"
-      >
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-center">
-          <div className="flex items-center justify-center w-20 h-20 rounded-xl bg-white/20">
-            <Layers size={32} />
-          </div>
-
-          <div className="space-y-3">
-            <h1 className="text-4xl font-bold tracking-tight">
-              Manage Home Products
-            </h1>
-            <span className="inline-block text-sm uppercase tracking-widest text-white/70">
-              Homepage Category Sections
-            </span>
-            <p className="max-w-3xl text-white/80 text-base leading-relaxed">
-              Assign product categories to homepage sections. Each section will
-              automatically display a limited number of products from the
-              selected category based on the section configuration.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <Separator />
 
       {/* ================= Form Card ================= */}
-      <Card>
+      <Card className="rounded-none" >
         <CardHeader>
-          <CardTitle>Add Home Category</CardTitle>
+          <CardTitle className="text-xl flex w-fit py-2 items-center gap-2">
+           <PlusSquare className="w-5 h-5" />Add Home<span className="text-bold text-secondary">product</span> from <span className="text-bold text-secondary">Category</span>
+            </CardTitle>
           <CardDescription>
             Products will be loaded dynamically from the selected category
           </CardDescription>

@@ -11,7 +11,6 @@ export default function LanguageSwitcher() {
   const pathname = usePathname();
   const params = useParams();
   
-  // ✅ ضمان الحصول على اللغة بشكل أدق
   const currentLocale = (params.locale as string) || "en";
   
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -47,7 +46,7 @@ export default function LanguageSwitcher() {
       <button
         type="button" 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-all shadow-sm active:scale-95 "
+        className="flex items-center hover:bg-gray-100 gap-2 px-3 py-1.5 rounded-full   transition-all active:scale-95 "
       >
         <Globe size={14} className="text-slate-500" />
         <span className="text-[11px] font-bold sm:block hidden uppercase tracking-wider text-slate-500">
@@ -66,7 +65,7 @@ export default function LanguageSwitcher() {
                 onClick={() => handleLanguageChange(lang.code)}
                 className={`flex w-full items-center justify-between px-4 py-2.5 text-[11px] font-bold transition-colors
                   ${currentLocale === lang.code 
-                    ? "bg-slate-50 text-chart-1" 
+                    ? "bg-slate-50 text-primary" 
                     : "text-slate-600 hover:bg-slate-100"
                   }`}
               >
@@ -75,7 +74,7 @@ export default function LanguageSwitcher() {
                   <span>{lang.label}</span>
                 </div>
                 {currentLocale === lang.code && (
-                  <Check size={14} className="text-chart-1" strokeWidth={3} />
+                  <Check size={14} className="text-primary" strokeWidth={3} />
                 )}
               </button>
             ))}

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import EditProduct from "@/components/manage/editingProduct";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner"; // تأكد من وجود مكتبة تنبيهات
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +37,7 @@ type Product = {
   discount_price?: number | null;
   is_active: boolean;
   image_url: string;
-  slug?: string; // أضفت الـ slug لو كان متاحاً في بياناتك
+  slug?: string;
 };
 
 type FormValues = {
@@ -99,14 +100,28 @@ export default function ProductsAdmin() {
   const totalPages = data ? Math.ceil(data.total / limit) : 1;
 
   const handleToggleActive = async (id: number) => {
-    await toggleActive(id);
+    try {
+      await toggleActive(id).unwrap();
+      toast.success("Visibility status updated successfully.");
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Failed to update status.");
+    }
   };
 
   const handleDeleteConfirmed = async () => {
     if (!productToDelete) return;
-    await deleteProduct(productToDelete.id);
-    setDeleteDialogOpen(false);
-    setProductToDelete(null);
+    
+    try {
+      // استخدام unwrap للإمساك برسائل الخطأ من الـ backend
+      const res = await deleteProduct(productToDelete.id).unwrap();
+      toast.success(res.message || "Product deleted successfully.");
+      setDeleteDialogOpen(false);
+      setProductToDelete(null);
+    } catch (err: any) {
+      // هنا ستظهر الرسائل الإنجليزية الواضحة التي كتبناها في السيرفر
+      toast.error(err?.data?.message || "An error occurred during deletion.");
+      setDeleteDialogOpen(false);
+    }
   };
 
   const handleEditProduct = (p: any) => {
@@ -115,9 +130,14 @@ export default function ProductsAdmin() {
   };
 
   const handleSave = async (payload: any) => {
-    await editProduct({ id: payload.id, data: payload });
-    setIsEditOpen(false);
-    setEditingProduct(null);
+    try {
+      await editProduct({ id: payload.id, data: payload }).unwrap();
+      toast.success("Product updated successfully.");
+      setIsEditOpen(false);
+      setEditingProduct(null);
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Update failed.");
+    }
   };
 
   useEffect(() => {
@@ -131,20 +151,18 @@ export default function ProductsAdmin() {
         {/* Header Section */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900">Products Manager</h1>
+            <h1 className="text-xl font-semibold py-2 tracking-tight text-slate-700">Products Manager</h1>
             <p className="text-slate-400 text-[11px] font-semibold tracking-tight uppercase">Manage inventory, status, and details.</p>
           </div>
-          <div className="bg-white border rounded-lg px-4 py-1.5 shadow-sm text-right">
-             <span className="text-[10px] font-semibold text-slate-600  m-2 leading-tight uppercase tracking-wider">Inventory Total :</span>
-             <span className="text-sm  text-chart-1 tracking-tighter">
-               {data?.total?.toLocaleString() || 0} 
-             </span>
+          <div className="bg-white border text-[15px] font-bold text-slate-600 rounded-lg px-4 py-1.5 shadow-sm ">
+            Total :
+             <span className="font-semibold m-2 text-chart-1 leading-tight uppercase tracking-wider"> {data?.total?.toLocaleString() || 0} </span>
           </div>
         </div>
           <hr />
+
         {/* Filters Bar */}
         <div className="flex flex-wrap gap-3 items-center">
-          {/* Search Box */}
           <div className="relative flex-1 min-w-60">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
             <Input
@@ -158,7 +176,6 @@ export default function ProductsAdmin() {
             />
           </div>
 
-          {/* Limit Input */}
           <div className="bg-white border rounded-lg px-3 py-1 shadow-sm flex items-center gap-2 h-9">
             <span className="text-[10px] font-black text-slate-300 uppercase">Limit:</span>
             <input
@@ -172,7 +189,6 @@ export default function ProductsAdmin() {
             />
           </div>
 
-          {/* Category Select */}
           <Select
             value={category_id ? category_id.toString() : "all"}
             onValueChange={(val) => {
@@ -191,7 +207,6 @@ export default function ProductsAdmin() {
             </SelectContent>
           </Select>
 
-          {/* Status Select */}
           <Select
             value={status}
             onValueChange={(val) => {
@@ -208,7 +223,6 @@ export default function ProductsAdmin() {
             </SelectContent>
           </Select>
 
-          {/* Sort Select */}
           <Select
             value={sort_by}
             onValueChange={(val) => {
@@ -253,7 +267,6 @@ export default function ProductsAdmin() {
                       <span className="font-bold text-slate-800 text-[11px] leading-tight tracking-tight group-hover:text-blue-600 transition-colors">
                         {p.title}
                       </span>
-                      {/* Product URL Line */}
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className="text-[8px] font-bold text-slate-300 uppercase tracking-tighter">Path:</span>
                         <Link 
@@ -282,8 +295,8 @@ export default function ProductsAdmin() {
                   </TableCell>
                   <TableCell>
                     <span className={cn(
-                      "text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-tighter",
-                      p.stock > 0 ? "bg-blue-50 text-gray-700" : "bg-rose-50 text-rose-600"
+                      "text-[10px] font-semibold px-2 py-0.5 rounded uppercase tracking-wide",
+                      p.stock > 0 ? "bg-blue-600 text-white" : "bg-rose-50 text-rose-600"
                     )}>
                       {p.stock > 0 ? `In Stock: ${p.stock}` : "Out of Stock"}
                     </span>

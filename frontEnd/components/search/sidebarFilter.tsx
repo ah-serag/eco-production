@@ -82,10 +82,10 @@ export default function FilterSidebar() {
 
   const FilterContent = () => (
     <div className={cn("space-y-5", isAr ? "pr-0 text-right" : "pl-0 text-left")} dir={isAr ? "rtl" : "ltr"}>
-      <div className="hidden md:flex w-full items-center justify-between py-3 px-3  text-neutral-800 mb-4">
-        <div className="flex items-center gap-2">
+      <div className="hidden md:flex w-full items-center justify-between py-5 px-3    text-gray-600 mb-4">
+        <div className="flex items-center  gap-2">
             <SlidersHorizontal size={14}  />
-            <h2 className="text-[14px] font-semibold tracking-tight">{isAr ? "تصفية النتائج" : "Filter Results"}</h2>
+            <h2 className="text-[14px]  font-semibold tracking-tight">{isAr ? "تصفية النتائج" : "Filter Results"}</h2>
         </div>
         <button 
           onClick={() => setIsDesktopOpen(false)} 
@@ -98,7 +98,7 @@ export default function FilterSidebar() {
       <div className=" px-0.5 sm:px-2 space-y-6">
           {subCategories.length > 0 && (
             <div className="space-y-4">
-              <h3 className="text-[12px] font-bold text-neutral-800 border-b pb-2 uppercase tracking-wider">
+              <h3 className="text-[12px] font-bold text-gray-600 border-b pb-2 uppercase tracking-wider">
                 {isAr ? "الأقسام الفرعية" : "Sub Categories"}
               </h3>
               <div className="space-y-1.5">
@@ -107,14 +107,12 @@ export default function FilterSidebar() {
                     key={sub.id} 
                     onClick={() => toggleSub(sub.id)}
                     className={cn(
-                        "flex items-center justify-between gap-3 px-3 py-2.5 cursor-pointer transition-all duration-200 rounded-md border",
-                        selectedSubs.includes(sub.id) 
-                        ? "bg-secondary/10 " 
-                        : "bg-neutral-50/50 border-transparent hover:bg-neutral-100/50"
+                        "flex items-center justify-between gap-3 px-3 py-2.5 cursor-pointer transition-all duration-200 rounded-md ",
+                   
                     )}
                   >
                     <span className={cn("text-[13px] transition-colors select-none", 
-                      selectedSubs.includes(sub.id) ? "text-secondary font-bold" : "text-neutral-600"
+                      selectedSubs.includes(sub.id) ? "font-bold" : "text-neutral-600"
                     )}>
                       {isAr ? sub.name_ar : sub.name}
                     </span>
@@ -131,7 +129,7 @@ export default function FilterSidebar() {
           )}
 
           <div className="space-y-6">
-            <h3 className="text-[12px] font-bold text-neutral-800 border-b pb-2 uppercase tracking-wider">
+            <h3 className="text-[12px] font-bold text-gray-600 border-b pb-2 uppercase tracking-wider">
               {isAr ? "نطاق السعر" : "Price Range"}
             </h3>
             <div className="px-1">
@@ -141,7 +139,7 @@ export default function FilterSidebar() {
                 max={5000}
                 step={10}
                 onValueChange={(v) => setLocalPrice(v as [number, number])}
-                className="[&_.relative]:bg-chart-1"
+                className=""
               />
             </div>
             <div className="flex justify-between items-center py-2 px-3 bg-neutral-50 border border-neutral-100 rounded-sm" dir="ltr">
@@ -194,12 +192,12 @@ export default function FilterSidebar() {
 
   return (
     <>
-      <div className="hidden md:block relative">
+      <div className="hidden md:block  relative">
         {!isDesktopOpen && (
           <button
             onClick={() => setIsDesktopOpen(true)}
             className={cn(
-              "fixed top-32 z-50 bg-chart-1 text-white p-2.5 transition-all hover:px-5 active:scale-95",
+              "fixed top-35 z-50 bg-secondary/70 text-white p-2.5 transition-all hover:px-5 active:scale-95",
               isAr ? "right-0 rounded-l-2xl" : "left-0 rounded-r-2xl"
             )}
           >
@@ -207,7 +205,7 @@ export default function FilterSidebar() {
           </button>
         )}
         <aside className={cn(
-          "sticky top-28 h-fit transition-all duration-500 bg-white border border-neutral-100 overflow-hidden",
+          "sticky top-28 h-fit transition-all duration-500 bg-white   overflow-hidden",
           isDesktopOpen ? "w-64 opacity-100 visible" : "w-0 opacity-0 invisible pointer-events-none"
         )}>
           <div className="w-64">

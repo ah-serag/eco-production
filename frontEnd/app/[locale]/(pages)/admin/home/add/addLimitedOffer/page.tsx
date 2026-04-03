@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Timer } from "lucide-react";
+import { PlusSquare, Timer } from "lucide-react";
 
 import {
   useGetHomeSectionsQuery,
@@ -94,41 +94,18 @@ export default function AddLimitedOfferBannerPage() {
 
   return (
     <div className="mx-auto space-y-8">
-      {/* ================= Page Banner ================= */}
-      <div className="relative overflow-hidden mb-10 rounded-md p-10 
-      bg-secondary text-white shadow-lg">
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-center">
-          <div className="flex items-center justify-center w-20 h-20 rounded-xl bg-white/20">
-            <Timer size={32} />
-          </div>
-
-          <div className="space-y-3">
-            <h1 className="text-4xl font-bold tracking-tight">
-              Limited Offer Banner
-            </h1>
-            <span className="inline-block text-sm uppercase tracking-widest text-white/70">
-              Visual Countdown Offer
-            </span>
-            <p className="max-w-3xl text-white/80 text-base leading-relaxed">
-              Create a visual limited-time offer using a single image that
-              communicates the full message. Set a countdown timer and redirect
-              users to any product, category, or landing page.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <Separator />
 
       {/* ================= Form Card ================= */}
-      <Card>
+      <Card className="rounded-none">
         <CardHeader>
-          <CardTitle>Add Limited Offer Banner</CardTitle>
+          <CardTitle className="text-xl flex items-center gap-2">
+            <PlusSquare  size={30} />
+             Add Limited Offer Banner    
+             </CardTitle>
           <CardDescription>
             This banner will appear in the selected homepage section
           </CardDescription>
         </CardHeader>
-
         <CardContent className="space-y-6">
           {/* Section */}
           <div className="space-y-2">

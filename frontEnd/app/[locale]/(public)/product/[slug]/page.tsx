@@ -14,7 +14,7 @@ export default function ProductDetailsPage() {
   const locale = useLocale();
   const slug = params?.slug;
 
-  const isArabic = locale === "ar"; // التحقق من اللغة
+  const isArabic = locale === "ar"; 
 
   const { data, isLoading, isError } = useGetSingleProductQuery(slug, {
     skip: !slug,

@@ -90,8 +90,8 @@ export default function LimitedOfferAdminPage() {
           <AccordionItem key={banner.id} value={`${banner.id}`} className="bg-white shadow rounded-lg border">
             {/* Header */}
             <div className="flex justify-between items-center">
-              <AccordionTrigger className="flex-1 px-4 py-3 font-medium hover:bg-gray-100">
-                {banner.section_name}
+              <AccordionTrigger className="flex-1 text-chart-1 px-4 py-3 font-medium hover:bg-gray-100">
+                section name : <span className="text-black">{banner.section_name}</span> 
               </AccordionTrigger>
               <div className="flex items-center gap-3 px-4">
                 <Switch

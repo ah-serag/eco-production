@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast, Toaster } from "sonner";
-import { Copy, Trash2, Search, ListOrdered, Calendar, Link as LinkIcon, Database, CheckCircle2 } from "lucide-react";
+import { Copy, Trash2, Search, Calendar, Link as LinkIcon, Database } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -20,7 +20,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import {
   useGetImagesQuery,
   useDeleteImageMutation,
@@ -32,6 +31,7 @@ interface ImageItem {
   created_at: string;
   product_id: number | null;
   is_main: boolean;
+  public_id: string ;
   product_title: string | null;
 }
 
@@ -46,50 +46,58 @@ export default function ImagesTablePage() {
 
   const images: ImageItem[] = data?.images || [];
   const totalPages = data?.totalPages || 1;
-  const totalAssets = data?.total || 0; // استخدام الـ total القادم من السيرفر
+  const totalAssets = data?.total || 0; 
 
   const copyToClipboard = (url: string) => {
     navigator.clipboard.writeText(url);
     toast.success("URL copied", { description: "Image link ready to use.", duration: 1500 });
   };
 
-  const handleDelete = async (id: number) => {
+const handleDelete = async (id: number) => {
     try {
-      await deleteImage(id).unwrap();
-      toast.success("Deleted", { description: "Asset removed from cloud storage." });
-    } catch {
-      toast.error("Error", { description: "Could not remove the image." });
+      const response = await deleteImage(id).unwrap();
+      
+      toast.success("Deleted", { 
+        description: response.message || "Asset removed from cloud storage." 
+      });
+    } catch (err: any) {
+      const errorMessage = err?.data?.message || "Could not remove the image.";
+      const errorTitle = err?.data?.error || "Error";
+
+      toast.error(errorTitle, { 
+        description: errorMessage,
+      });
     }
   };
-
   return (
-    <div className="p-8 bg-[#fafafa] min-h-screen space-y-6 text-slate-600 font-sans">
+    <div className="p-4 bg-[#fafafa] min-h-screen space-y-4 text-slate-600 font-sans">
       <Toaster position="top-right" richColors />
 
-      {/* Header Section */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between bg-white shadow-sm  p-4 items-center">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">Images Gallery</h1>
+          <h1 className="text-xl py-2 font-semibold tracking-tight text-slate-700">Images Gallery</h1>
           <p className="text-slate-400 text-[11px] font-semibold tracking-tight uppercase">Global assets management and assignments.</p>
         </div>
         <div className="bg-white border rounded-lg px-4 py-1.5 shadow-sm text-right">
-           <span className="text-[10px] text-slate-400 font-black block leading-tight uppercase tracking-wider">Total Assets</span>
-           <span className="text-sm font-bold text-blue-600 tracking-tighter">
-             {totalAssets.toLocaleString()} <span className="text-slate-900 text-[12px]">Files</span>
+           <span className="text-[15px] text-slate-700 font-semibold block leading-tight uppercase tracking-wider">Total  : 
+           <span className="text-sm font-semobold text-chart-1 px-2 tracking-wide">
+              { totalAssets} 
            </span>
+           </span>
+         
         </div>
       </div>
 
       {/* Filters Bar */}
-      <div className="flex flex-wrap gap-3 items-center">
+      <div className="flex flex-wrap gap-3 bg-white p-3 shadow-sm items-center">
         {/* Search Input */}
-        <div className="relative flex-1 min-w-[240px]">
+        <div className="relative flex-1 min-w-60">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
           <Input
             placeholder="Filter by product title..."
             value={search}
             onChange={(e) => { setPage(1); setSearch(e.target.value); }}
-            className="pl-9 h-9 text-[11px] font-semibold border rounded-lg bg-white shadow-sm focus:border-slate-400"
+            className="pl-9 h-9 text-[11px] font-semibold border bg-white shadow-sm focus:border-slate-400"
           />
         </div>
 
@@ -120,7 +128,7 @@ export default function ImagesTablePage() {
       </div>
 
       {/* Table Content */}
-      <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+      <div className="bg-white  border shadow-sm overflow-hidden">
         <Table>
           <TableHeader className="bg-slate-50/50">
             <TableRow className="border-slate-100">
@@ -145,18 +153,28 @@ export default function ImagesTablePage() {
                 <TableCell>
                   <div className="flex flex-col gap-1 max-w-[300px]">
                     <div className="flex items-center gap-1.5">
-                      <LinkIcon size={10} className="text-blue-400" />
                       <span className="truncate text-[10px] font-mono font-bold text-slate-500 uppercase tracking-tight">
-                        REF_{img.image_id.toString().padStart(6, '0')}
+                        REF : {img.image_id}
                       </span>
                     </div>
-                    <span className="truncate text-[9px] text-slate-300 font-mono italic">{img.image_url}</span>
+                     <div className="flex items-center gap-1.5">
+                      <span className="truncate text-[10px] font-mono font-bold text-slate-500 uppercase tracking-tight">
+                        cloud_id : {img.public_id}
+                      </span>
+                    </div>
+                    <div className="flex items-center font-bold  text-[10px] font-mono gap-1.5">
+                      url_image :
+                      <a target="_blank" href={img.image_url} className="truncate  text-blue-400  uppercase tracking-tight">
+                         {img.image_url}
+
+                      </a>
+                    </div>
                   </div>
                 </TableCell>
 
                 <TableCell>
                   <div className="flex flex-col">
-                    <div className="flex items-center gap-1 text-[11px] font-bold text-slate-700">
+                    <div className="flex items-center gap-1 text-[11px] font-bold text-slate-600">
                       <Calendar size={11} className="text-slate-300" />
                       {new Date(img.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </div>
@@ -167,16 +185,18 @@ export default function ImagesTablePage() {
                 <TableCell>
                   {img.product_title ? (
                     <div className="flex flex-col gap-1">
-                       <span className="text-[11px] font-bold text-slate-800 tracking-tight leading-none group-hover:text-blue-600 transition-colors line-clamp-1">{img.product_title}</span>
+                       <span className="text-[11px] font-bold text-slate-600 tracking-tight ">title : {img.product_title}</span>
+                       <span className="text-[11px] font-bold text-slate-600 tracking-tight ">id  : {img.product_id}</span>
+
                        {img.is_main && (
                          <div className="flex items-center gap-1">
-                           <CheckCircle2 size={10} className="text-emerald-500" />
-                           <span className="text-[8px] font-black uppercase text-emerald-500 tracking-widest">Primary Asset</span>
+                           <span className="text-[8px] font-black uppercase text-emerald-500 tracking-widest">Main</span>
                          </div>
                        )}
+
                     </div>
                   ) : (
-                    <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest border border-slate-100 px-1.5 py-0.5 rounded bg-slate-50">Unlinked</span>
+                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest border border-slate-200 px-1.5 py-0.5 rounded bg-slate-50">public image</span>
                   )}
                 </TableCell>
 

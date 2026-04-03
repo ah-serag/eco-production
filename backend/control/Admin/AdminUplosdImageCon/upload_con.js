@@ -127,49 +127,73 @@ exports.deleteImage = async (req, res) => {
   try {
     await client.query("BEGIN");
 
-    const imgRes = await client.query(
-      "SELECT public_id FROM images WHERE id = $1",
+    const checkRes = await client.query(
+      `SELECT i.public_id, pi.is_main 
+       FROM images i
+       LEFT JOIN product_images pi ON i.id = pi.image_id
+       WHERE i.id = $1`,
       [id]
     );
 
-    if (imgRes.rows.length === 0) {
-      await client.query("ROLLBACK"); 
-      return res.status(404).json({ 
-        success: false, 
-        message: "Image not found in our records" 
-      });
+    if (checkRes.rows.length === 0) {
+      throw new Error("ERR_IMAGE_NOT_FOUND");
     }
 
-    const publicId = imgRes.rows[0].public_id;
+    const { public_id, is_main } = checkRes.rows[0];
 
-    if (publicId) {
-      await cloudinary.uploader.destroy(publicId);
+    if (is_main === true) {
+      throw new Error("ERR_CANNOT_DELETE_MAIN_IMAGE");
     }
 
     await client.query("DELETE FROM product_images WHERE image_id = $1", [id]);
-    await client.query("DELETE FROM images WHERE id = $1", [id]);
+    const deleteRes = await client.query("DELETE FROM images WHERE id = $1", [id]);
+
+    if (deleteRes.rowCount === 0) {
+      throw new Error("ERR_DELETE_FAILED");
+    }
+
+    if (public_id) {
+      const cloudRes = await cloudinary.uploader.destroy(public_id);
+      if (cloudRes.result !== "ok" && cloudRes.result !== "not found") {
+        console.warn(`Cloudinary warning for ID ${public_id}:`, cloudRes.result);
+      }
+    }
 
     await client.query("COMMIT");
 
     return res.json({
       success: true,
-      message: "Asset purged from cloud and local registry",
+      message: "Image asset has been successfully purged from cloud and local registry.",
     });
 
   } catch (err) {
-    if (client) await client.query("ROLLBACK");
-    
+    await client.query("ROLLBACK");
     console.error("CRITICAL_ERROR in deleteImage:", err.message);
-    
-    if (!res.headersSent) {
-      return res.status(500).json({ 
-        success: false, 
-        message: "Internal server error during deletion" 
+
+    if (err.message === "ERR_CANNOT_DELETE_MAIN_IMAGE") {
+      return res.status(400).json({
+        success: false,
+        error: "Action Denied",
+        message: "You cannot delete main image"
       });
     }
+
+    if (err.message === "ERR_IMAGE_NOT_FOUND") {
+      return res.status(404).json({
+        success: false,
+        error: "Not Found",
+        message: "The requested image could not be found in our records."
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      error: "Internal Server Error",
+      message: "An unexpected error occurred during the deletion process."
+    });
+
   } finally {
     client.release();
   }
 };
-
 
