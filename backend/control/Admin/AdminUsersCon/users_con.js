@@ -6,10 +6,10 @@ const getUsers = async (req, res) => {
     const { role, status, search, limit = 10, offset = 0 } = req.query;
 
     const dataQuery = `
-      SELECT *
+      SELECT id, full_name, email, phone, role, is_active, last_login, created_at
       FROM users
       WHERE ($1::text IS NULL OR role = $1)
-        AND ($2::text IS NULL OR full_name ILIKE '%' || $2 || '%' OR email ILIKE '%' || $2 || '%')
+        AND ($2::text IS NULL OR full_name ILIKE '%' || $2 || '%' OR email ILIKE '%' || $2 || '%' OR id::text ILIKE '%' || $2 || '%')
         AND ($3::text IS NULL OR is_active = ($3 = 'active') )
       ORDER BY created_at DESC
       LIMIT $4 OFFSET $5;
@@ -23,13 +23,11 @@ const getUsers = async (req, res) => {
       Number(offset),
     ];
 
-    // 2. تجهيز استعلام العدد (Count Query)
-    // لاحظ إننا شلنا LIMIT و OFFSET واستخدمنا بس أول 3 قيم
     const countQuery = `
-      SELECT COUNT(*) 
+      SELECT COUNT(*)
       FROM users
       WHERE ($1::text IS NULL OR role = $1)
-        AND ($2::text IS NULL OR full_name ILIKE '%' || $2 || '%' OR email ILIKE '%' || $2 || '%')
+        AND ($2::text IS NULL OR full_name ILIKE '%' || $2 || '%' OR email ILIKE '%' || $2 || '%' OR id::text ILIKE '%' || $2 || '%')
         AND ($3::text IS NULL OR is_active = ($3 = 'active') )
     `;
 
@@ -39,13 +37,11 @@ const getUsers = async (req, res) => {
       status || null
     ];
 
-    // 3. تنفيذ الاثنين في نفس الوقت باستخدام Promise.all
     const [dataRes, totalRes] = await Promise.all([
       pool.query(dataQuery, dataValues),
       pool.query(countQuery, countValues)
     ]);
 
-    // 4. إرجاع النتيجة
     res.json({
       data: dataRes.rows,
       total: Number(totalRes.rows[0].count),
@@ -82,7 +78,6 @@ const SetRole = async ( req ,res) => {
     res.status(500).json({ message: "Server error" });
   }
 }
-
 
 
 const SetActive = async (req, res) => {

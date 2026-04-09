@@ -48,7 +48,7 @@ export default function WideBannerRender({ section }: WideBannerProps) {
 
   return (
     <section className=" w-full group/wide">
-      <div className="relative w-full aspect-5/1 overflow-hidden border-slate-100 bg-slate-50">
+      <div className="relative w-full aspect-3/1 overflow-hidden border-slate-100 bg-slate-50">
         
         {banners.map((item, index) => (
           <Link 

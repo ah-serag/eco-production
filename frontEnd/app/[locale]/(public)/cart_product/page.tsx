@@ -8,7 +8,6 @@ import {
   updateQuantity, 
   prepareCartCheckout 
 } from "../../../../redux/features/cartSlice/cartSlice";
-import { Button } from "@/components/ui/button";
 import { 
   Trash2, 
   Plus, 
@@ -111,12 +110,12 @@ export default function CartPage() {
         <div className="grid grid-cols-1 mt-5 lg:grid-cols-12 gap-10 items-start">
           
           {/* LEFT: PRODUCTS LIST */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 bg-white  space-y-6">
             {cart.map((item: CartItem) => {
               const isMax = item.quantity >= item.stock;
 
               return (
-                <div key={item.id} className="flex gap-4 pb-6 border-b border-slate-100 last:border-0 items-center">
+                <div key={item.id} className="flex gap-4 pb-6 border-b  border-slate-100 last:border-0 items-center">
                   <div className="w-16 h-16 bg-white rounded-lg overflow-hidden shrink-0 border border-slate-100 p-1.5">
                     <img
                       src={item.image}
@@ -127,7 +126,7 @@ export default function CartPage() {
 
                   <div className={`flex-1 min-w-0 ${isAr ? "text-right" : "text-left"}`}>
                     <div className="flex justify-between items-start mb-0.5">
-                      <h3 className={`${isAr ? "text-[14px]" : "text-[13px]"} font-normal text-slate-800 truncate pr-4`}>
+                      <h3 className={`${isAr ? "text-[14px]" : "text-[13px]"} font-normal text-slate-800 truncate pe-4`}>
                         {item.title}
                       </h3>
                       <button 
@@ -141,7 +140,7 @@ export default function CartPage() {
                     <div className="flex flex-col gap-1 mt-3">
                       <div className="flex items-center justify-between">
                         {/* Quantity Controls - Fixed LTR for counter logic */}
-                        <div className="flex items-center border border-slate-100 rounded-md px-1 py-0.5 scale-90 origin-right" dir="ltr">
+                        <div className="flex items-center border border-slate-100 rounded-md px-1 py-0.5 scale-90 origin-start" dir="ltr">
                           <button 
                             onClick={() => handleQtyChange(item.id, item.quantity - 1, item.stock)} 
                             className="p-1 text-slate-400 hover:text-slate-900 transition-opacity disabled:opacity-20"
@@ -163,8 +162,8 @@ export default function CartPage() {
                           </button>
                         </div>
 
-                        <p className={`${isAr ? "text-[14px]" : "text-[13px]"} font-semibold text-slate-900`}>
-                          {(Number(item.price) * item.quantity).toFixed(2)} {t("currency")}
+                        <p className={`${isAr ? "text-[14px]" : "text-[13px]"} font-semibold text-slate-900`} dir="ltr">
+                          {Math.trunc(Number(item.price) * item.quantity).toLocaleString('en-US', { maximumFractionDigits: 0 })} {t("currency")}
                         </p>
                       </div>
 
@@ -182,29 +181,35 @@ export default function CartPage() {
 
           {/* RIGHT: ORDER SUMMARY */}
           <div className="lg:col-span-5 lg:sticky lg:top-10">
-            <div className="bg-white  border-slate-100 rounded-2xl p-6 shadow-sm">
+            <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
               <h2 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-6 text-center">{t("summary")}</h2>
-              
+
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between items-center">
-                  <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-tighter">{t("subtotal")}</span>
-                  <span className="text-[12px] font-semibold  text-slate-900">{subtotal.toFixed(2)} {t("currency")}</span>
+                  <span className="text-[11px] text-slate-500 font-medium uppercase tracking-widest">{t("subtotal")}</span>
+                  <span className="text-[12px] font-semibold text-slate-900" dir="ltr">
+                    {Math.trunc(subtotal).toLocaleString('en-US', { maximumFractionDigits: 0 })} {t("currency")}
+                  </span>
                 </div>
-         
-                <div className="h-px bg-slate-50 my-2" />
-                <div className="flex justify-between items-center pt-2">
-                  <span className="text-xs font-semibold text-slate-900 uppercase">{t("total")}</span>
-                  <span className="text-xl font-semibold text-slate-900 tracking-tighter">{subtotal.toFixed(2)} {t("currency")}</span>
+
+                <div className="h-px bg-slate-100 my-2" />
+
+                <div className="flex justify-between items-center pt-1">
+                  <span className="text-[11px] font-semibold text-slate-900 uppercase tracking-widest">{t("total")}</span>
+                  <span className="text-[20px] font-semibold text-slate-900 tracking-tight" dir="ltr">
+                    {Math.trunc(subtotal).toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                    <span className="text-[12px] font-normal text-slate-400 ms-1">{t("currency")}</span>
+                  </span>
                 </div>
               </div>
 
-              <Button 
+              <button
                 onClick={handleCheckout}
-                className="w-full h-11 rounded-full text-[10px] font-semibold tracking-widest bg-secondary hover:brightness-105 text-white border-none transition-all gap-2 uppercase"
+                className="w-full h-11 rounded-xl text-[10px] font-semibold tracking-widest bg-neutral-900 hover:bg-neutral-700 text-white transition-colors flex items-center justify-center gap-2 uppercase"
               >
                 {t("checkout")}
-                {isAr ? <ArrowLeft size={14} className="rotate-0" /> : <ArrowRight size={14} />}
-              </Button>
+                {isAr ? <ArrowLeft size={13} /> : <ArrowRight size={13} />}
+              </button>
             </div>
           </div>
         </div>

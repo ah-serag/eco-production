@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import { Home, Menu, MoreHorizontal,MessageCircleMore, ShoppingCart } from "lucide-react";
-import { Link, usePathname } from "@/i18n/navigation"; // تحديث الـ Link للـ i18n
+import { Link, usePathname } from "@/i18n/navigation"; 
 import { MobileSidebar } from "./mobileSidebar";
 import { cn } from "@/lib/utils";
 import CartBadge from "./cardCount"; 
-import { useTranslations } from "next-intl"; // استيراد الترجمة
+import { useTranslations } from "next-intl"; 
 
 export default function MobileBottomNav() {
   const t = useTranslations("mobileNav"); 
@@ -30,8 +30,7 @@ export default function MobileBottomNav() {
           />
           {isBadge && (
             <span className={cn(
-              "absolute -top-1 -right-1 text-[7px] font-bold h-3.5 w-3.5 flex items-center justify-center rounded-full border-2",
-              active ? "bg-white text-secondary " : " text-white border-white"
+              "absolute -top-1 -right-1 text-[7px] font-bold h-3.5 w-3.5 flex items-center bg-green-400 text-white justify-center rounded-full ",
             )}>
               <CartBadge />
             </span>

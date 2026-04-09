@@ -2,13 +2,13 @@
 
 import React, { useState } from "react";
 import { useGetOrdersQuery, useUpdateOrderStatusMutation } from "../../../../../redux/features/orders/ordersSlice";
-import { 
-  Search, 
-  CheckCircle2, 
-  Clock, 
-  XCircle, 
-  Terminal, 
-  FileDown, 
+import {
+  Search,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  Terminal,
+  FileDown,
   Hash,
   Filter,
   ArrowUpRight,
@@ -20,7 +20,18 @@ import {
   ShieldCheck,
   Copy,
   Database,
-  Smartphone
+  Smartphone,
+  Mail,
+  AlertTriangle,
+  Banknote,
+  Globe,
+  Wallet,
+  Package,
+  Phone,
+  ChevronLeft,
+  ChevronRight,
+  Tag,
+  ShoppingCart
 } from "lucide-react";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
@@ -34,6 +45,8 @@ import { toast } from "sonner";
 export default function OrdersPage() {
   const [filters, setFilters] = useState({ limit: 10, offset: 0, status: "", id: "" });
   const { data, isLoading } = useGetOrdersQuery(filters);
+  const currentPage = Math.floor(filters.offset / filters.limit) + 1;
+  const totalPages = data?.total ? Math.ceil(data.total / filters.limit) : 1;
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [updateStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
 
@@ -80,6 +93,7 @@ export default function OrdersPage() {
       firstName: billing?.first_name || shipping?.first_name || "Guest",
       lastName: billing?.last_name || shipping?.last_name || "",
       phone: billing?.phone_number || shipping?.phone_number || "No Contact",
+      email: billing?.email || shipping?.email || "no email",
       city: billing?.city || shipping?.city || "N/A",
       state: billing?.state || shipping?.state || "N/A",
       street: billing?.street || shipping?.street || "N/A",
@@ -87,21 +101,30 @@ export default function OrdersPage() {
     };
   };
 
+
+
   const customer = getCustomerInfo(selectedOrder);
 
   return (
-    <div className="p-8 bg-[#fafafa] min-h-screen space-y-6  text-slate-600 font-sans">
+    <div className="p-8 bg-[#fafafa] min-h-screen space-y-6 text-slate-600 font-sans">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-slate-900">Orders Registry</h1>
-          <p className="text-slate-400 text-[11px] font-medium tracking-tight">Comprehensive log of all customer transactions.</p>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-white  flex items-center justify-center shadow-sm">
+            <ShoppingCart size={16} className="text-secondary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-900">Orders Registry</h1>
+            <p className="text-slate-400 text-[11px] font-medium tracking-tight">Comprehensive log of all customer transactions.</p>
+          </div>
         </div>
-        <div className=" border rounded-lg px-4 py-1.5 text-right">
-           <span className="text-[10px] text-slate-600 font-semibold  m-2leading-tight uppercase tracking-wider">orders Total :</span>
-           <span className="text-[10px] font-semibold text-chart-1 tracking-tighter">{data?.total || 0} </span>
+        <div className="border bg-white rounded-lg px-4 py-1.5 text-right">
+          <span className="text-[14px] text-slate-600 font-semibold  leading-tight uppercase tracking-wider">orders Total :</span>
+          <span className="text-[14px] font-semibold text-chart-1 tracking-wide"> {data?.total || 0}</span>
         </div>
       </div>
       <hr />
+      
+      {/* Filters Section */}
       <div className="flex flex-wrap gap-4 items-center">
         <div className="relative flex-1 min-w-60">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
@@ -138,37 +161,85 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+      <div className="bg-white rounded border shadow-sm overflow-hidden">
         <Table>
           <TableHeader className="bg-slate-50/50">
             <TableRow className="hover:bg-transparent border-slate-100">
               <TableHead className="h-11 text-[11px] font-semibold text-slate-400 pl-6 uppercase">Order Identity</TableHead>
+              <TableHead className="h-11 text-[11px] font-semibold text-slate-400 uppercase">Date</TableHead>
               <TableHead className="h-11 text-[11px] font-semibold text-slate-400 uppercase">Settlement Amount</TableHead>
+              <TableHead className="h-11 text-[11px] font-semibold text-slate-400 uppercase">Items</TableHead>
+              <TableHead className="h-11 text-[11px] font-semibold text-slate-400 uppercase">Customer Details</TableHead>
+              <TableHead className="h-11 text-[11px] font-semibold text-slate-400 uppercase">Payment</TableHead>
               <TableHead className="h-11 text-[11px] font-semibold text-slate-400 text-center uppercase">Update Status</TableHead>
               <TableHead className="h-11 text-right text-[11px] font-semibold text-slate-400 pr-6 uppercase">Manage</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
-               <TableRow><TableCell colSpan={4} className="text-center py-20 text-[11px] text-slate-300 font-semibold uppercase">Syncing Registry...</TableCell></TableRow>
+               <TableRow><TableCell colSpan={8} className="text-center py-20 text-[11px] text-slate-300 font-semibold uppercase">Syncing Registry...</TableCell></TableRow>
             ) : data?.data.map((order: any) => {
                 const today = isToday(order.created_at);
                 const safeId = order.id?.toString() || "";
+                const rowCustomer = getCustomerInfo(order);
+                // استخراج الـ type والـ sub_type للجدول
+                const pType = order.payment_response?.source_data?.type;
+                const pSubType = order.payment_response?.source_data?.sub_type;
+
                 return (
                   <TableRow 
                     key={order.id} 
-                    className={cn("group border-slate-50 hover:bg-slate-50/50 transition-colors relative", today && "bg-blue-50/10")}
+                    className={cn("group border-slate-50 hover:bg-slate-100 transition-colors relative", today && "bg-blue-50/10")}
                   >
                     <TableCell className="py-4 pl-6 relative cursor-pointer" onClick={() => setSelectedOrder(order)}>
                       {today && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-blue-400" />}
                       <div className="flex items-center gap-2">
                          <Hash size={10} className="text-slate-300" />
                          <span className="font-mono text-[11px] font-medium text-slate-600 italic">ID-{safeId.slice(-8).toUpperCase()}</span>
-                         {today && <span className="text-[9px] font-semibold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded uppercase tracking-tighter">Live Order</span>}
+                         {today && <span className="text-[9px] font-semibold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded uppercase tracking-tighter">Live</span>}
+                      </div>
+                    </TableCell>
+                    <TableCell className="cursor-pointer" onClick={() => setSelectedOrder(order)}>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[11px] font-medium text-slate-700">
+                          {order.created_at ? new Date(order.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          {order.created_at ? new Date(order.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : ""}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell className="cursor-pointer" onClick={() => setSelectedOrder(order)}>
                       <span className="text-[12px] font-semibold text-slate-800 tracking-tight">{order.total_amount} <span className="text-[10px] text-slate-400 font-medium">{order.currency}</span></span>
+                    </TableCell>
+                    <TableCell className="cursor-pointer" onClick={() => setSelectedOrder(order)}>
+                      <div className="flex items-center gap-1.5">
+                        <Package size={11} className="text-slate-400" />
+                        <span className="text-[11px] font-semibold text-slate-700">{order.items?.length ?? 0}</span>
+                        <span className="text-[10px] text-slate-400">item{order.items?.length !== 1 ? "s" : ""}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="cursor-pointer" onClick={() => setSelectedOrder(order)}>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[11px] font-semibold text-slate-800 tracking-tight">{rowCustomer.firstName} {rowCustomer.lastName}</span>
+                        <span className="text-[10px] text-slate-400 lowercase">{rowCustomer.email}</span>
+                        <span className="text-[10px] text-slate-400 flex items-center gap-1">{rowCustomer.phone}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="cursor-pointer" onClick={() => setSelectedOrder(order)}>
+                          <span className="text-[11px] font-semibold text-slate-700 uppercase flex items-center gap-1.5">
+    {order?.payment_provider === 'cash on delivary' ? (
+      <Banknote size={12} className="text-blue-900" />
+    ) : order?.payment_response?.source_data?.sub_type?.toLowerCase() === 'wallet' ? (
+      <Wallet size={12} className="text-amber-600" />
+    ) : (
+      <CreditCard size={12} className="text-emerald-600" />
+    )}
+    {order?.payment_response?.source_data?.type 
+      ? `${order.payment_response.source_data.type} ${order.payment_response.source_data.sub_type ? `(${order.payment_response.source_data.sub_type})` : ''}`
+      : (order?.payment_provider === 'cash on delivary' ? 'CASH' : 'PROVIDER')
+    }
+  </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-center">
@@ -199,196 +270,264 @@ export default function OrdersPage() {
             })}
           </TableBody>
         </Table>
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-6 py-3 border-t bg-slate-50/50">
+          <span className="text-[11px] text-slate-400 font-medium">
+            Showing {filters.offset + 1}–{Math.min(filters.offset + filters.limit, data?.total ?? 0)} of <span className="font-semibold text-slate-600">{data?.total ?? 0}</span>
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setFilters({ ...filters, offset: Math.max(0, filters.offset - filters.limit) })}
+              className="p-1.5 rounded border border-slate-200 text-slate-400 hover:text-slate-700 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all bg-white"
+            >
+              <ChevronLeft size={13} />
+            </button>
+            <span className="text-[11px] font-semibold text-slate-600 px-2">
+              {currentPage} / {totalPages}
+            </span>
+            <button
+              disabled={currentPage >= totalPages}
+              onClick={() => setFilters({ ...filters, offset: filters.offset + filters.limit })}
+              className="p-1.5 rounded border border-slate-200 text-slate-400 hover:text-slate-700 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all bg-white"
+            >
+              <ChevronRight size={13} />
+            </button>
+          </div>
+        </div>
       </div>
 
-      <Sheet open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-        <SheetContent className="sm:max-w-md p-0 bg-white border-l pt-10 shadow-2xl flex flex-col font-sans">
-          
-          <div className="p-6 border-b bg-slate-50/40">
-            <div className="flex justify-between items-center mb-4">
-               <span className="text-[10px] font-bold  uppercase tracking-widest ">Transaction Profile</span>
-               {selectedOrder && getStatusBadge(selectedOrder.status)}
+   <Sheet open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+  <SheetContent className="sm:max-w-md p-0 bg-white border-l pt-10 shadow-2xl flex flex-col font-sans">
+    
+    <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+      <div className="flex justify-between items-center mb-4">
+        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Transaction Profile</span>
+        {selectedOrder && getStatusBadge(selectedOrder.status)}
+      </div>
+      <SheetHeader className="space-y-1">
+        <SheetTitle className="text-sm font-semibold text-slate-900 tracking-tight leading-none uppercase italic flex items-center gap-2">
+          Order Identity: #{selectedOrder?.id?.toString().slice(-12).toUpperCase()}
+        </SheetTitle>
+        <div className="flex items-center gap-2 text-[11px] text-slate-400 font-medium">
+          <Calendar size={12} />
+          <span>Registry Date: {new Date(selectedOrder?.created_at).toLocaleString()}</span>
+        </div>
+      </SheetHeader>
+    </div>
+
+    <div className="flex-1 overflow-y-auto p-6 space-y-8">
+      {/* Failure Reason Section */}
+      {(selectedOrder?.status === 'cancelled' || selectedOrder?.payment_response?.error_occured) && (
+        <div className="bg-rose-50 border border-rose-100 rounded-lg p-4 space-y-2">
+          <h4 className="text-[10px] font-bold text-rose-700 uppercase tracking-widest flex items-center gap-2">
+            <AlertTriangle size={12} /> Failure Reason
+          </h4>
+          <p className="text-[11px] font-medium text-rose-600 italic">
+            {selectedOrder?.payment_response?.data?.message || selectedOrder?.payment_response?.error_msg || "Transaction was declined or manually cancelled."}
+          </p>
+        </div>
+      )}
+
+      {/* Customer Profile */}
+      <div className="space-y-4">
+        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+          <User size={12} /> Customer Profile
+        </h4>
+        <div className="bg-slate-50/50 rounded-lg p-4 space-y-3 border border-slate-200/60">
+          <div className="flex justify-between items-center">
+            <span className="text-[11px] text-slate-500 font-medium">Full Name</span>
+            <span className="text-[11px] font-semibold text-slate-800">{customer.firstName} {customer.lastName}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5"><Smartphone size={10}/> Contact</span>
+            <span className="text-[11px] font-semibold text-slate-800">{customer.phone}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5"><Mail size={10}/> Email</span>
+            <span className="text-[11px] font-semibold text-slate-800 lowercase">{customer.email}</span>
+          </div>
+          <div className="pt-3 mt-1 border-t border-slate-200 flex items-start gap-2 text-slate-500">
+            <MapPin size={12} className="text-slate-400 mt-0.5" />
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter italic">Shipping Address</span>
+              <span className="text-[10px] font-medium leading-relaxed text-slate-600">
+                {customer.city}, {customer.state}, {customer.street} {customer.building && ` - Bldg: ${customer.building}`}
+              </span>
             </div>
-            <SheetHeader className="space-y-1">
-              <SheetTitle className="text-sm font-semibold text-slate-900 tracking-tight leading-none uppercase italic flex items-center gap-2">
-                Order Identity: #{selectedOrder?.id?.toString().slice(-12).toUpperCase()}
-              </SheetTitle>
-              <div className="flex items-center gap-2 text-[11px] text-slate-400 font-medium">
-                <Calendar size={12} />
-                <span>Registry Date: {new Date(selectedOrder?.created_at).toLocaleString()}</span>
-              </div>
-            </SheetHeader>
+          </div>
+        </div>
+      </div>
+
+      <hr className="border-slate-100" />
+      
+      {/* Payment Logistics */}
+      <div className="space-y-4">
+        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+          <CreditCard size={12} /> Payment Logistics
+        </h4>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="p-3 border border-slate-200/60 rounded-lg bg-white shadow-sm flex flex-col gap-1">
+            <span className="text-[9px] text-slate-400 font-bold uppercase">Provider</span>
+            <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-tight">{selectedOrder?.payment_provider}</span>
+          </div>
+          <div className="p-3 border border-slate-200/60 rounded-lg bg-white shadow-sm flex flex-col gap-1">
+            <span className="text-[9px] text-slate-400 font-bold uppercase">Payment Type</span>
+            <span className="text-[11px] font-semibold text-slate-700 uppercase flex items-center gap-1.5">
+              {selectedOrder?.payment_provider === 'cash on delivary' || selectedOrder?.payment_provider === 'cash_on_delivery' ? (
+                <Banknote size={12} className="text-emerald-600" />
+              ) : selectedOrder?.payment_response?.source_data?.sub_type?.toLowerCase() === 'wallet' ? (
+                <Wallet size={12} className="text-blue-600" />
+              ) : (
+                <CreditCard size={12} className="text-slate-700" />
+              )}
+              {selectedOrder?.payment_response?.source_data?.type 
+                ? `${selectedOrder.payment_response.source_data.type} ${selectedOrder.payment_response.source_data.sub_type ? `(${selectedOrder.payment_response.source_data.sub_type})` : ''}`
+                : (selectedOrder?.payment_provider === 'cash on delivary' || selectedOrder?.payment_provider === 'cash_on_delivery' ? 'CASH' : 'PROVIDER')
+              }
+            </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-8">
-            <div className="space-y-4">
-              <h4 className="text-[10px] font-bold text-chart-1 uppercase tracking-[0.2em] flex items-center gap-2 ">
-                <User size={12} /> Customer Profile
-              </h4>
-              <div className="bg-slate-50 rounded-lg p-4 space-y-3 border border-slate-100">
-                <div className="flex justify-between items-center">
-                  <span className="text-[11px] text-slate-400 font-medium">Customer Full Name</span>
-                  <span className="text-[11px] font-semibold text-slate-800">
-                    {customer.firstName} {customer.lastName}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[11px] text-slate-400 font-medium flex items-center gap-1.5"><Smartphone size={10}/> Contact</span>
-                  <span className="text-[11px] font-semibold text-slate-800">{customer.phone}</span>
-                </div>
-                <div className="pt-3 mt-1 border-t border-slate-200/50 flex items-start gap-2 text-slate-500">
-                  <MapPin size={12} className="text-slate-300 mt-0.5" />
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter italic">Shipping Address</span>
-                    <span className="text-[10px] font-medium leading-relaxed">
-                        {customer.city}, {customer.state}, {customer.street} {customer.building && ` - Bldg: ${customer.building}`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-             <hr/>
-            <div className="space-y-4">
-              <h4 className="text-[10px] font-bold text-chart-1 uppercase tracking-[0.2em] flex items-center gap-2 ">
-                <CreditCard size={12} /> Payment Logistics
-              </h4>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 border rounded-lg bg-white shadow-sm flex flex-col gap-1">
-                  <span className="text-[9px] text-slate-400 font-bold uppercase">Provider</span>
-                  <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-tight">{selectedOrder?.payment_provider}</span>
-                </div>
-                <div className="p-3 border rounded-lg bg-white shadow-sm flex flex-col gap-1">
-                  <span className="text-[9px] text-slate-400 font-bold uppercase">Payment Type</span>
-                  <span className="text-[11px] font-semibold text-slate-700 uppercase flex items-center gap-1.5">
-                    <ShieldCheck size={10} className="text-emerald-500" />
-                    {selectedOrder?.payment_response?.source_data?.sub_type || (selectedOrder?.payment_provider === 'cash_on_delivery' ? 'CASH' : 'PROVIDER')}
-                  </span>
-                </div>
-              </div>
-            </div>
-             
-             <hr/>
-
-            <div className="space-y-4">
-              <h4 className="text-[10px] font-bold text-chart-1 uppercase tracking-[0.2em]">Ordered Products</h4>
-              <div className="space-y-3">
-                {selectedOrder?.items?.map((item: any, idx: number) => (
-                  <div key={idx} className="flex justify-between items-start pb-3 border-b border-slate-50 last:border-0">
-                    <div className="flex flex-col gap-1.5 flex-1">
-                      <span className="text-[11px] font-semibold text-slate-800 leading-snug tracking-tight">
-                        {item.product_title}
-                      </span>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <div className="flex items-center gap-1 bg-slate-100/50 px-1.5 py-0.5 rounded border border-slate-200">
-                          <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">PID:</span>
-                          <span className="text-[9px] font-mono text-slate-600 truncate max-w-[80px]">
-                            {item.product_id}
-                          </span>
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              copyToClipboard(item.product_id?.toString());
-                            }}
-                            className="hover:text-blue-500 text-slate-400 transition-colors ml-0.5"
-                          >
-                            <Copy size={10} />
-                          </button>
-                        </div>
-                        <span className="text-[9px] font-mono text-slate-400 italic bg-slate-50 px-1.5 py-0.5 rounded border">
-                          SKU: {item.product_id?.toString().slice(-6)}
-                        </span>
-                        <span className="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded font-mono text-[9px]">
-                          QNT: {item.quantity}
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-[11px] font-semibold text-slate-900 ml-4">
-                      {(item.price_at_purchase * item.quantity).toLocaleString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-                  
-              <hr/>
-
-            <div className="pt-6 border-t border-slate-100 space-y-6">
-              <div className="flex justify-between items-center">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ">Final Settlement</span>
-                <span className="text-xl font-semibold tracking-tighter text-slate-900 italic">
-                  {selectedOrder?.total_amount} <span className="text-[10px] text-slate-400 font-medium not-italic">{selectedOrder?.currency}</span>
+          {/* New Wallet Details Section */}
+          {(selectedOrder?.payment_response?.data?.wallet_issuer || selectedOrder?.payment_response?.data?.wallet_msisdn) && (
+            <>
+              <div className="p-3 border border-slate-200/60 rounded-lg bg-blue-50/30 shadow-sm flex flex-col gap-1">
+                <span className="text-[9px] text-slate-400 font-bold uppercase">Wallet Issuer</span>
+                <span className="text-[11px] font-semibold text-slate-800 uppercase tracking-tight">
+                  {selectedOrder.payment_response.data.wallet_issuer || "N/A"}
                 </span>
               </div>
-            
-                <hr/>
-
-              {(selectedOrder?.status === "completed" || selectedOrder?.payment_provider === "cash_on_delivery") && (
-                <PDFDownloadLink
-                  document={<InvoiceDocument order={selectedOrder} />}
-                  fileName={`INVOICE-${selectedOrder?.id?.toString().slice(-8).toUpperCase()}.pdf`}
-                >
-                  {({ loading }) => (
-                    <Button 
-                      disabled={loading} 
-                      className="w-full bg-chart-1 text-white h-11 rounded-lg text-[11px] font-semibold uppercase tracking-[0.1em] hover:bg-chart-1/80 transition-all shadow-md"
-                    >
-                      <FileDown size={14} className="mr-2" />
-                      {loading ? "Generating PDF..." : "Download Official Invoice"}
-                    </Button>
-                  )}
-                </PDFDownloadLink>
+              <div className="p-3 border border-slate-200/60 rounded-lg bg-blue-50/30 shadow-sm flex flex-col gap-1">
+                <span className="text-[9px] text-slate-400 font-bold uppercase">Wallet Number</span>
+                <span className="text-[11px] font-semibold text-slate-800 font-mono tracking-tight">
+                  {selectedOrder.payment_response.data.wallet_msisdn || "N/A"}
+                </span>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+        
+      <hr className="border-slate-100" />
+      
+      {/* Ordered Products */}
+      <div className="space-y-4">
+        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+          <ShoppingCart size={12} /> Ordered Products
+          <span className="ml-auto text-[9px] font-semibold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
+            {selectedOrder?.items?.length ?? 0} item{selectedOrder?.items?.length !== 1 ? "s" : ""}
+          </span>
+        </h4>
+        <div className="space-y-3">
+          {selectedOrder?.items?.map((item: any, idx: number) => (
+            <div key={idx} className="flex justify-between items-start pb-3 border-b border-slate-100 last:border-0">
+              {/* Product Image */}
+              {item.image && (
+                <img
+                  src={item.image}
+                  alt={item.product_title}
+                  className="w-10 h-10 rounded-lg object-cover border border-slate-200 mr-3 shrink-0"
+                />
               )}
-            </div>
-
-               <hr/>
-
-            <div className="space-y-4 pt-4">
-              <h4 className="text-[10px] font-bold text-chart-1 uppercase tracking-[0.2em] flex items-center gap-2 ">
-                <Database size={12} /> System Identifiers
-              </h4>
-              <div className="grid grid-cols-1 gap-2">
-                {[
-                  { label: "User ID", value: selectedOrder?.user_id },
-                  { label: "Internal Order ID", value: selectedOrder?.id },
-                  { label: "Gateway Transaction ID", value: selectedOrder?.payment_response?.id || "N/A" },
-                  { label: "Gateway order ID", value: selectedOrder?.provider_order_id || "N/A" }
-                ].map((id, i) => (
-                  <div key={i} className="flex justify-between items-center p-2 rounded-md border border-slate-100 bg-white">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[8px] font-bold text-slate-400 uppercase">{id.label}</span>
-                      <span className="text-[10px] font-mono text-slate-500 truncate max-w-[240px] select-all">{id.value || "N/A"}</span>
-                    </div>
-                    <button 
-                      onClick={() => copyToClipboard(id.value?.toString())}
-                      className="p-1 hover:bg-slate-50 rounded text-slate-300 hover:text-blue-500 transition-colors"
-                    >
-                      <Copy size={12} />
+              <div className="flex flex-col gap-1.5 flex-1">
+                <span className="text-[11px] font-semibold text-slate-800 leading-snug tracking-tight">{item.product_title}</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-1 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">PID:</span>
+                    <span className="text-[9px] font-mono text-slate-600 truncate max-w-[80px]">{item.product_id}</span>
+                    <button onClick={(e) => { e.stopPropagation(); copyToClipboard(item.product_id?.toString()); }} className="hover:text-blue-600 text-slate-400 transition-colors ml-0.5">
+                      <Copy size={10} />
                     </button>
                   </div>
-                ))}
+                  <span className="font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded font-mono text-[9px]">QNT: {item.quantity}</span>
+                  <span className="text-[9px] text-slate-400 font-medium">
+                    {item.price_at_purchase?.toLocaleString()} × {item.quantity}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-0.5 ml-4">
+                <span className="text-[11px] font-semibold text-slate-900">
+                  {(item.price_at_purchase * item.quantity).toLocaleString()}
+                </span>
+                <span className="text-[9px] text-slate-400">{selectedOrder?.currency}</span>
               </div>
             </div>
-             <hr/>
-
-            {selectedOrder?.payment_response && (
-              <div className="space-y-2  mb-2 pb-10">
-                <div className="flex items-center gap-1.5">
-                  <Activity size={12}  />
-                  <span className="text-[9px] font-bold text-chart-1 uppercase tracking-widest ">Gateway Response Payload</span>
-                </div>
-                <div className="bg-gray-100 rounded-xl p-5  border shadow-inner overflow-hidden">
-                  <div className="max-h-60 overflow-y-auto text-[10px] font-mono leading-relaxed scrollbar-hide">
-                    <pre className="text-gray-700">
-                      {JSON.stringify(selectedOrder.payment_response, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-              </div>
+          ))}
+        </div>
+      </div>
+            
+      <hr className="border-slate-100" />
+      
+      {/* Final Settlement */}
+      <div className="pt-2 space-y-6">
+        <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Final Settlement</span>
+          <span className="text-xl font-semibold tracking-tighter text-slate-900 italic">
+            {selectedOrder?.total_amount} <span className="text-[10px] text-slate-500 font-medium not-italic">{selectedOrder?.currency}</span>
+          </span>
+        </div>
+      
+        {(selectedOrder?.status === "completed" || selectedOrder?.payment_provider === "cash_on_delivery" || selectedOrder?.payment_provider === "cash on delivary") && (
+          <PDFDownloadLink
+            document={<InvoiceDocument order={selectedOrder} />}
+            fileName={`INVOICE-${selectedOrder?.id?.toString().slice(-8).toUpperCase()}.pdf`}
+          >
+            {({ loading }) => (
+              <Button disabled={loading} className="w-full bg-slate-900 text-white h-11 rounded-lg text-[11px] font-semibold uppercase tracking-[0.1em] hover:bg-slate-800 transition-all shadow-md">
+                <FileDown size={14} className="mr-2" />
+                {loading ? "Generating PDF..." : "Download Official Invoice"}
+              </Button>
             )}
+          </PDFDownloadLink>
+        )}
+      </div>
+
+      <hr className="border-slate-100" />
+      
+      {/* System Identifiers */}
+      <div className="space-y-4 pt-2">
+        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+          <Database size={12} /> System Identifiers
+        </h4>
+        <div className="grid grid-cols-1 gap-2">
+          {[
+            { label: "User ID", value: selectedOrder?.user_id },
+            { label: "Internal Order ID", value: selectedOrder?.id },
+            { label: "Gateway Transaction ID", value: selectedOrder?.payment_response?.id || "N/A" },
+            { label: "Gateway order ID", value: selectedOrder?.provider_order_id || "N/A" }
+          ].map((id, i) => (
+            <div key={i} className="flex justify-between items-center p-2.5 rounded-lg border border-slate-200/60 bg-slate-50/50">
+              <div className="flex flex-col gap-1">
+                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">{id.label}</span>
+                <span className="text-[10px] font-mono text-slate-600 truncate max-w-[240px] select-all">{id.value || "N/A"}</span>
+              </div>
+              <button onClick={() => copyToClipboard(id.value?.toString())} className="p-1.5 hover:bg-white rounded-md text-slate-400 border border-transparent hover:border-slate-200 hover:text-blue-600 transition-all shadow-sm">
+                <Copy size={12} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <hr className="border-slate-100" />
+      
+      {/* Gateway Response Payload */}
+      {selectedOrder?.payment_response && (
+        <div className="space-y-3 mb-2 pb-10">
+          <div className="flex items-center gap-1.5">
+            <Activity size={12} className="text-slate-400" />
+            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Gateway Response Payload</span>
           </div>
-        </SheetContent>
-      </Sheet>
+          <div className="bg-slate-900 rounded-xl p-5 border border-slate-800 shadow-inner overflow-hidden">
+            <div className="max-h-60 overflow-y-auto text-[10px] font-mono leading-relaxed scrollbar-hide">
+              <pre className="text-emerald-400">{JSON.stringify(selectedOrder.payment_response, null, 2)}</pre>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  </SheetContent>
+</Sheet>
     </div>
   );
 }

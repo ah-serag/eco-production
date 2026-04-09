@@ -1,41 +1,37 @@
-
 const pool = require("../../../config/condb");
-
-
+const uploadToCloudinary = require("../../../utils/uploadToCloudinary");
 
 const addHomeCategory = async (req, res) => {
   try {
-    const {
-      section_id,
-      category_id,
-      image_url,
-      title ,
-    } = req.body;
+    const { section_id, category_id, title } = req.body;
 
     if (!section_id || !category_id) {
-      return res.status(400).json({
-        message: "section_id and category_id are required",
-      });
+      return res.status(400).json({ message: "section_id and category_id are required" });
     }
 
+    const imageFile = req.file || req.files?.[0];
+    if (!imageFile) {
+      return res.status(400).json({ message: "Image is required" });
+    }
+
+    const uploaded = await uploadToCloudinary(imageFile.buffer, "home/categories");
+
+    await pool.query(
+      `SELECT add_image($1, $2) AS id`,
+      [uploaded.secure_url, uploaded.public_id]
+    );
+
     const result = await pool.query(
-      `
-      INSERT INTO home_categories
-      (section_id, category_id, image_url ,title)
-      VALUES ($1, $2, $3, $4 )
-      RETURNING *
-      `,
-      [section_id, category_id, image_url ,title]
+      `INSERT INTO home_categories (section_id, category_id, image_url, title)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [section_id, category_id, uploaded.secure_url, title || null]
     );
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
     if (error.code === "23505") {
-      return res.status(409).json({
-        message: "Category already exists in this section",
-      });
+      return res.status(409).json({ message: "Category already exists in this section" });
     }
-
     console.error(error);
     res.status(500).json({ message: "Failed to add home category" });
   }

@@ -23,7 +23,7 @@ export default function SearchProductsPage() {
   const isAr = locale === "ar";
 
   const [page, setPage] = useState(1);
-  const limit = 24;
+  const limit = 25;
 
   const categoryId = params?.categoryId as string;
   const subQuery = searchParams.get("sub") || undefined;
@@ -147,14 +147,7 @@ export default function SearchProductsPage() {
         </div>
       )}
 
-      {/* {isFetching && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-100 flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-neutral-100 px-3 py-1.5 rounded-full shadow-lg">
-          <Loader2 className="animate-spin w-3 h-3 text-chart-1" />
-          <span className="text-[9px] font-black uppercase tracking-tighter text-neutral-400">
-            {isAr ? "جاري التحميل" : "Loading"}
-          </span>
-        </div>
-      )} */}
+  
     </>
   );
 }

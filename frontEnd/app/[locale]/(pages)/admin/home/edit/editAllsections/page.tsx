@@ -262,27 +262,73 @@ export default function HomeSectionsAdminPage() {
               </div>
             </div>
 
-            <AccordionContent className="px-6 py-4 space-y-4">
+            <AccordionContent className="px-6 pb-5 pt-2">
               {section.items?.length ? (
-                section.items.map((item: any) => (
-                  <div
-                    key={item.id}
-                    className="relative h-[150px] rounded-md overflow-hidden border"
-                  >
-                    {item.image_url && (
-                      <img
-                        src={item.image_url}
-                        alt={item.title || item.name}
-                        className="w-full h-full object-contain"
-                      />
-                    )}
-                    <div className="absolute bottom-0 w-full bg-black/40 text-white text-sm p-2">
-                      {item.title || item.name}
-                    </div>
-                  </div>
-                ))
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {section.items.map((item: any) => {
+                    const desktopImg = item.desktop_image_url;
+                    const mobileImg  = item.mobile_image_url;
+                    const singleImg  = item.image_url;
+                    const mainImg    = desktopImg || singleImg;
+
+                    return (
+                      <div key={item.id} className="rounded-xl border border-slate-100 overflow-hidden bg-slate-50 flex flex-col">
+                        {/* Image */}
+                        {mainImg && (
+                          <div className="relative w-full aspect-video bg-slate-100 overflow-hidden">
+                            <img
+                              src={mainImg}
+                              alt="item"
+                              className="w-full h-full object-cover"
+                            />
+                            {desktopImg && (
+                              <span className="absolute top-2 left-2 text-[9px] uppercase tracking-widest bg-black/50 text-white px-1.5 py-0.5 rounded-sm">
+                                Desktop
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Mobile preview strip */}
+                        {mobileImg && (
+                          <div className="relative w-full h-12 bg-slate-200 overflow-hidden">
+                            <img src={mobileImg} alt="mobile" className="w-full h-full object-cover object-top" />
+                            <span className="absolute top-1 left-2 text-[9px] uppercase tracking-widest bg-black/50 text-white px-1.5 py-0.5 rounded-sm">
+                              Mobile
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Meta */}
+                        <div className="px-3 py-2 space-y-0.5">
+                          {item.cta_text && (
+                            <p className="text-[11px] font-medium text-slate-700 truncate">{item.cta_text}</p>
+                          )}
+                          {item.cta_link && (
+                            <p className="text-[10px] text-slate-400 truncate">{item.cta_link}</p>
+                          )}
+                          {item.title && (
+                            <p className="text-[11px] font-medium text-slate-700 truncate">{item.title}</p>
+                          )}
+                          {item.link_url && (
+                            <p className="text-[10px] text-slate-400 truncate">{item.link_url}</p>
+                          )}
+                          {item.subcategory_id && (
+                            <p className="text-[10px] text-slate-400">Sub ID: {item.subcategory_id}</p>
+                          )}
+                          <div className="flex items-center gap-1 pt-0.5">
+                            <span className={`w-1.5 h-1.5 rounded-full ${item.is_active ? "bg-emerald-400" : "bg-slate-300"}`} />
+                            <span className="text-[9px] uppercase tracking-widest text-slate-400">
+                              {item.is_active ? "Active" : "Inactive"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               ) : (
-                <span className="text-gray-400">No items</span>
+                <p className="text-[11px] text-slate-400 uppercase tracking-widest">No items</p>
               )}
             </AccordionContent>
           </AccordionItem>

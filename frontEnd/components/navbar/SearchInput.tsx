@@ -13,16 +13,14 @@ export function SearchInput() {
   const [searchValue, setSearchValue] = useState("");
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null); // مرجع لكامل منطقة البحث
+  const containerRef = useRef<HTMLDivElement>(null); 
 
-  // 1. فوكس تلقائي عند الفتح
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
 
-  // 2. إغلاق البحث عند الضغط في أي مكان بالخارج
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {

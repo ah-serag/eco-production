@@ -56,7 +56,7 @@ export default function LimitedOfferSection({ section }: Props) {
   if (!banners.length) return null;
 
   return (
-    <section dir={isAr ? "rtl" : "ltr"} className="w-full bg-transparent my-12 text-start px-4 md:px-8">
+    <section dir={isAr ? "rtl" : "ltr"} className="w-full border-none bg-transparent my-12 text-start px-4 md:px-8">
       
       {displayTitle && (
         <div className="mb-8 flex flex-col gap-1">

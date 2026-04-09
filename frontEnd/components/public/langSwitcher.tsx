@@ -37,8 +37,9 @@ export default function LanguageSwitcher() {
     }
 
     setIsOpen(false);
-    
-    router.replace(pathname, { locale: newLocale });
+
+    const search = window.location.search;
+    router.replace(`${pathname}${search}`, { locale: newLocale });
   };
 
   return (

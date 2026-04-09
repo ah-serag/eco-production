@@ -2,174 +2,158 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { LayoutTemplate, Loader2 } from "lucide-react";
 import { useAddHomeSectionMutation } from "../../../../../../../redux/features/home/AllsectionsSlice";
+
+const DEFAULT_CONTENT = `{
+  "title": "",
+  "subtitle": "",
+  "title_ar": "",
+  "subtitle_ar": ""
+}`;
+
+const WIDE_BANNER_CONTENT = `{
+  "wideBinner_items": [
+    { "url_image": "", "link": "/" },
+    { "url_image": "", "link": "/" }
+  ]
+}`;
+
+const STRIP_BANNER_CONTENT = `{
+  "strip_images": [""]
+}`;
+
+const SECTION_TYPES = [
+  { value: "hero",               label: "Hero Slider",          hint: "auto" },
+  { value: "category",           label: "Category",             hint: null },
+  { value: "Limited_Offer",      label: "Limited Offer",        hint: null },
+  { value: "product_category",   label: "Products Category",    hint: null },
+  { value: "subcategory_banner", label: "SubCategory Products", hint: null },
+  { value: "wide_banner",        label: "Wide Banner",          hint: "4 : 1" },
+  { value: "strip_banner",       label: "Strip Banner",         hint: "5 : 1" },
+];
 
 export default function AddHomeSectionPage() {
   const [addHomeSection, { isLoading }] = useAddHomeSectionMutation();
 
-  const [form, setForm] = useState({
-    name: "",
-    type: "",
-    order_index: 0,
-    content: `{
-      "title": "",
-      "subtitle": "" ,
-      "title_ar": "",
-      "subtitle_ar": "" 
-    }`,
-  });
+  const [name, setName]             = useState("");
+  const [type, setType]             = useState("");
+  const [orderIndex, setOrderIndex] = useState(0);
+  const [content, setContent]       = useState(DEFAULT_CONTENT);
 
   const handleTypeChange = (value: string) => {
-    let newContent = "";
-
-    if (value === "wide_banner") {
-      newContent = `{
-      "wideBinner_items" : [
-        {"url_image" : "" , "link" : "/"},
-        {"url_image" : "" , "link" : "/"}
-      ]
-    }`;
-    } else if (value === "strip_banner") {
-      newContent = `{
-      "strip_images" : [""]
-    }`;
-    } else {
-      newContent = `{
-      "title": "",
-      "subtitle": "" ,
-      "title_ar": "",
-      "subtitle_ar": "" 
-    }`;
-    }
-
-    setForm({ ...form, type: value, content: newContent });
+    setType(value);
+    if (value === "wide_banner")        setContent(WIDE_BANNER_CONTENT);
+    else if (value === "strip_banner")  setContent(STRIP_BANNER_CONTENT);
+    else                                setContent(DEFAULT_CONTENT);
   };
 
   const submit = async () => {
+    if (!name.trim()) return toast.error("Section name is required");
+    if (!type)        return toast.error("Please select a section type");
+
     try {
       await addHomeSection({
-        name: form.name,
-        type: form.type,
-        order_index: form.order_index,
+        name,
+        type,
+        order_index: orderIndex,
         is_active: true,
-        content: JSON.parse(form.content),
+        content: JSON.parse(content),
       }).unwrap();
 
-      toast.success("Section added successfully");
-
-      setForm({
-        name: "",
-        type: "",
-        order_index: 0,
-        content: `{
-          "title": "",
-          "subtitle": "" ,
-          "title_ar": "",
-          "subtitle_ar": "" 
-        }`,
-      });
-    } catch (err) {
+      toast.success("Section created successfully");
+      setName(""); setType(""); setOrderIndex(0); setContent(DEFAULT_CONTENT);
+    } catch {
       toast.error("Invalid JSON or server error");
     }
   };
 
   return (
-    <div className="mx-auto  space-y-8">
-      {/* ================= Form Card ================= */}
-      <Card className="shadow-sm rounded-none ">
-        <CardHeader>
-          <CardTitle>Add New Section</CardTitle>
-          <CardDescription>
-            This section will appear dynamically on the homepage
-          </CardDescription>
+    <div className="w-full">
+      <Card className="w-full border border-slate-100 shadow-sm rounded-2xl overflow-hidden">
+
+        <CardHeader className="bg-slate-50/60 border-b border-slate-100 px-6 py-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-white shadow-sm flex items-center justify-center">
+              <LayoutTemplate size={14} className="text-gray-700" />
+            </div>
+            <div>
+              <CardTitle className="text-[13px] font-semibold text-slate-700 tracking-tight">Add Home Section</CardTitle>
+              <CardDescription className="text-[11px] mt-0.5">This section will appear dynamically on the homepage</CardDescription>
+            </div>
+          </div>
         </CardHeader>
 
-        <CardContent className="space-y-6">
-          {/* Name */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Section Name</label>
-            <Input
-              placeholder="Hero Section"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-            />
+        <CardContent className="p-6 space-y-5">
+
+          {/* Name + Order — same row */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="col-span-2 space-y-1.5">
+              <label className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Section Name</label>
+              <Input
+                placeholder="e.g. Hero Section"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="h-9 text-[12px] rounded-xl border-slate-200"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Order</label>
+              <Input
+                type="number"
+                value={orderIndex}
+                onChange={(e) => setOrderIndex(Number(e.target.value))}
+                className="h-9 text-[12px] rounded-xl border-slate-200"
+              />
+            </div>
           </div>
 
           {/* Type */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Section Type</label>
-            <Select
-              value={form.type}
-              onValueChange={handleTypeChange}
-            >
-              <SelectTrigger>
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Section Type</label>
+            <Select value={type} onValueChange={handleTypeChange}>
+              <SelectTrigger className="h-9 text-[12px] rounded-xl border-slate-200">
                 <SelectValue placeholder="Select section type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="hero">Hero Slider (7 : 2)</SelectItem>
-                <SelectItem value="category">category</SelectItem>
-                <SelectItem value="Limited_Offer">Limited Offer</SelectItem>
-                <SelectItem value="product_category">products category</SelectItem>
-                <SelectItem value="subcategory_banner">SubCategory products</SelectItem>
-                <SelectItem value="wide_banner">wide_banner  (4 : 1) </SelectItem>
-                <SelectItem value="strip_banner">strip_banner (5: 1)</SelectItem>
+                {SECTION_TYPES.map((s) => (
+                  <SelectItem key={s.value} value={s.value} className="text-[12px]">
+                    <span>{s.label}</span>
+                    {s.hint && <span className="ms-2 text-slate-400 text-[10px]">({s.hint})</span>}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Order */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Order Index</label>
-            <Input
-              type="number"
-              value={form.order_index}
-              onChange={(e) =>
-                setForm({ ...form, order_index: Number(e.target.value) })
-              }
-            />
-          </div>
-
-          {/* Content */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Section Content (JSON)</label>
+          {/* JSON Content */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Content JSON</label>
             <Textarea
-              rows={10}
-              className="font-mono bg-slate-800 text-slate-100 text-sm"
-              value={form.content}
-              onChange={(e) => setForm({ ...form, content: e.target.value })}
+              rows={8}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="font-mono text-[12px] bg-slate-900 text-slate-100 rounded-xl border-0 resize-none leading-relaxed"
             />
-            <p className="text-xs text-muted-foreground">
-              Used by frontend to render the section dynamically
-            </p>
+            <p className="text-[10px] text-slate-400">Used by the frontend to render the section dynamically</p>
           </div>
 
-          {/* Action */}
-          <Button
+          {/* Submit */}
+          <button
             onClick={submit}
             disabled={isLoading}
-            className="w-full hover:bg-secondary/90 bg-secondary"
+            className="w-full h-10 rounded-xl text-[11px] font-semibold uppercase tracking-widest bg-slate-900 hover:bg-slate-700 text-white transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {isLoading ? "Saving..." : "Create Section"}
-          </Button>
+            {isLoading
+              ? <><Loader2 size={13} className="animate-spin" />Saving…</>
+              : <><LayoutTemplate size={13} />Create Section</>
+            }
+          </button>
+
         </CardContent>
       </Card>
     </div>

@@ -19,6 +19,10 @@ router.post(
   videoController.uploadVideos
 );
 
+router.get('/getVideos',authenticate,attachUser,auhtorize("admin","Super Admin") , videoController.getVideos);
+router.delete("/del_video/:id", authenticate,attachUser,auhtorize("admin","Super Admin") ,videoController.deleteVideo )
+
+
 
 
 

@@ -1,137 +1,158 @@
 const orderConfirmationEmail = ({
-  name = "Customer",
+  name = "Valued Customer",
   orderId,
-  total
+  total,
 }) => {
-  return {
-    subject: `Your Order is Confirmed – GOTIY (#${orderId})`,
+  const date = new Date().toLocaleDateString("en-GB", {
+    day: "2-digit", month: "long", year: "numeric",
+  });
 
-    text: `Hi ${name},
-Your order #${orderId} has been confirmed.
-Total: ${total}
-We will notify you once it ships.`,
+  return {
+    subject: `Order Confirmed – GOTIY #${orderId}`,
+
+    text: `Dear ${name},\n\nThank you for your order.\n\nOrder ID: #${orderId}\nDate: ${date}\nTotal: ${total}\n\nWe will notify you once your order has been shipped.\n\nWarm regards,\nGOTIY Customer Care`,
 
     html: `
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Order Confirmed – GOTIY</title>
 </head>
+<body style="margin:0;padding:0;background:#f2f2f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
 
-<body style="margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f2f2f5;padding:48px 16px;">
+<tr><td align="center">
 
-<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px;">
-<tr>
-<td align="center">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
 
-<table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.06);">
+    <!-- ─── BRAND HEADER ─── -->
+    <tr>
+      <td style="background:#7a0020;border-radius:18px 18px 0 0;padding:36px 40px 28px;text-align:center;">
+        <p style="margin:0 0 4px;font-size:11px;letter-spacing:5px;color:rgba(255,255,255,0.55);text-transform:uppercase;font-weight:600;">
+          Official Confirmation
+        </p>
+        <h1 style="margin:0;font-size:30px;letter-spacing:8px;color:#ffffff;font-weight:800;text-transform:uppercase;">
+          GOTIY
+        </h1>
+      </td>
+    </tr>
 
-  <!-- HEADER -->
-  <tr>
-    <td style="padding:32px 32px 24px;text-align:center;background:#9a0029;">
-      <h1 style="margin:0;font-size:26px;letter-spacing:6px;color:#fff;font-weight:700;">
-        GOTIY
-      </h1>
-    </td>
-  </tr>
+    <!-- ─── STATUS BAND ─── -->
+    <tr>
+      <td style="background:#9a0029;padding:14px 40px;text-align:center;">
+        <table align="center" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="width:20px;height:20px;background:#ffffff;border-radius:50%;text-align:center;vertical-align:middle;">
+              <span style="font-size:12px;color:#16a34a;font-weight:900;line-height:20px;display:block;">✓</span>
+            </td>
+            <td style="padding-left:10px;">
+              <span style="font-size:13px;color:#ffffff;font-weight:600;letter-spacing:2px;text-transform:uppercase;">
+                Order Successfully Placed
+              </span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
 
-  <!-- SUCCESS ICON -->
-  <tr>
-    <td style="text-align:center;padding:30px 32px 10px;">
-    <table align="center" cellpadding="0" cellspacing="0">
-  <tr>
-    <td 
-      width="56" 
-      height="56" 
-      align="center" 
-      valign="middle"
-      style="border-radius:50%;background:#e8f7ee;text-align:center;line-height:56px;"
-    >
-      <span style="font-size:26px;color:#16a34a;display:inline-block;line-height:1;">
-        ✓
-      </span>
-    </td>
-  </tr>
-</table>
+    <!-- ─── BODY ─── -->
+    <tr>
+      <td style="background:#ffffff;padding:40px 40px 32px;">
 
-      <h2 style="margin:16px 0 6px;font-size:22px;font-weight:700;">
-        Order Confirmed
-      </h2>
+        <p style="margin:0 0 8px;font-size:13px;color:#888;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;">
+          Dear Customer
+        </p>
+        <h2 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#111;">
+          ${name},
+        </h2>
+        <p style="margin:0 0 28px;font-size:15px;line-height:1.75;color:#555;">
+          Thank you for choosing <strong style="color:#111;">GOTIY</strong>.
+          Your order has been confirmed and is currently being prepared with care.
+          You will receive a shipping notification as soon as your package is dispatched.
+        </p>
 
-      <p style="margin:0;color:#666;font-size:14px;">
-        Thank you for your purchase
-      </p>
-    </td>
-  </tr>
-
-  <!-- CONTENT -->
-  <tr>
-    <td style="padding:30px 32px;">
-
-      <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#333;">
-        Hi <strong>${name}</strong>,<br/>
-        Your order has been successfully placed. We’re currently preparing it and will notify you as soon as it ships.
-      </p>
-
-      <!-- ORDER BOX -->
-      <div style="border:1px solid #eee;border-radius:12px;padding:20px;background:#fafafa;">
-
-        <table width="100%" cellpadding="0" cellspacing="0">
+        <!-- ─── ORDER DETAILS BOX ─── -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8ec;border-radius:14px;overflow:hidden;margin-bottom:28px;">
 
           <tr>
-            <td style="padding-bottom:12px;">
-              <span style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;">
-                Order ID
-              </span><br/>
-              <strong style="font-size:16px;">#${orderId}</strong>
+            <td colspan="2" style="background:#f8f8fa;padding:14px 24px;border-bottom:1px solid #e8e8ec;">
+              <span style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:2px;">
+                Order Summary
+              </span>
             </td>
           </tr>
 
           <tr>
-            <td style="padding-top:12px;border-top:1px solid #eee;">
-              <span style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;">
-                Total
-              </span><br/>
-              <strong style="font-size:20px;color:#111;">${total}</strong>
+            <td style="padding:18px 24px;border-bottom:1px solid #f0f0f3;width:50%;">
+              <p style="margin:0 0 4px;font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:1px;">Order ID</p>
+              <p style="margin:0;font-size:16px;font-weight:700;color:#111;font-family:'Courier New',monospace;">
+                #${orderId}
+              </p>
+            </td>
+            <td style="padding:18px 24px;border-bottom:1px solid #f0f0f3;width:50%;">
+              <p style="margin:0 0 4px;font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:1px;">Date</p>
+              <p style="margin:0;font-size:14px;font-weight:600;color:#333;">
+                ${date}
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan="2" style="padding:18px 24px;">
+              <p style="margin:0 0 4px;font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:1px;">Order Total</p>
+              <p style="margin:0;font-size:24px;font-weight:800;color:#7a0020;">
+                ${total}
+              </p>
             </td>
           </tr>
 
         </table>
 
-      </div>
+        <!-- ─── STATUS PILL ─── -->
+        <table align="center" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+          <tr>
+            <td style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:999px;padding:10px 24px;">
+              <span style="font-size:12px;font-weight:700;color:#15803d;letter-spacing:1.5px;text-transform:uppercase;">
+                ● Processing
+              </span>
+            </td>
+          </tr>
+        </table>
 
-      <!-- CTA BUTTON -->
-      <div style="text-align:center;margin-top:30px;">
-        <a href="${process.env.FRONT_END_URL}/en/orders"   style="display:inline-block;padding:14px 28px;background:#9a0029;color:#fff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:600;">
-          View Order
-        </a>
-      </div>
+        <p style="margin:0;font-size:14px;line-height:1.7;color:#777;border-top:1px solid #f0f0f3;padding-top:24px;">
+          If you have any questions regarding your order, please contact our support team and reference your Order ID.
+          We appreciate your trust in GOTIY and look forward to serving you again.
+        </p>
 
-    </td>
-  </tr>
+      </td>
+    </tr>
 
-  <!-- FOOTER -->
-  <tr>
-    <td style="padding:24px 32px;text-align:center;border-top:1px solid #eee;">
-      <p style="margin:0;font-size:13px;color:#555;">
-        GOTIY Team
-      </p>
-      <p style="margin:6px 0 0;font-size:12px;color:#aaa;">
-        This is an automated email — please do not reply.
-      </p>
-    </td>
-  </tr>
+    <!-- ─── FOOTER ─── -->
+    <tr>
+      <td style="background:#1a1a1a;border-radius:0 0 18px 18px;padding:28px 40px;text-align:center;">
+        <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#ffffff;letter-spacing:4px;text-transform:uppercase;">
+          GOTIY
+        </p>
+        <p style="margin:0 0 14px;font-size:12px;color:#666;">
+          Customer Care &nbsp;·&nbsp; support@gotiy.com
+        </p>
+        <p style="margin:0;font-size:11px;color:#444;line-height:1.6;">
+          This is an automated message. Please do not reply directly to this email.<br/>
+          © ${new Date().getFullYear()} GOTIY. All rights reserved.
+        </p>
+      </td>
+    </tr>
 
-</table>
+  </table>
 
-</td>
-</tr>
+</td></tr>
 </table>
 
 </body>
 </html>
-`
+`,
   };
 };
 

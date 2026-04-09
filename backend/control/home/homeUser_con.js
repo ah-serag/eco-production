@@ -11,11 +11,9 @@ const getuserInfo = async (req, res) => {
             SELECT 
                 id, 
                 full_name, 
-                username, 
                 email, 
                 phone, 
                 role, 
-                is_verified, 
                 is_active,
                 last_login, 
                 created_at 

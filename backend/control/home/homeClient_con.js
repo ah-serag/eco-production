@@ -19,11 +19,20 @@ const getHomePage = async (req, res) => {
             WHERE h.section_id = s.id AND h.is_active = true
           )
           WHEN s.type = 'category' THEN (
-            SELECT COALESCE(json_agg(c.*), '[]')
-            FROM home_categories c 
+            SELECT COALESCE(json_agg(
+              json_build_object(
+                'id',          c.id,
+                'category_id', c.category_id,
+                'image_url',   c.image_url,
+                'title',       c.title,
+                'is_active',   c.is_active,
+                'name',        cat.name,
+                'name_ar',     cat.name_ar              )
+            ), '[]')
+            FROM home_categories c
             INNER JOIN categories cat ON c.category_id = cat.id
             WHERE c.section_id = s.id AND c.is_active = true
-             AND cat.is_active = true  
+              AND cat.is_active = true
           )
           WHEN s.type = 'product_category' THEN (
             SELECT COALESCE(json_agg(p.*), '[]')
@@ -410,7 +419,7 @@ const CategoryAndSubcategoyOption = async (req, res) => {
 
 
 const searchProducts = async (req, res) => {
-  const { q, page = 1, limit = 12 } = req.query; 
+  const { q, page = 1, limit = 24 } = req.query;
   const offset = (page - 1) * limit;
 
   try {
@@ -418,30 +427,45 @@ const searchProducts = async (req, res) => {
       return res.status(400).json({ success: false, message: "Search query is required" });
     }
 
+    const searchTerm = `%${q}%`;
+
     const productsResult = await pool.query(
       `
       WITH search_results AS (
-        SELECT 
+        SELECT
           p.*,
-          c.name AS category,
-          s.name AS subcategory,
-          i.url AS image_url,
-          ts_rank(
-            setweight(to_tsvector('arabic', COALESCE(p.title, '')), 'A') || 
-            setweight(to_tsvector('arabic', COALESCE(p.description, '')), 'B'),
-            websearch_to_tsquery('arabic', $1)
+          c.name       AS category,
+          c.name_ar    AS category_ar,
+          s.name       AS subcategory,
+          s.name_ar    AS subcategory_ar,
+          i.url        AS image_url,
+          (
+            CASE WHEN LOWER(p.title)          ILIKE $1 THEN 8 ELSE 0 END +
+            CASE WHEN LOWER(p.title_ar)       ILIKE $1 THEN 8 ELSE 0 END +
+            CASE WHEN LOWER(p.description)    ILIKE $1 THEN 3 ELSE 0 END +
+            CASE WHEN LOWER(p.description_ar) ILIKE $1 THEN 3 ELSE 0 END +
+            CASE WHEN LOWER(c.name)           ILIKE $1 THEN 2 ELSE 0 END +
+            CASE WHEN LOWER(c.name_ar)        ILIKE $1 THEN 2 ELSE 0 END +
+            CASE WHEN LOWER(s.name)           ILIKE $1 THEN 1 ELSE 0 END +
+            CASE WHEN LOWER(s.name_ar)        ILIKE $1 THEN 1 ELSE 0 END
           ) AS rank
         FROM products p
         JOIN categories c ON c.id = p.category_id
-        LEFT JOIN subcategories s ON s.id = p.subcategory_id -- استخدام LEFT لضمان ظهور المنتجات التي ليس لها قسم فرعي
+        LEFT JOIN subcategories s ON s.id = p.subcategory_id
         JOIN product_images pi ON pi.product_id = p.id AND pi.is_main = true
         JOIN images i ON i.id = pi.image_id
         WHERE p.is_active = true
-          AND c.is_active = true -- التأكد من نشاط القسم الرئيسي
-          AND (s.id IS NULL OR s.is_active = true) -- التأكد من نشاط القسم الفرعي إن وجد
+          AND c.is_active = true
+          AND (s.id IS NULL OR s.is_active = true)
           AND (
-            to_tsvector('arabic', COALESCE(p.title, '') || ' ' || COALESCE(p.description, '')) 
-            @@ websearch_to_tsquery('arabic', $1)
+            p.title           ILIKE $1 OR
+            p.title_ar        ILIKE $1 OR
+            p.description     ILIKE $1 OR
+            p.description_ar  ILIKE $1 OR
+            c.name            ILIKE $1 OR
+            c.name_ar         ILIKE $1 OR
+            s.name            ILIKE $1 OR
+            s.name_ar         ILIKE $1
           )
       )
       SELECT *, COUNT(*) OVER() AS total_count
@@ -449,7 +473,7 @@ const searchProducts = async (req, res) => {
       ORDER BY rank DESC, created_at DESC
       LIMIT $2 OFFSET $3
       `,
-      [q, limit, offset]
+      [searchTerm, limit, offset]
     );
 
     const total = productsResult.rows.length > 0 ? parseInt(productsResult.rows[0].total_count) : 0;
@@ -462,7 +486,7 @@ const searchProducts = async (req, res) => {
         total,
         totalPages: Math.ceil(total / limit),
       },
-      data: productsResult.rows.map(({ total_count, ...rest }) => rest), 
+      data: productsResult.rows.map(({ total_count, ...rest }) => rest),
     });
   } catch (error) {
     console.error("Advanced Search Error:", error);

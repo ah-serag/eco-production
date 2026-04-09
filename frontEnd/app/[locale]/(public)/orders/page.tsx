@@ -11,7 +11,6 @@ export default function ClientOrdersPage() {
   const locale = useLocale(); 
   const isAr = locale === 'ar';
   
-  // تم التعديل ليكون 6 طلبات في كل مرة لضمان سرعة التحميل
   const limit = 6;
   const [allOrders, setAllOrders] = useState<any[]>([]);
   const [page, setPage] = useState(1);
@@ -21,7 +20,6 @@ export default function ClientOrdersPage() {
     limit: limit,
   });
 
-  // دمج البيانات الجديدة مع القديمة (Append)
   useEffect(() => {
     if (data?.data) {
       setAllOrders((prev) => {
@@ -39,7 +37,6 @@ export default function ClientOrdersPage() {
     });
   };
 
-  // تعتمد هذه القيمة على حقل total الذي أضفناه في الـ Backend
   const totalOrders = data?.total || 0;
   const hasMore = allOrders.length < totalOrders;
 
@@ -54,11 +51,22 @@ export default function ClientOrdersPage() {
     <div className="p-4 md:p-12 bg-[#FAFAFA] min-h-screen antialiased pb-20 font-sans text-slate-800">
       <div className="max-w-4xl mx-auto space-y-5">
         
-        <header className="space-y-1 text-start">
-          <h1 className={`${headingSize} font-semibold tracking-tight uppercase text-slate-800`}>{t('title')}</h1>
-          <p className={`${isAr ? "text-[13px]" : "text-[10px]"} text-slate-500 font-normal uppercase tracking-[0.2em]`}>{t('history')}</p>
+        <header className="flex items-end justify-between">
+          <div className="space-y-1 text-start">
+            <h1 className={`${headingSize} font-semibold tracking-tight uppercase text-slate-800`}>{t('title')}</h1>
+            <p className={`${isAr ? "text-[13px]" : "text-[10px]"} text-slate-500 font-normal uppercase tracking-[0.2em]`}>{t('history')}</p>
+          </div>
+
+          {totalOrders > 0 && (
+            <div className="flex flex-col items-end gap-0.5">
+              <span className="text-[9px] uppercase tracking-[0.25em] text-slate-400">{t('total_orders')}</span>
+              <span className="text-[28px] font-semibold text-slate-900 leading-none tracking-tight">
+                {totalOrders}
+              </span>
+            </div>
+          )}
         </header>
-        <hr className="border-slate-200" />
+        <hr className="border-slate-100" />
 
         <div className="grid grid-cols-1 gap-6">
           {allOrders.map((order: any) => {

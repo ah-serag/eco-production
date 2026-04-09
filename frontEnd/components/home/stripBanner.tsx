@@ -30,7 +30,7 @@ export default function StripBannerRender({ section }: StripBannerProps) {
 
   return (
     <section className=" w-full">
-      <div className="relative w-full aspect-6/1 overflow-hidden  bg-white ">
+      <div className="relative w-full aspect-5/1 overflow-hidden  bg-white ">
         
         {banners.map((url, index) => (
             

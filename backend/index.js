@@ -49,6 +49,9 @@ app.use("/clientOrders", require("./routes/orders_client/ordersClientRoute"));
 //checkout data
 app.use("/api/checkoutdData", require("./routes/checkoutdataRoute/checkdataRoute"));
 
+// profile
+app.use("/api/profile", require("./routes/profileUser/profileUserRoute"));
+
 
 
 

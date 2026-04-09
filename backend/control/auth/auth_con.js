@@ -32,8 +32,8 @@ const register = async (req, res) => {
       }
       } else {
       const insertResult = await pool.query(
-        `INSERT INTO users (full_name, email, password_hash, role)
-         VALUES ($1, $2, $3, 'user') 
+        `INSERT INTO users (full_name, email, password_hash , is_active , role )
+         VALUES ($1, $2, $3, 'true' , 'user' ) 
          RETURNING id, full_name, email`,
         [full_name, email, password_hash]
       );

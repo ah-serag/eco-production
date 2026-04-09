@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   useGetCategoryHomeQuery,
   useToggleHomeCategoryActiveMutation,
@@ -8,34 +9,29 @@ import {
 
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { Trash, LayoutGrid } from "lucide-react";
-import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { LayoutGrid, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 
 export default function HomeCategoriesAdminPage() {
   const { data, isLoading } = useGetCategoryHomeQuery(undefined);
   const [toggleActive] = useToggleHomeCategoryActiveMutation();
   const [deleteCategory] = useDeleteHomeCategoryMutation();
-  const [activeLoading, setActiveLoading] = useState<number | null>(null);
-  const [openDialogId, setOpenDialogId] = useState<number | null>(null);
 
-  if (isLoading) return <div className="p-8">Loading...</div>;
+  const [activeLoading, setActiveLoading] = useState<number | null>(null);
+  const [openDialogId, setOpenDialogId]   = useState<number | null>(null);
+
+  if (isLoading) return (
+    <div className="flex items-center justify-center h-48 text-[11px] uppercase tracking-widest text-slate-400">
+      Loading…
+    </div>
+  );
 
   const handleToggle = async (id: number) => {
     setActiveLoading(id);
     try {
       await toggleActive(id).unwrap();
-      toast.success("Category updated successfully");
+      toast.success("Category updated");
     } catch {
       toast.error("Failed to update category");
     } finally {
@@ -46,7 +42,7 @@ export default function HomeCategoriesAdminPage() {
   const handleDelete = async (id: number) => {
     try {
       await deleteCategory(id).unwrap();
-      toast.success("Category deleted successfully");
+      toast.success("Category deleted");
     } catch {
       toast.error("Failed to delete category");
     } finally {
@@ -54,94 +50,110 @@ export default function HomeCategoriesAdminPage() {
     }
   };
 
+  const categories = data?.categoryHome || [];
+
   return (
-    <div className="bg-gray-50 min-h-screen space-y-6">
-      {/* ================= Page Banner ================= */}
-      <div className="relative overflow-hidden mb-10 rounded-md p-10 bg-secondary text-white shadow-lg">
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-center">
-          <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-white/20">
-            <LayoutGrid size={32} />
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight">
-              Manage Home Categories
-            </h1>
-            <span className="inline-block text-xs uppercase tracking-widest text-white/70">
-              Admin Dashboard
-            </span>
-            <p className="max-w-2xl text-white/80 text-sm leading-relaxed">
-              On this page, you can manage all home categories dynamically.
-              Activate or deactivate categories, view all items, and delete categories as needed.
-            </p>
-          </div>
+    <div className="w-full space-y-4">
+
+      {/* Header */}
+      <div className="flex items-center gap-3 pb-2 border-b border-slate-100">
+        <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center">
+          <LayoutGrid size={14} className="text-white" />
+        </div>
+        <div>
+          <h1 className="text-[13px] font-semibold text-slate-800 tracking-tight">Home Categories</h1>
+          <p className="text-[11px] text-slate-400">Activate, deactivate or delete home category items</p>
         </div>
       </div>
 
-      <Accordion type="single" collapsible className="space-y-4">
-        {data?.categoryHome.map((category: any) => (
-          <AccordionItem key={category.id} value={`${category.id}`} className="bg-white shadow rounded-lg border">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-              <AccordionTrigger className="flex-1 px-4 py-3 font-medium hover:bg-gray-100">
-                {category.title}
-              </AccordionTrigger>
-              <div className="flex items-center gap-3 px-4">
+      {/* Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+        {categories.map((cat: any) => (
+          <div
+            key={cat.id}
+            className="relative group bg-white border border-slate-100 rounded-xl overflow-hidden"
+          >
+            {/* Image */}
+            <div className="aspect-square w-full overflow-hidden bg-slate-50">
+              {cat.image_url ? (
+                <img
+                  src={cat.image_url}
+                  alt={cat.title || "category"}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-[9px] text-slate-300 uppercase tracking-widest">
+                  No image
+                </div>
+              )}
+            </div>
+
+            {/* Meta */}
+            <div className="px-2 py-2 flex items-center justify-between gap-1">
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <span className="text-[11px] font-medium text-slate-700 truncate">
+                  {cat.title || `Cat #${cat.category_id}`}
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${cat.is_active ? "bg-emerald-400" : "bg-slate-300"}`} />
+                  <span className="text-[9px] uppercase tracking-widest text-slate-400">
+                    {cat.is_active ? "Active" : "Off"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1 shrink-0">
                 <Switch
-                  checked={category.is_active}
-                  disabled={activeLoading === category.id}
-                  onCheckedChange={() => handleToggle(category.id)}
+                  checked={cat.is_active}
+                  disabled={activeLoading === cat.id}
+                  onCheckedChange={() => handleToggle(cat.id)}
+                  className="scale-75"
                 />
 
-                {/* Delete Dialog */}
-                <Dialog open={openDialogId === category.id} onOpenChange={() => setOpenDialogId }>
+                <Dialog
+                  open={openDialogId === cat.id}
+                  onOpenChange={(o) => !o && setOpenDialogId(null)}
+                >
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="icon" onClick={() => setOpenDialogId(category.id)}>
-                      <Trash size={16} />
-                    </Button>
+                    <button
+                      onClick={() => setOpenDialogId(cat.id)}
+                      className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                    >
+                      <Trash2 size={12} />
+                    </button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
+                  <DialogContent className="sm:max-w-sm rounded-2xl">
                     <DialogHeader>
-                      <DialogTitle>Delete Category</DialogTitle>
-                      <DialogDescription>
-                        Are you sure you want to delete "{category.title}"? This action cannot be undone.
+                      <DialogTitle className="text-[14px]">Delete Category?</DialogTitle>
+                      <DialogDescription className="text-[12px]">
+                        This action cannot be undone.
                       </DialogDescription>
                     </DialogHeader>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setOpenDialogId(null)}>Cancel</Button>
-                      <Button className="bg-red-600 text-white hover:bg-red-700" onClick={() => handleDelete(category.id)}>Delete</Button>
-                    </DialogFooter>
+                    <div className="flex justify-end gap-2 mt-2">
+                      <button
+                        onClick={() => setOpenDialogId(null)}
+                        className="px-4 py-1.5 rounded-lg text-[11px] border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => handleDelete(cat.id)}
+                        className="px-4 py-1.5 rounded-lg text-[11px] bg-red-500 hover:bg-red-600 text-white transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </DialogContent>
                 </Dialog>
               </div>
             </div>
-
-            {/* Content */}
-            <AccordionContent className="px-3 relative py-4 text-sm text-gray-700 space-y-2">
-              {category.image_url ? (
-                <div className="relative w-full h-[150px] md:h-[200px] rounded-md overflow-hidden shadow">
-                  <img
-                    src={category.image_url}
-                    alt={category.title}
-                    className="w-full h-full object-contain"
-                  />
-                  <div className="absolute bottom-0 w-full bg-black/40 text-white text-sm p-2">
-                    <p><strong>ID:</strong> {category.id}</p>
-                    <p><strong>Title:</strong> {category.title || "No description"}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="relative w-full h-[150px] md:h-[200px] rounded-md overflow-hidden shadow flex items-center justify-center">
-                  <span className="text-gray-400">No image</span>
-                  <div className="absolute bottom-0 w-full bg-black/40 text-white text-sm p-2">
-                    <p><strong>ID:</strong> {category.id}</p>
-                    <p><strong>Title:</strong> {category.title || "No description"}</p>
-                  </div>
-                </div>
-              )}
-            </AccordionContent>
-          </AccordionItem>
+          </div>
         ))}
-      </Accordion>
+      </div>
+
+      {categories.length === 0 && (
+        <p className="text-center text-[11px] uppercase tracking-widest text-slate-400 py-12">No categories found</p>
+      )}
     </div>
   );
 }

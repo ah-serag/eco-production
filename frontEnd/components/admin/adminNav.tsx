@@ -138,9 +138,9 @@ export function AdminNav() {
                       </AccordionTrigger>
                       <AccordionContent className="pb-1 pl-9 space-y-1">
                         <SectionHeader title="Upload" />
-                        <MobileSubLink href="/admin/videos/add_videos" icon={<ImageUp size={14} />} onClick={() => setOpen(false)}>Upload New</MobileSubLink>
+                        <MobileSubLink href="/admin/video/add_videos" icon={<ImageUp size={14} />} onClick={() => setOpen(false)}>Upload New</MobileSubLink>
                         <SectionHeader title="Library" />
-                        <MobileSubLink href="/admin/images_library" icon={<ImageIcon size={14} />} onClick={() => setOpen(false)}>videos</MobileSubLink>
+                        <MobileSubLink href="/admin/video/videos_library" icon={<ImageIcon size={14} />} onClick={() => setOpen(false)}>videos</MobileSubLink>
                       </AccordionContent>
                     </AccordionItem>
 
@@ -218,7 +218,7 @@ export function AdminNav() {
               <SectionHeader title="Upload" />
               <MenuLink href="/admin/video/upload_videos" icon={<MonitorUp size={14} />}>Upload New</MenuLink>
               <SectionHeader title="Library" />
-              <MenuLink href="/admin/images_library" icon={<TvMinimalPlay size={14} />}>videos</MenuLink>
+              <MenuLink href="/admin/video/videos_library" icon={<TvMinimalPlay size={14} />}>videos library</MenuLink>
             </MenuDropdown>
             
             
@@ -261,8 +261,8 @@ export function AdminNav() {
 function NavItem({ href, icon, children, active }: any) {
   return (
     <Link href={href} className={cn(
-      "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all",
-      active ? "bg-chart-1 text-white shadow-sm" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+      "flex items-center gap-1.5 px-3 py-1.5   rounded-md text-[13px] font-medium transition-all",
+      active ? "bg-chart-1/10 text-chart-1 shadow-sm" : "text-slate-500 hover:bg-slate-200 "
     )}>
       {icon} <span>{children}</span>
     </Link>
@@ -274,7 +274,7 @@ function MenuDropdown({ label, icon, active, children }: any) {
     <DropdownMenu>
       <DropdownMenuTrigger className={cn(
         "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all outline-none",
-        active ? "bg-chart-1 text-white shadow-sm" : "text-slate-500 hover:bg-slate-50"
+        active ? "bg-chart-1/10 text-chart-1 shadow-sm" : "text-slate-500 hover:bg-slate-200"
       )}>
         {icon} <span>{label}</span> <ChevronDown size={12} className="opacity-40" />
       </DropdownMenuTrigger>
@@ -287,9 +287,9 @@ function MenuDropdown({ label, icon, active, children }: any) {
 
 function MenuLink({ href, icon, children }: any) {
   return (
-    <DropdownMenuItem asChild>
-      <Link href={href} className="flex items-center gap-2 px-2 py-1.5 text-[12px] cursor-pointer rounded-md focus:bg-slate-50">
-        {icon} <span>{children}</span>
+    <DropdownMenuItem   asChild>
+      <Link href={href} className="flex items-center  gap-2 px-2 py-1.5 text-[12px]  rounded-md ">
+        {icon} <span >{children}</span>
       </Link>
     </DropdownMenuItem>
   );

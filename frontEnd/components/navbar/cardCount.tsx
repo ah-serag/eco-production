@@ -1,32 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// 1. Import useSelector to listen to Redux state
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { loadCartFromStorage } from "@/redux/features/cartSlice/cartSlice";
 
 export default function CartBadge() {
+  const dispatch = useDispatch();
   const items = useSelector((state: any) => state.cart.cartItems);
-  
-  const [mounted, setMounted] = useState(false);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    dispatch(loadCartFromStorage());
+  }, [dispatch]);
 
-  const count = items.length;
+  useEffect(() => {
+    setCount(items.length);
+  }, [items.length]);
 
-  // Prevent hydration mismatch
-  if (!mounted) {
-    return (
-      <span className="">
-        0
-      </span>
-    );
-  }
-
-  return (
-    <span className="    transition-all duration-300">
-      {count}
-    </span>
-  );
+  return <span className="transition-all">{count}</span>;
 }

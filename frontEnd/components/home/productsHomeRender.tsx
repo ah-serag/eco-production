@@ -51,7 +51,7 @@ if (!categoryId || section.content.length === 0) {
   const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
 
   return (
-    <section className="relative bg-transparent border-b border-gray-100 py-2 group/section">
+    <section className="relative bg-transparent  py-2 group/section">
       
       {/* ===== Header ===== */}
       {displayTitle && (

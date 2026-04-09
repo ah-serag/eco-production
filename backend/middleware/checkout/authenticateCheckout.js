@@ -2,7 +2,6 @@ const { verifyAccessToken } = require("../../utils/jwt");
 
 const authenticateCheckout = (req, res, next) => {
   const token = req.cookies?.accessToken;
-
   if (!token) {
     req.userId = null;
     return next();

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Table, TableHeader, TableRow, TableCell, TableBody, TableHead } from "@/components/ui/table";
+import {
+  Table, TableHeader, TableRow, TableCell,
+  TableBody, TableHead,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast, Toaster } from "sonner";
@@ -10,139 +13,196 @@ import {
   useGetUsersQuery,
   useUpdateUserRoleMutation,
   useToggleUserActiveMutation,
-  useDeleteUserMutation
+  useDeleteUserMutation,
 } from "../../../../../redux/features/users/usersapiSlice";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
+  Dialog, DialogContent, DialogHeader,
+  DialogTitle, DialogTrigger, DialogClose,
 } from "@/components/ui/dialog";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { MoreHorizontal, Search, ListOrdered, ShieldCheck, Mail, UserCog, Trash2, ShieldAlert, Fingerprint } from "lucide-react";
+import {
+  Select, SelectTrigger, SelectValue,
+  SelectContent, SelectItem,
+} from "@/components/ui/select";
+import {
+  MoreHorizontal, Search, Users, ShieldAlert,
+  UserCog, Trash2, Phone, Clock, ChevronLeft,
+  ChevronRight, UserCheck, UserX,
+} from "lucide-react";
 
 interface User {
   id: string;
   full_name: string;
   email: string;
+  phone: string | null;
   role: string;
   is_active: boolean;
-  is_verified: boolean;
+  last_login: string | null;
+  created_at: string;
+}
+
+function Avatar({ name }: { name: string }) {
+  const initials = name
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+  const colors = [
+    "bg-violet-100 text-violet-600",
+    "bg-sky-100 text-sky-600",
+    "bg-emerald-100 text-emerald-600",
+    "bg-amber-100 text-amber-600",
+    "bg-rose-100 text-rose-600",
+  ];
+  const color = colors[name.charCodeAt(0) % colors.length];
+  return (
+    <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0", color)}>
+      {initials}
+    </div>
+  );
+}
+
+function RoleBadge({ role }: { role: string }) {
+  const styles: Record<string, string> = {
+    admin:  "bg-amber-50 text-amber-700 border-amber-200",
+    vendor: "bg-sky-50 text-sky-700 border-sky-200",
+    user:   "bg-slate-50 text-slate-500 border-slate-200",
+  };
+  return (
+    <span className={cn(
+      "text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border",
+      styles[role] ?? "bg-slate-50 text-slate-500 border-slate-200"
+    )}>
+      {role}
+    </span>
+  );
+}
+
+function StatusDot({ active }: { active: boolean }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className={cn(
+        "w-1.5 h-1.5 rounded-full ring-2 ring-offset-1",
+        active ? "bg-emerald-500 ring-emerald-100" : "bg-rose-400 ring-rose-100"
+      )} />
+      <span className={cn(
+        "text-[10px] font-semibold",
+        active ? "text-emerald-600" : "text-rose-500"
+      )}>
+        {active ? "Active" : "Inactive"}
+      </span>
+    </div>
+  );
+}
+
+function formatDate(dateStr: string | null) {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString("en-GB", {
+    day: "2-digit", month: "short", year: "numeric",
+  });
 }
 
 export default function UsersPage() {
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<"all" | "active" | "inactive">("all");
+  const [page, setPage]           = useState(1);
+  const [limit]                   = useState(10);
+  const [search, setSearch]       = useState("");
+  const [status, setStatus]       = useState<"all" | "active" | "inactive">("all");
   const [roleFilter, setRoleFilter] = useState<"all" | "user" | "admin" | "vendor">("all");
 
   const offset = (page - 1) * limit;
 
   const { data, isLoading } = useGetUsersQuery({
-    offset,
-    limit,
-    search,
-    status: status === "all" ? null : status,
-    role: roleFilter === "all" ? undefined : roleFilter,
+    offset, limit, search,
+    status:  status     === "all" ? null      : status,
+    role:    roleFilter === "all" ? undefined : roleFilter,
   });
 
-  const [updateRole] = useUpdateUserRoleMutation();
+  const [updateRole]   = useUpdateUserRoleMutation();
   const [toggleActive] = useToggleUserActiveMutation();
-  const [deleteUser] = useDeleteUserMutation();
+  const [deleteUser]   = useDeleteUserMutation();
+
+  const totalPages = Math.ceil((data?.total || 0) / limit) || 1;
 
   const handleRoleChange = async (id: string, role: string) => {
     try {
       await updateRole({ id, role }).unwrap();
-      toast.success("Identity Updated", { description: `User is now assigned as ${role}.` });
-    } catch {
-      toast.error("Update Failed");
-    }
+      toast.success("Role updated", { description: `User role changed to ${role}.` });
+    } catch { toast.error("Failed to update role"); }
   };
 
   const handleActiveToggle = async (id: string, is_active: boolean) => {
     try {
       await toggleActive({ id, is_active }).unwrap();
-      toast.info("Status Changed", { description: `Account is now ${is_active ? 'Enabled' : 'Locked'}.` });
-    } catch {
-      toast.error("Status Update Failed");
-    }
+      toast.info(is_active ? "Account enabled" : "Account disabled");
+    } catch { toast.error("Failed to update status"); }
   };
 
-  const handleDeleteUser = async (id: string) => {
+  const handleDelete = async (id: string) => {
     try {
       await deleteUser(id).unwrap();
-      toast.success("Purged", { description: "User record removed from core database." });
-    } catch {
-      toast.error("Deletion Blocked");
-    }
+      toast.success("User deleted successfully");
+    } catch { toast.error("Could not delete user"); }
   };
 
-  const totalPages = Math.ceil((data?.total || 0) / limit) || 1;
+  const activeCount   = data?.data?.filter((u: User) => u.is_active).length  ?? 0;
+  const inactiveCount = data?.data?.filter((u: User) => !u.is_active).length ?? 0;
 
   return (
-    <div className="p-8 bg-[#fafafa] min-h-screen space-y-6 text-slate-600 font-sans">
+    <div className="p-6 bg-[#f8f8f8] min-h-screen space-y-5 font-sans">
       <Toaster position="top-right" richColors />
 
-      {/* Header Section */}
-      <div className="flex justify-between items-center">
+      {/* ── Header ── */}
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 font-sans">Users Manager</h1>
-          <p className="text-slate-400 text-[11px] font-semibold tracking-tight uppercase">Platform permissions and identity control.</p>
+          <h1 className="text-lg font-semibold text-slate-900 tracking-tight">Users</h1>
+          <p className="text-[11px] text-slate-400 mt-0.5">Manage accounts, roles, and access.</p>
         </div>
-        <div className=" border bg-transparent rounded-lg px-4 py-1.5  text-right">
-           <span className="text-[10px] text-slate-400 font-black m-2 leading-tight uppercase tracking-wider">Total Directory :</span>
-           <span className="text-sm  text-secondary tracking-tighter">
-             {data?.total} 
-           </span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 bg-white border border-slate-100 rounded-xl px-3 py-2 shadow-sm">
+            <Users size={13} className="text-slate-400" />
+            <span className="text-[11px] font-semibold text-slate-600">{data?.total ?? "—"}</span>
+            <span className="text-[10px] text-slate-300 font-medium">total</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2">
+            <UserCheck size={13} className="text-emerald-500" />
+            <span className="text-[11px] font-semibold text-emerald-600">{activeCount}</span>
+          </div>
+          <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2">
+            <UserX size={13} className="text-rose-400" />
+            <span className="text-[11px] font-semibold text-rose-500">{inactiveCount}</span>
+          </div>
         </div>
       </div>
-       <hr />
-      {/* Filters Bar */}
-      <div className="flex flex-wrap gap-3 items-center">
-        <div className="relative flex-1 min-w-[240px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
+
+      {/* ── Filters ── */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <div className="relative flex-1 min-w-[220px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={13} />
           <Input
-            placeholder="Search identity by name or email..."
+            placeholder="Search by name or email or id"
             value={search}
             onChange={(e) => { setPage(1); setSearch(e.target.value); }}
-            className="pl-9 h-9 text-[11px] font-semibold border rounded-lg bg-white shadow-sm focus:border-slate-400"
+            className="pl-9 h-9 text-[12px] bg-white border-slate-200 shadow-sm rounded-xl focus-visible:ring-slate-300"
           />
         </div>
 
-        <div className="bg-white border rounded-lg px-3 py-1 shadow-sm flex items-center gap-2 h-9">
-          <ListOrdered size={14} className="text-slate-300" />
-          <input
-            type="number"
-            value={limit}
-            onChange={(e) => { setPage(1); setLimit(Number(e.target.value) || 10); }}
-            className="w-8 text-[11px] font-bold bg-transparent outline-none text-slate-600"
-          />
-        </div>
-
-        <Select value={status} onValueChange={(val) => { setPage(1); setStatus(val as any); }}>
-          <SelectTrigger className="h-9 w-32 text-[11px] font-bold border rounded-lg bg-white shadow-sm">
+        <Select value={status} onValueChange={(v) => { setPage(1); setStatus(v as any); }}>
+          <SelectTrigger className="h-9 w-36 text-[11px] font-semibold bg-white border-slate-200 shadow-sm rounded-xl">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem className="text-[11px]" value="all">Global Status</SelectItem>
-            <SelectItem className="text-[11px]" value="active">Enabled</SelectItem>
-            <SelectItem className="text-[11px]" value="inactive">Disabled</SelectItem>
+            <SelectItem className="text-[11px]" value="all">All Status</SelectItem>
+            <SelectItem className="text-[11px]" value="active">Active</SelectItem>
+            <SelectItem className="text-[11px]" value="inactive">Inactive</SelectItem>
           </SelectContent>
         </Select>
 
-        <Select value={roleFilter} onValueChange={(val) => { setPage(1); setRoleFilter(val as any); }}>
-          <SelectTrigger className="h-9 w-32 text-[11px] font-bold border rounded-lg bg-white shadow-sm">
+        <Select value={roleFilter} onValueChange={(v) => { setPage(1); setRoleFilter(v as any); }}>
+          <SelectTrigger className="h-9 w-36 text-[11px] font-semibold bg-white border-slate-200 shadow-sm rounded-xl">
             <SelectValue placeholder="Role" />
           </SelectTrigger>
           <SelectContent>
@@ -154,159 +214,225 @@ export default function UsersPage() {
         </Select>
       </div>
 
-      {/* Table Content */}
-      <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+      {/* ── Table ── */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-50/50">
-            <TableRow className="border-slate-100">
-              <TableHead className="h-10 text-[10px] font-bold text-slate-400 pl-6 uppercase tracking-wider">User Identity</TableHead>
-              <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Access Level</TableHead>
-              <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Verification</TableHead>
-              <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Account State</TableHead>
-              <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right pr-6">Manage</TableHead>
+          <TableHeader>
+            <TableRow className="bg-slate-50/70 border-b border-slate-100 hover:bg-slate-50/70">
+              <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-5">User</TableHead>
+              <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Phone</TableHead>
+              <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Role</TableHead>
+              <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</TableHead>
+              <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Joined</TableHead>
+              <TableHead className="h-10 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Last Login</TableHead>
+              <TableHead className="h-10 w-12 pr-5" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow><TableCell colSpan={5} className="text-center py-20 text-[10px] font-bold text-slate-300 uppercase tracking-widest">Querying Identity DB...</TableCell></TableRow>
-            ) : data?.data.map((user: User) => (
-              <TableRow key={user.id} className="border-slate-50 hover:bg-slate-50/50 transition-colors group">
-                <TableCell className="pl-6">
-                  <div className="flex flex-col">
-                    <span className="text-[11px] font-bold text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors">{user.full_name}</span>
-                    <div className="flex items-center gap-1 text-[9px] font-mono text-slate-400 mt-0.5">
-                      <Fingerprint size={10} className="text-slate-300" /> {user.email}
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i} className="border-slate-50">
+                  {Array.from({ length: 7 }).map((__, j) => (
+                    <TableCell key={j} className="py-4">
+                      <div className="h-3 bg-slate-100 rounded animate-pulse w-3/4" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : data?.data?.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="py-20 text-center">
+                  <Users size={28} className="mx-auto text-slate-200 mb-2" />
+                  <p className="text-[11px] font-semibold text-slate-400">No users found</p>
+                </TableCell>
+              </TableRow>
+            ) : data?.data?.map((user: User) => (
+              <TableRow key={user.id} className="border-slate-50 hover:bg-slate-50/40 transition-colors">
+
+                {/* User */}
+                <TableCell className="pl-5 py-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar name={user.full_name} />
+                    <div className="min-w-0">
+                      <p className="text-[12px] font-semibold text-slate-800 truncate">{user.full_name}</p>
+                      <p className="text-[10px] text-slate-400 font-mono truncate">{user.email}</p>
                     </div>
                   </div>
                 </TableCell>
+
+                {/* Phone */}
                 <TableCell>
-                  <span className={cn(
-                    "text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest border shadow-sm",
-                    user.role === "admin" ? "bg-amber-50 text-gray-600 border-amber-100" : 
-                    user.role === "vendor" ? "bg-blue-50 text-gray-600 border-blue-100" :
-                    "bg-slate-50 text-slate-500 border-slate-100"
-                  )}>
-                    {user.role}
-                  </span>
-                </TableCell>
-                <TableCell className="text-center">
-                  <div className="flex justify-center">
-                    {user.is_verified ? (
-                      <div className="flex items-center gap-1 text-emerald-600 bg-emerald-50/50 px-2 py-0.5 rounded border border-emerald-100/50">
-                        <ShieldCheck size={10} />
-                        <span className="text-[8px] font-black uppercase">Identity Verified</span>
-                      </div>
-                    ) : (
-                      <span className="text-[9px] font-bold text-slate-300 uppercase italic tracking-tighter">Unverified</span>
-                    )}
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                    {user.phone
+                      ? <><Phone size={10} className="text-slate-300" />{user.phone}</>
+                      : <span className="text-slate-300">—</span>
+                    }
                   </div>
                 </TableCell>
-                <TableCell className="text-center">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className={cn("w-1.5 h-1.5 rounded-full ring-2 ring-offset-1", user.is_active ? "bg-emerald-500 ring-emerald-100" : "bg-rose-400 ring-rose-100")} />
-                    <span className="text-[10px] font-bold uppercase text-slate-500">{user.is_active ? "Live" : "Locked"}</span>
+
+                {/* Role */}
+                <TableCell><RoleBadge role={user.role} /></TableCell>
+
+                {/* Status */}
+                <TableCell><StatusDot active={user.is_active} /></TableCell>
+
+                {/* Joined */}
+                <TableCell>
+                  <span className="text-[11px] text-slate-500">{formatDate(user.created_at)}</span>
+                </TableCell>
+
+                {/* Last Login */}
+                <TableCell>
+                  <div className="flex items-center gap-1 text-[11px] text-slate-400">
+                    {user.last_login
+                      ? <><Clock size={10} className="text-slate-300" />{formatDate(user.last_login)}</>
+                      : <span className="text-slate-300">Never</span>
+                    }
                   </div>
                 </TableCell>
-                {user.role === "Super Admin" ? "" : 
-                   <TableCell  className="text-right pr-6">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-7 w-7 p-0 hover:bg-white border-transparent hover:border-slate-200 border transition-all"><MoreHorizontal size={14} /></Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-52 shadow-xl border-slate-200">
-                      <DropdownMenuLabel className="text-[9px] font-black uppercase text-slate-400 py-2">Security Ops</DropdownMenuLabel>
-                      
-                      <Dialog >
-                        <DialogTrigger asChild>
-                          <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-[11px] cursor-pointer font-bold py-2 focus:bg-slate-50">
-                            <UserCog className="mr-2 h-3.5 w-3.5 text-gray-500" /> Permissions
-                          </DropdownMenuItem>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-xs border-none shadow-2xl p-6">
-                          <DialogHeader><DialogTitle className="text-xs font-black uppercase text-slate-900 tracking-widest">Update Permissions</DialogTitle></DialogHeader>
-                          <div className="space-y-4 py-2">
-                            <div className="space-y-2">
-                              <label className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest">Global Role</label>
-                              <Select value={user.role} onValueChange={(val) => handleRoleChange(user.id, val)}>
-                                <SelectTrigger className="h-9 text-[11px] font-bold"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem className="text-[11px]" value="user">Standard User</SelectItem>
-                                  <SelectItem className="text-[11px]" value="vendor">Verified Vendor</SelectItem>
-                                  <SelectItem className="text-[11px]" value="admin">Platform Admin</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-2">
-                              <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Account State</label>
-                              <Select value={user.is_active ? "active" : "inactive"} onValueChange={(val) => handleActiveToggle(user.id, val === "active")}>
-                                <SelectTrigger className="h-9 text-[11px] font-bold"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem className="text-[11px]" value="active">Enabled (Active)</SelectItem>
-                                  <SelectItem className="text-[11px]" value="inactive">Locked (Restricted)</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
 
-                      <DropdownMenuSeparator />
+                {/* Actions */}
+                <TableCell className="pr-5 text-right">
+                  {user.role !== "Super Admin" && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon"
+                          className="h-7 w-7 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg">
+                          <MoreHorizontal size={14} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48 shadow-lg border-slate-100 rounded-xl">
+                        <DropdownMenuLabel className="text-[9px] font-bold uppercase text-slate-400 tracking-wider py-2">
+                          Actions
+                        </DropdownMenuLabel>
 
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-[11px] cursor-pointer font-bold text-rose-600 focus:text-rose-600 py-2 focus:bg-rose-50/50">
-                            <Trash2 className="mr-2 h-3.5 w-3.5" /> Permanent Termination
-                          </DropdownMenuItem>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-xs border-none shadow-2xl p-6">
-                          <DialogHeader className="flex flex-col items-center gap-2">
-                            <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center">
-                                <ShieldAlert className="text-rose-600" size={20} />
+                        {/* Edit Permissions */}
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}
+                              className="text-[12px] font-medium cursor-pointer py-2 rounded-lg focus:bg-slate-50">
+                              <UserCog className="mr-2 h-3.5 w-3.5 text-slate-400" /> Edit Permissions
+                            </DropdownMenuItem>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-xs rounded-2xl border-none shadow-2xl p-6">
+                            <DialogHeader>
+                              <div className="flex items-center gap-3 mb-1">
+                                <Avatar name={user.full_name} />
+                                <div>
+                                  <DialogTitle className="text-[13px] font-semibold text-slate-900">
+                                    {user.full_name}
+                                  </DialogTitle>
+                                  <p className="text-[10px] text-slate-400">{user.email}</p>
+                                </div>
+                              </div>
+                            </DialogHeader>
+                            <div className="space-y-4 pt-2">
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">Role</label>
+                                <Select value={user.role} onValueChange={(val) => handleRoleChange(user.id, val)}>
+                                  <SelectTrigger className="h-9 text-[12px] rounded-xl border-slate-200">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="rounded-xl">
+                                    <SelectItem className="text-[12px]" value="user">User</SelectItem>
+                                    <SelectItem className="text-[12px]" value="vendor">Vendor</SelectItem>
+                                    <SelectItem className="text-[12px]" value="admin">Admin</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">Account Status</label>
+                                <Select
+                                  value={user.is_active ? "active" : "inactive"}
+                                  onValueChange={(val) => handleActiveToggle(user.id, val === "active")}
+                                >
+                                  <SelectTrigger className="h-9 text-[12px] rounded-xl border-slate-200">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="rounded-xl">
+                                    <SelectItem className="text-[12px]" value="active">Active</SelectItem>
+                                    <SelectItem className="text-[12px]" value="inactive">Inactive</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             </div>
-                            <DialogTitle className="text-xs font-black uppercase text-rose-600 tracking-widest">Destructive Action</DialogTitle>
-                          </DialogHeader>
-                          <p className="text-[10px] text-slate-500 text-center leading-relaxed font-semibold">
-                            Verify deletion for <span className="text-slate-900">{user.full_name}</span> by typing the email below:
-                          </p>
-                          <Input placeholder="Confirm email..." id={`confirm-email-${user.id}`} className="h-9 text-[11px] font-mono text-center border-rose-100" />
-                          <div className="flex gap-2 mt-4">
-                            <DialogClose asChild><Button variant="ghost" className="flex-1 text-[10px] font-black uppercase">Cancel</Button></DialogClose>
-                            <Button variant="destructive" className="flex-1 text-[10px] font-black uppercase" onClick={async () => {
-                                const input = document.getElementById(`confirm-email-${user.id}`) as HTMLInputElement;
-                                if (input.value !== user.email) {
-                                  toast.error("Security Mismatch", { description: "Email entry does not match user record." });
-                                  return;
-                                }
-                                await handleDeleteUser(user.id);
-                              }}>Confirm</Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                          </DialogContent>
+                        </Dialog>
+
+                        <DropdownMenuSeparator className="my-1" />
+
+                        {/* Delete */}
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}
+                              className="text-[12px] font-medium cursor-pointer text-rose-500 focus:text-rose-600 focus:bg-rose-50 py-2 rounded-lg">
+                              <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete User
+                            </DropdownMenuItem>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-xs rounded-2xl border-none shadow-2xl p-6">
+                            <DialogHeader className="flex flex-col items-center gap-3 mb-1">
+                              <div className="w-11 h-11 rounded-full bg-rose-50 flex items-center justify-center">
+                                <ShieldAlert className="text-rose-500" size={20} />
+                              </div>
+                              <DialogTitle className="text-[13px] font-semibold text-slate-900">Delete User</DialogTitle>
+                            </DialogHeader>
+                            <p className="text-[11px] text-slate-500 text-center leading-relaxed">
+                              Type the email of <span className="font-semibold text-slate-800">{user.full_name}</span> to confirm deletion.
+                            </p>
+                            <Input
+                              id={`confirm-${user.id}`}
+                              placeholder={user.email}
+                              className="h-9 text-[11px] text-center border-slate-200 rounded-xl mt-2"
+                            />
+                            <div className="flex gap-2 mt-4">
+                              <DialogClose asChild>
+                                <Button variant="outline" className="flex-1 h-9 text-[11px] rounded-xl">Cancel</Button>
+                              </DialogClose>
+                              <Button variant="destructive" className="flex-1 h-9 text-[11px] rounded-xl"
+                                onClick={async () => {
+                                  const input = document.getElementById(`confirm-${user.id}`) as HTMLInputElement;
+                                  if (input.value !== user.email) {
+                                    toast.error("Email doesn't match");
+                                    return;
+                                  }
+                                  await handleDelete(user.id);
+                                }}>
+                                Delete
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </TableCell>
-                }
-             
+
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
 
-      {/* Pagination Footer */}
-      <div className="flex justify-between items-center px-2 pt-2">
-        <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em]">
-          Directory Integrity | Page {page} of {totalPages}
+      {/* ── Pagination ── */}
+      <div className="flex items-center justify-between px-1">
+        <p className="text-[11px] text-slate-400">
+          Page <span className="font-semibold text-slate-600">{page}</span> of <span className="font-semibold text-slate-600">{totalPages}</span>
         </p>
-        <div className="flex gap-1.5">
-          <Button variant="outline" className="h-7 px-3 text-[9px] font-black border-slate-200 hover:bg-white transition-all uppercase tracking-widest" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-            Previous
+        <div className="flex items-center gap-1.5">
+          <Button variant="outline" size="icon"
+            className="h-8 w-8 rounded-xl border-slate-200 shadow-sm hover:bg-white"
+            disabled={page <= 1} onClick={() => setPage(page - 1)}>
+            <ChevronLeft size={13} />
           </Button>
-          <Button variant="outline" className="h-7 px-3 text-[9px] font-black border-slate-200 hover:bg-white transition-all uppercase tracking-widest" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
-            Next Batch
+          <Button variant="outline" size="icon"
+            className="h-8 w-8 rounded-xl border-slate-200 shadow-sm hover:bg-white"
+            disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
+            <ChevronRight size={13} />
           </Button>
         </div>
       </div>
+
     </div>
   );
 }

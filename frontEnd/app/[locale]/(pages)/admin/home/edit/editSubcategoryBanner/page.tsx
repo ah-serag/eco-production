@@ -7,42 +7,32 @@ import {
   useDeleteSubcategoryBannerMutation,
 } from "../../../../../../../redux/features/home/subCategoryBannerSlice";
 
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { Trash, LayoutGrid } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { Layers, Trash2, Monitor, Smartphone } from "lucide-react";
 import { toast } from "sonner";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 export default function SubcategoryBannersAdminPage() {
   const { data, isLoading } = useGetSubcategoryBannersQuery(undefined);
   const [toggleActive] = useToggleSubcategoryBannerActiveMutation();
   const [deleteBanner] = useDeleteSubcategoryBannerMutation();
 
-  const [activeLoading, setActiveLoading] = useState<number | null>(null);
+  const [activeLoading, setActiveLoading]   = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedBannerId, setSelectedBannerId] = useState<number | null>(null);
 
-  if (isLoading) return <div className="p-8">Loading...</div>;
+  if (isLoading) return (
+    <div className="flex items-center justify-center h-48 text-[11px] uppercase tracking-widest text-slate-400">
+      Loading…
+    </div>
+  );
 
   const handleToggle = async (id: number, is_active: boolean) => {
     setActiveLoading(id);
     try {
       await toggleActive({ id, is_active: !is_active }).unwrap();
-      toast.success("Subcategory banner updated successfully");
+      toast.success("Banner updated");
     } catch {
       toast.error("Failed to update banner");
     } finally {
@@ -50,16 +40,11 @@ export default function SubcategoryBannersAdminPage() {
     }
   };
 
-  const openDeleteDialog = (id: number) => {
-    setSelectedBannerId(id);
-    setDeleteDialogOpen(true);
-  };
-
   const handleConfirmDelete = async () => {
     if (!selectedBannerId) return;
     try {
       await deleteBanner(selectedBannerId).unwrap();
-      toast.success("Subcategory banner deleted successfully");
+      toast.success("Banner deleted");
     } catch {
       toast.error("Failed to delete banner");
     } finally {
@@ -68,98 +53,80 @@ export default function SubcategoryBannersAdminPage() {
     }
   };
 
+  const banners = data?.subcategoryBanners || [];
+
   return (
-    <div className="bg-gray-50 min-h-screen space-y-6">
-      {/* ================= Page Banner ================= */}
-      <div className="relative overflow-hidden mb-10 rounded-md p-10 bg-secondary text-white shadow-lg">
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-center">
-          <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-white/20">
-            <LayoutGrid size={32} />
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight">
-              Manage Subcategory Banners
-            </h1>
-            <span className="inline-block text-xs uppercase tracking-widest text-white/70">
-              Admin Dashboard
-            </span>
-            <p className="max-w-2xl text-white/80 text-sm leading-relaxed">
-              On this page, you can manage all subcategory banners dynamically.
-              Activate or deactivate banners, view all items, and delete banners
-              as needed.
-            </p>
-          </div>
+    <div className="w-full space-y-4">
+
+      {/* Header */}
+      <div className="flex items-center gap-3 pb-2 border-b border-slate-100">
+        <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center">
+          <Layers size={14} className="text-white" />
+        </div>
+        <div>
+          <h1 className="text-[13px] font-semibold text-slate-800 tracking-tight">Subcategory Banners</h1>
+          <p className="text-[11px] text-slate-400">Manage, activate and delete subcategory banners</p>
         </div>
       </div>
 
-      <Accordion type="single" collapsible className="space-y-4">
-        {data?.subcategoryBanners.map((banner: any) => (
+      {/* List */}
+      <Accordion type="single" collapsible className="space-y-2">
+        {banners.map((banner: any) => (
           <AccordionItem
             key={banner.id}
             value={`${banner.id}`}
-            className="bg-white shadow rounded-lg border"
+            className="bg-white border border-slate-100 rounded-xl overflow-hidden shadow-none"
           >
-            {/* Header */}
-            <div className="flex justify-between items-center">
-               <AccordionTrigger className="flex-1 text-chart-1 px-4 py-3 font-medium hover:bg-gray-100">
-                <div>
-                 section name : <span className="text-black">{banner.section_name}</span> 
+            <div className="flex items-center justify-between">
+              <AccordionTrigger className="flex-1 px-4 py-3 hover:no-underline hover:bg-slate-50/50 transition-colors">
+                <div className="flex items-center gap-3 text-start">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[12px] font-medium text-slate-800">{banner.subcategory_name}</span>
+                    <span className="text-[10px] text-slate-400 uppercase tracking-widest">{banner.section_name}</span>
+                  </div>
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${banner.is_active ? "bg-emerald-400" : "bg-slate-300"}`} />
                 </div>
-                  ---
-                <div>
-                 Banner name : <span className="text-black">{banner.subcategory_name}</span> 
-                </div>
-               </AccordionTrigger>
-            
+              </AccordionTrigger>
 
-              <div className="flex items-center gap-3 px-4">
+              <div className="flex items-center gap-2 px-4">
                 <Switch
                   checked={banner.is_active}
                   disabled={activeLoading === banner.id}
-                  onCheckedChange={() =>
-                    handleToggle(banner.id, banner.is_active)
-                  }
+                  onCheckedChange={() => handleToggle(banner.id, banner.is_active)}
                 />
 
-                {/* Delete Dialog */}
                 <Dialog
-                  open={
-                    deleteDialogOpen && selectedBannerId === banner.id
-                  }
+                  open={deleteDialogOpen && selectedBannerId === banner.id}
                   onOpenChange={setDeleteDialogOpen}
                 >
                   <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => openDeleteDialog(banner.id)}
+                    <button
+                      onClick={() => { setSelectedBannerId(banner.id); setDeleteDialogOpen(true); }}
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                     >
-                      <Trash size={16} />
-                    </Button>
+                      <Trash2 size={13} />
+                    </button>
                   </DialogTrigger>
-
-                  <DialogContent className="sm:max-w-[425px]">
+                  <DialogContent className="sm:max-w-sm rounded-2xl">
                     <DialogHeader>
-                      <DialogTitle>Confirm Delete</DialogTitle>
-                      <DialogDescription>
-                        Are you sure you want to delete this subcategory banner?
+                      <DialogTitle className="text-[14px]">Delete Banner?</DialogTitle>
+                      <DialogDescription className="text-[12px]">
                         This action cannot be undone.
                       </DialogDescription>
                     </DialogHeader>
-
-                    <div className="mt-4 flex justify-end gap-2">
-                      <Button
-                        variant="outline"
+                    <div className="flex justify-end gap-2 mt-2">
+                      <button
                         onClick={() => setDeleteDialogOpen(false)}
+                        className="px-4 py-1.5 rounded-lg text-[11px] border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
                       >
                         Cancel
-                      </Button>
-                      <Button
-                        className="bg-red-500 hover:bg-red-600 text-white"
+                      </button>
+                      <button
                         onClick={handleConfirmDelete}
+                        className="px-4 py-1.5 rounded-lg text-[11px] bg-red-500 hover:bg-red-600 text-white transition-colors"
                       >
                         Delete
-                      </Button>
+                      </button>
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -167,30 +134,66 @@ export default function SubcategoryBannersAdminPage() {
             </div>
 
             {/* Content */}
-            <AccordionContent className="px-6 py-4 text-sm text-gray-700 space-y-4">
-              {banner.image_url ? (
-                <div className="relative w-full h-[150px] md:h-[200px] rounded-md overflow-hidden shadow">
-                  <img
-                    src={banner.image_url}
-                    alt={`${banner.subcategory_name} banner`}
-                    className="w-full h-full object-contain"
-                  />
-                  <div className="absolute inset-0 bg-black/20 flex flex-col justify-end p-2">
-                    <p className="text-white font-medium text-sm md:text-base">
-                      {banner.subcategory_name}
-                    </p>
-                    <p className="text-white/80 text-xs md:text-sm">
-                      {banner.section_name}
-                    </p>
+            <AccordionContent className="px-4 pb-4 pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                {/* Desktop */}
+                {banner.desktop_image_url && (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1 text-[9px] uppercase tracking-widest text-slate-400">
+                      <Monitor size={10} /> Desktop
+                    </div>
+                    <div className="w-full aspect-video rounded-xl overflow-hidden bg-slate-100">
+                      <img src={banner.desktop_image_url} alt="desktop" className="w-full h-full object-cover" />
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <span className="text-gray-400">No image</span>
-              )}
+                )}
+
+                {/* Mobile */}
+                {banner.mobile_image_url && (
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1 text-[9px] uppercase tracking-widest text-slate-400">
+                      <Smartphone size={10} /> Mobile
+                    </div>
+                    <div className="w-full aspect-video rounded-xl overflow-hidden bg-slate-100">
+                      <img src={banner.mobile_image_url} alt="mobile" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Fallback old image_url */}
+                {!banner.desktop_image_url && !banner.mobile_image_url && banner.image_url && (
+                  <div className="col-span-2 w-full aspect-video rounded-xl overflow-hidden bg-slate-100">
+                    <img src={banner.image_url} alt="banner" className="w-full h-full object-cover" />
+                  </div>
+                )}
+
+              </div>
+
+              {/* Meta */}
+              <div className="mt-3 flex flex-wrap gap-2">
+                {banner.subcategory_id && (
+                  <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md">
+                    Sub ID: {banner.subcategory_id}
+                  </span>
+                )}
+                {banner.category_id && (
+                  <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md">
+                    Cat ID: {banner.category_id}
+                  </span>
+                )}
+                <span className={`text-[10px] px-2 py-0.5 rounded-md ${banner.is_active ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400"}`}>
+                  {banner.is_active ? "Active" : "Inactive"}
+                </span>
+              </div>
             </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>
+
+      {banners.length === 0 && (
+        <p className="text-center text-[11px] uppercase tracking-widest text-slate-400 py-12">No banners found</p>
+      )}
     </div>
   );
 }

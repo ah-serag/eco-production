@@ -1,17 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const getInitialCart = () => {
-  if (typeof window !== "undefined") {
-    const savedCart = localStorage.getItem("cart");
-    return savedCart ? JSON.parse(savedCart) : [];
-  }
-  return [];
-};
-
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
-    cartItems: getInitialCart(),
+    cartItems: [],
     checkoutItems: [],
   },
   reducers: {
@@ -27,10 +19,22 @@ const cartSlice = createSlice({
 
     prepareCartCheckout: (state) => {
       state.checkoutItems = [...state.cartItems];
+      localStorage.setItem("checkoutItems", JSON.stringify(state.checkoutItems));
     },
 
     setDirectCheckout: (state, action) => {
       state.checkoutItems = [{ ...action.payload }];
+      localStorage.setItem("checkoutItems", JSON.stringify(state.checkoutItems));
+    },
+
+    clearCheckoutItems: (state) => {
+      state.checkoutItems = [];
+      localStorage.removeItem("checkoutItems");
+    },
+
+    loadCartFromStorage: (state) => {
+      const saved = localStorage.getItem("cart");
+      if (saved) state.cartItems = JSON.parse(saved);
     },
 
     removeFromCart: (state, action) => {
@@ -49,12 +53,14 @@ const cartSlice = createSlice({
   },
 });
 
-export const { 
-  addToCart, 
-  prepareCartCheckout, 
-  setDirectCheckout, 
-  updateQuantity, 
-  removeFromCart 
+export const {
+  addToCart,
+  prepareCartCheckout,
+  setDirectCheckout,
+  clearCheckoutItems,
+  loadCartFromStorage,
+  updateQuantity,
+  removeFromCart
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

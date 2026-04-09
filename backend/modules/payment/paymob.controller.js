@@ -209,15 +209,17 @@ exports.checkoutWallet = async (req, res) => {
       source: { identifier: walletNumber, subtype: "WALLET" },
       payment_token: paymentKey
     });
+      
+    const redirectUrl = response.data.redirect_url || response.data.iframe_redirection_url;
 
-    if (!response.data.redirect_url) {
-        await client.query("ROLLBACK");
-        return res.status(400).json({ error: "Failed to get redirect URL" });
+    if (!redirectUrl) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({ error: "Failed to get redirect URL from Paymob" });
     }
 
     await client.query(`UPDATE orders SET provider_order_id = $1 WHERE id = $2`, [paymobOrder.id, OrderAndItems.orderId]);
     await client.query("COMMIT");
-    res.json({ redirectUrl: response.data.redirect_url });
+    res.json({ redirectUrl });
 
   } catch (err) {
     await client.query("ROLLBACK");
@@ -252,7 +254,7 @@ exports.checkoutCash = async (req, res) => {
     const htmlTemp = orderConfirmationEmail({name : billingData.first_name , orderId :OrderAndItems.orderId ,total : OrderAndItems.totalAmount})
     const sendemail = sendMailNodemailer({ to:billingData.email , subject: htmlTemp.subject , text :htmlTemp.text ,html : htmlTemp.html})
 
-    res.status(201).json({ success: true, orderId: OrderAndItems.orderId, redirectUrl: `/order-success?success=true&id=${OrderAndItems.orderId}` });
+    res.status(201).json({ success: true, orderId: OrderAndItems.orderId, redirectUrl: `/checkout/order-success?success=true&id=${OrderAndItems.orderId}` });
 
   } catch (err) {
     await client.query("ROLLBACK");

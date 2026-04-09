@@ -6,9 +6,9 @@ const authenticateCheckout = require("../../middleware/checkout/authenticateChec
 const router = express.Router();
 
 router.post("/checkout" , authenticateCheckout , controller.checkout);
-router.post("/checkoutWallet" , controller.checkoutWallet);
-router.post("/checkoutCash" , controller.checkoutCash);
-router.post("/webhook" , webhook.handleWebhook);
+router.post("/checkoutWallet" ,authenticateCheckout , controller.checkoutWallet);
+router.post("/checkoutCash" ,authenticateCheckout , controller.checkoutCash);
+router.post("/webhook"  , webhook.handleWebhook);
 router.get("/dataBillingUser/:userid" ,dataBillingUser.getBillingDataUser )
 
 

@@ -1,8 +1,7 @@
 
 
 const pool = require("../../../config/condb");
-const cloudinary = require("../../../config/cloudinary");
-const streamifier = require("streamifier");
+const uploadToCloudinary = require("../../../utils/uploadToCloudinary");
 const parseExcel = require("../../../utils/parseExcel")
 
 
@@ -372,23 +371,12 @@ const addProductWithImages = async (req, res) => {
       await client.query(`INSERT INTO vendors_products (product_id, vendor_id) VALUES ($1, $2)`, [productId, req.user.id]);
     }
 
-    // --- Helper function for Cloudinary upload ---
-    const uploadToCloudinary = (fileBuffer, folder, type = "image") => {
-      return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder, resource_type: type, public_id: `${productId}_${Date.now()}_${Math.random()}` },
-          (err, result) => (err ? reject(err) : resolve(result))
-        );
-        streamifier.createReadStream(fileBuffer).pipe(stream);
-      });
-    };
-
     // --- Handle Images ---
     const mainImg = req.files.mainImage[0];
     const gallery = req.files.gallery || [];
     
     // Upload main image
-    const mainImgRes = await uploadToCloudinary(mainImg.buffer, "products/images");
+    const mainImgRes = await uploadToCloudinary(mainImg.buffer, "products/images", "image", `${productId}_${Date.now()}`);
     const addImgDb = await client.query(`SELECT add_image($1, $2) AS id`, [mainImgRes.secure_url, mainImgRes.public_id]);
     await client.query(`INSERT INTO product_images (product_id, image_id, is_main, position) VALUES ($1, $2, true, 0)`, [productId, addImgDb.rows[0].id]);
 

@@ -5,12 +5,12 @@ export const heroApiSlice = apiSlice.injectEndpoints({
 
 
    addHeroBanner: builder.mutation({
-      query: (data) => ({
+      query: (formData) => ({
         url: "/home/admin/addHerobanner",
         method: "POST",
-        body: data,
+        body: formData,
       }),
-      invalidatesTags: ["HomeSections"],
+      invalidatesTags: ["HomeSections", "HeroBanners"],
     }),
 
 

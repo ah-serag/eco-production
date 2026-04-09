@@ -13,8 +13,6 @@ exports.handleWebhook = async (req, res) => {
     const paymobOrderId = obj.order?.id || obj.order; 
     const paymobTransactionId = obj.id; 
 
-    console.log(`Webhook Received - Paymob Order: ${paymobOrderId}, Success: ${isSuccess}`);
-
     if (isSuccess) {
       await pool.query(
         `UPDATE orders
@@ -33,17 +31,28 @@ exports.handleWebhook = async (req, res) => {
           String(paymobOrderId) 
         ]
       );
-      console.log(`Order #${paymobOrderId} updated to PAID`);
     } else {
-      await pool.query(
+      const orderResult = await pool.query(
         `UPDATE orders
          SET status = $1,
              updated_at = NOW(),
              payment_response = $2
-         WHERE provider_order_id = $3`,
+         WHERE provider_order_id = $3
+         RETURNING id`,
         ["cancelled", JSON.stringify(obj), String(paymobOrderId)]
       );
-      console.log(` Order #${paymobOrderId} updated to FAILED`);
+
+      // Restore stock for each cancelled order item
+      if (orderResult.rows.length > 0) {
+        const orderId = orderResult.rows[0].id;
+        await pool.query(
+          `UPDATE products p
+           SET stock = stock + oi.quantity
+           FROM order_items oi
+           WHERE oi.order_id = $1 AND oi.product_id = p.id`,
+          [orderId]
+        );
+      }
     }
 
     res.status(200).send("OK");

@@ -4,10 +4,10 @@ export const homeCategoriesApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
 
     addHomeCategory: builder.mutation({
-      query: (data) => ({
+      query: (formData) => ({
         url: "/homeCategory/admin/addHomeCategory",
         method: "POST",
-        body: data,
+        body: formData,
       }),
       invalidatesTags: ["HomeCategories"],
     }),

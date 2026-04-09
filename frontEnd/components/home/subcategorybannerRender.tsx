@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import ProductCard from "../public/productCard";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronRight, ChevronLeft, Loader2 } from "lucide-react";
-import { useLocale } from "next-intl"; 
+import { useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 import {
   useGetProductsBySubcategoryQuery,
@@ -25,9 +26,11 @@ export default function SubcategoryBannerRender({ section }: any) {
   const locale = useLocale();
   const isArabic = locale === "ar";
   
-  const subcategoryId = section?.content[0]?.subcategory_id;
-  const bannerImage = section?.content[0]?.image_url;
-  const isImageRight = section?.content?.direct_image === true;
+  const subcategoryId  = section?.content[0]?.subcategory_id;
+  const categoryId     = section?.content[0]?.category_id;
+  const desktopImage   = section?.content[0]?.desktop_image_url;
+  const mobileImage    = section?.content[0]?.mobile_image_url;
+  const isImageRight   = section?.content[0]?.direct_image === true;
   const info = section?.info;
    
   const displayTitle = isArabic ? info?.title_ar : info?.title;
@@ -37,7 +40,7 @@ export default function SubcategoryBannerRender({ section }: any) {
   const [products, setProducts] = useState<Product[]>([]);
 
   const { data, isFetching } = useGetProductsBySubcategoryQuery(
-    { subcategoryId, page, limit: 6 },
+    { subcategoryId, page, limit: 12 },
     { skip: !subcategoryId }
   );
    
@@ -75,96 +78,102 @@ export default function SubcategoryBannerRender({ section }: any) {
   return (
     <section 
       dir={isArabic ? "rtl" : "ltr"} 
-      className="w-full bg-transparent border border-gray-100  overflow-hidden my-4 group/section text-start"
+      className="w-full bg-transparent border-none overflow-hidden my-4 group/section text-start"
     >
       
-      {/* ===== Header ===== */}
-      {displayTitle && (
-        <div className="pt-6 px-4 flex flex-col gap-0.5">
-          <h2 className={`font-normal text-gray-900 tracking-tight leading-none ${
-            isArabic ? "text-[18px] md:text-[24px]" : "text-[16px] md:text-[20px]"
-          }`}>
-            {displayTitle}
-          </h2>
-          {displaySubtitle && (
-            <span className={`font-normal uppercase mt-1 text-slate-400 ${
-              isArabic ? "text-[10px] md:text-[12px] tracking-normal" : "text-[8px] md:text-[9px] tracking-[0.3em]"
-            }`}>
-              {displaySubtitle}
-            </span>
-          )}
-        </div>
-      )}
+      <div className="flex px-4 flex-col gap-0">
 
-      {/* Main Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 items-stretch mt-4">
-        
-        {bannerImage && (
-          <div
-            className={`
-              lg:col-span-4 relative w-full min-h-[300px] lg:min-h-full
-              overflow-hidden group p-4 md:p-6
-              ${isImageRight ? "lg:order-2" : "lg:order-1"}
-            `}
-          >
-            <div className="relative w-full h-full overflow-hidden rounded-[1.5rem] bg-gray-50/50">
-                <img
-                src={bannerImage}
-                alt="Promotion Banner"
-                className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-500" />
-            </div>
+        {/* ── Banner + Title overlay ── */}
+        {(desktopImage || mobileImage) && (
+          <div className="group relative w-full aspect-4/2 md:aspect-4/1 overflow-hidden shrink-0">
+            <img
+              src={desktopImage || mobileImage!}
+              alt="Promotion Banner"
+              className="w-full h-full object-cover transition-transform duration-2000 ease-out group-hover:scale-105"
+            />
+
+            {/* gradient overlay */}
+            <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
+
+            {/* title + cta */}
+            {displayTitle && (
+              <div
+                className="absolute bottom-0 inset-x-0 px-4 pb-4 md:pb-5 flex flex-col gap-2"
+                dir={isArabic ? "rtl" : "ltr"}
+
+                
+              >
+
+                      <h2 className={`font-semibold text-white leading-tight drop-shadow-sm
+                  ${isArabic ? "text-[16px] md:text-[30px]" : "text-[14px] md:text-[28px] uppercase tracking-wide"}`}>
+                  {displayTitle}
+                </h2>
+                {displaySubtitle && (
+                  <span className={`text-white/50 font-normal tracking-[0.25em] uppercase
+                    ${isArabic ? "text-[9px] md:text-[10px]" : "text-[8px] md:text-[9px]"}`}>
+                    {displaySubtitle}
+                  </span>
+                )}
+          
+
+                {categoryId && (
+                  <Link
+                    href={`/products/${categoryId}?sub=${subcategoryId}`}
+                    className={`self-start mt-1 inline-flex items-center gap-2
+                      text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-medium
+                      text-white/80 hover:text-white transition-colors duration-200
+                      border-b border-white/30 hover:border-white/80 pb-0.5`}
+                  >
+                    {isArabic ? "تسوق الآن" : "Shop Now"}
+                    <span className={`text-[10px] ${isArabic ? "rotate-180" : ""}`}>→</span>
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Products Scroll Area */}
-        <div
-          className={`
-            lg:col-span-8 w-full bg-transparent flex items-center
-            ${isImageRight ? "lg:order-1" : "lg:order-2"}
-          `}
-        >
+        {/* ── Products ── */}
+        <div className="w-full flex items-center">
+
           <ScrollArea dir={isArabic ? "rtl" : "ltr"} className="w-full">
-            <div className="flex gap-4 md:gap-6 px-6 py-8 w-max items-stretch">
-              {products.map((product : any, index) => (
-                <div 
-                  key={`${product.id}-${index}`} 
-                  className="w-[150px] md:w-[210px] shrink-0 transition-all duration-500 ease-out"
+            <div className="flex gap-3 md:gap-4 px-4 py-4 w-max items-stretch">
+              {products.map((product: any, index) => (
+                <div
+                  key={`${product.id}-${index}`}
+                  className="w-[145px] md:w-[190px] shrink-0"
                 >
                   <ProductCard product={product} />
                 </div>
               ))}
 
-              {/* View More Button */}
               {hasMore && (
-                <div className="flex items-center justify-center px-6">
+                <div className="flex items-center justify-center px-4">
                   <button
                     disabled={isFetching}
                     onClick={() => setPage((prev) => prev + 1)}
-                    className="group flex flex-col items-center gap-3 transition-all active:scale-95"
+                    className="group flex flex-col items-center gap-2 transition-all active:scale-95"
                   >
-                    <div className="w-12 h-12 rounded-full border border-gray-100 bg-white shadow-sm flex items-center justify-center text-gray-500 transition-all group-hover:bg-black group-hover:text-white group-hover:border-black group-hover:shadow-md">
+                    <div className="w-10 h-10 rounded-full border border-slate-100 bg-white flex items-center justify-center text-slate-400 transition-all group-hover:bg-neutral-900 group-hover:text-white group-hover:border-neutral-900">
                       {isFetching ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : isArabic ? (
+                        <ChevronLeft className="w-3.5 h-3.5" />
                       ) : (
-                        isArabic ? (
-                          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                        )
+                        <ChevronRight className="w-3.5 h-3.5" />
                       )}
                     </div>
-                    <span className="text-[10px] font-normal uppercase tracking-[0.1em] text-gray-400 group-hover:text-black transition-colors">
+                    <span className="text-[9px] uppercase tracking-[0.15em] text-slate-400 group-hover:text-neutral-800 transition-colors">
                       {isFetching ? (isArabic ? "تحميل" : "Loading") : (isArabic ? "المزيد" : "More")}
                     </span>
                   </button>
                 </div>
               )}
             </div>
-            <ScrollBar orientation="horizontal" className="h-1.5 opacity-0 group-hover/section:opacity-100 transition-opacity" />
+            <ScrollBar orientation="horizontal" className="h-1.5 bg-slate-100 [&>div]:bg-slate-300 [&>div]:rounded-full opacity-0 group-hover/section:opacity-100 transition-opacity duration-300" />
           </ScrollArea>
         </div>
+
       </div>
     </section>
   );

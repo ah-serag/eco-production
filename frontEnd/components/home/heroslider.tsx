@@ -24,7 +24,7 @@ export default function HeroSlider({ section }: any) {
   const nextSlide = () => setCurrent((prev) => (prev === length - 1 ? 0 : prev + 1));
 
   return (
-    <section className="relative w-full px-4    aspect-7/2  overflow-hidden shadow-sm group/slider">
+    <section className="relative w-full px-4 aspect-4/5   md:aspect-3/1  overflow-hidden shadow-sm group/slider">
       <style jsx>{`
         @keyframes soft-pulse {
           0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
@@ -36,68 +36,95 @@ export default function HeroSlider({ section }: any) {
         }
       `}</style>
 
-      {banners.map((banner: any, index: number) => (
+      {banners.map((banner: any, index: number) => {
+        const desktopUrl = banner.desktop_image_url;
+        const mobileUrl  = banner.mobile_image_url || desktopUrl;
+
+        return (
         <div
           key={index}
           className={cn(
-            "absolute inset-0  transition-all duration-1500 ease-in-out",
+            "absolute inset-0 transition-all duration-1500 ease-in-out",
             index === current ? "opacity-100 scale-100 z-20" : "opacity-0 scale-105 z-10"
           )}
-          style={{
-            backgroundImage: `url(${banner.image_url})`,
-            backgroundPosition: "center",
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat"
-          }}
         >
-          <div className="absolute inset-0 bg-black/10" />
-
-       {banner.cta_link && (
-         <div className={cn(
-        "absolute left-4 bottom-4 sm:left-12 sm:bottom-12 z-40 transition-all duration-1000 delay-500",
-         index === current ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-         )}>
-       <Link
-         href={banner.cta_link}
-         className="smooth-pulse group/btn relative flex items-center justify-center w-8 h-8 sm:w-16 sm:h-16 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-white transition-all duration-500 hover:bg-white hover:text-chart-1 shadow-2xl active:scale-90"
-        >
-        {/* الطبقة النبضية خلف السهم */}
-        <span className="absolute inset-0 rounded-full bg-white/20 animate-ping opacity-50 pointer-events-none" />
-        
-        {/* أيقونة السهم - أصغر للهاتف */}
-        <ArrowRight className="h-4 w-4 sm:h-7 sm:w-7 transition-transform duration-500 ease-out group-hover/btn:translate-x-1" />
-        
-        {/* النص الجانبي - أصغر وأكثر تباعداً للأحرف */}
-        <span className="absolute left-full ml-3 whitespace-nowrap opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all duration-500 text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.5em] text-white pointer-events-none drop-shadow-md">
-          explore
-        </span>
-      </Link>
-    </div>
-        )}
-        </div>
-      ))}
-
-      <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-black/5 hover:bg-white hover:text-black backdrop-blur-md text-white opacity-0 group-hover/slider:opacity-100 transition-all duration-700">
-        <ChevronLeft size={20} />
-      </button>
-
-      <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-black/5 hover:bg-white hover:text-black backdrop-blur-md text-white opacity-0 group-hover/slider:opacity-100 transition-all duration-700">
-        <ChevronRight size={20} />
-      </button>
-
-      {/* المؤشرات النحيفة */}
-      <div className="absolute bottom-6 right-8 z-30 flex gap-2">
-        {banners.map((_: any, index: number) => (
-          <button
-            key={index}
-            onClick={() => setCurrent(index)}
-            className={cn(
-              "h-0.5 transition-all duration-700 rounded-full",
-              index === current ? "w-10 bg-white" : "w-2 bg-white/20 hover:bg-white/40"
-            )}
+          {/* صورة الموبايل */}
+          <div
+            className="absolute inset-0 block sm:hidden"
+            style={{
+              backgroundImage: `url(${mobileUrl})`,
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+              backgroundRepeat: "no-repeat",
+            }}
           />
-        ))}
-      </div>
+          {/* صورة الكمبيوتر */}
+          <div
+            className="absolute inset-0 hidden sm:block"
+            style={{
+              backgroundImage: `url(${desktopUrl})`,
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+
+          {banner.cta_link ? (
+            <Link href={banner.cta_link} className="absolute inset-0 block z-10">
+              <div className="absolute inset-0 bg-black/10" />
+            </Link>
+          ) : ( 
+            <div className="absolute inset-0 bg-black/10 z-10" />
+          )}
+
+          {banner.cta_link && banner.cta_text && (
+            <div className={cn(
+              "absolute left-3 bottom-10 sm:left-14 sm:bottom-14 z-40 transition-all duration-700 delay-300",
+              index === current ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            )}>
+              <Link
+                href={banner.cta_link}
+                className="group/btn relative inline-flex items-center gap-3 px-5 py-3 sm:px-7 sm:py-4 rounded-full bg-white/10 hover:bg-white backdrop-blur-xl border border-white/30 hover:border-white text-white hover:text-slate-900 transition-all duration-500 shadow-2xl active:scale-95"
+              >
+                <span className="absolute inset-0 rounded-full bg-white/10 animate-ping opacity-30 pointer-events-none" />
+                <span className="relative text-[11px] sm:text-[13px] font-semibold uppercase tracking-[0.2em]">
+                  {banner.cta_text}
+                </span>
+                <span className="relative w-px h-3 bg-white/40 group-hover/btn:bg-slate-400 transition-colors" />
+                <ArrowRight className="relative h-3 w-3 sm:h-4 sm:w-4 transition-transform duration-500 group-hover/btn:translate-x-1" />
+              </Link>
+            </div>
+          )}
+        </div>
+        );
+      })}
+
+      {length > 1 && (
+        <>
+          <button onClick={prevSlide} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 p-1 sm:p-3 rounded-full bg-white/10 hover:bg-white hover:text-black backdrop-blur-md text-white opacity-100 sm:opacity-0 sm:group-hover/slider:opacity-100 transition-all duration-700 active:scale-90">
+            <ChevronLeft className="w-3 h-3 sm:w-5 sm:h-5" />
+          </button>
+
+          <button onClick={nextSlide} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 p-1 sm:p-3 rounded-full bg-white/10 hover:bg-white hover:text-black backdrop-blur-md text-white opacity-100 sm:opacity-0 sm:group-hover/slider:opacity-100 transition-all duration-700 active:scale-90">
+            <ChevronRight className="w-3 h-3 sm:w-5 sm:h-5" />
+          </button>
+        </>
+      )}
+
+      {length > 1 && (
+        <div className="absolute bottom-6 right-8 z-30 flex gap-2">
+          {banners.map((_: any, index: number) => (
+            <button
+              key={index}
+              onClick={() => setCurrent(index)}
+              className={cn(
+                "h-0.5 transition-all duration-700 rounded-full",
+                index === current ? "w-10 bg-white" : "w-2 bg-white/20 hover:bg-white/40"
+              )}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

@@ -1,30 +1,41 @@
 const pool = require("../../../config/condb");
-
-
-// hero 
+const uploadToCloudinary = require("../../../utils/uploadToCloudinary");
 
 const addHerobanner = async (req, res) => {
-  const {
-    section_id,
-    image_url,
-    cta_text,
-    cta_link
-  } = req.body;
+  try {
+    const { section_id, cta_text, cta_link } = req.body;
 
-  const result = await pool.query(
-    `
-    INSERT INTO hero_banners
-    (section_id,image_url, cta_text, cta_link)
-    VALUES ($1, $2, $3, $4)
-    RETURNING *
-    `,
-    [section_id, image_url, cta_text, cta_link]
-  );
+    if (!section_id) return res.status(400).json({ error: "section_id is required" });
 
-  res.json({
-    message: "Banner added successfully",
-    banner: result.rows[0],
-  });
+    const desktopFile = req.files?.desktop_image?.[0];
+    const mobileFile  = req.files?.mobile_image?.[0];
+
+    if (!desktopFile || !mobileFile) {
+      return res.status(400).json({ error: "Both desktop_image and mobile_image are required" });
+    }
+
+    const [desktopRes, mobileRes] = await Promise.all([
+      uploadToCloudinary(desktopFile.buffer, "banners/desktop"),
+      uploadToCloudinary(mobileFile.buffer,  "banners/mobile"),
+    ]);
+
+    await Promise.all([
+      pool.query(`SELECT add_image($1, $2) AS id`, [desktopRes.secure_url, desktopRes.public_id]),
+      pool.query(`SELECT add_image($1, $2) AS id`, [mobileRes.secure_url,  mobileRes.public_id]),
+    ]);
+
+    const result = await pool.query(
+      `INSERT INTO hero_banners (section_id, desktop_image_url, mobile_image_url, cta_text, cta_link)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [section_id, desktopRes.secure_url, mobileRes.secure_url, cta_text || null, cta_link || null]
+    );
+
+    res.status(201).json({ message: "Banner added successfully", banner: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message || "Failed to add hero banner" });
+  }
 };
 
 
