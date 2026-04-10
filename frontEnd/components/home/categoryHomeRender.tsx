@@ -3,6 +3,9 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function CategorySection({ section }: any) {
   const locale     = useLocale();
@@ -10,15 +13,33 @@ export default function CategorySection({ section }: any) {
   const categories = (section?.content ?? []).filter((cat: any) => cat?.category_id);
   const info       = section?.info;
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [canScroll, setCanScroll] = useState(false);
+  const [isAtEnd,   setIsAtEnd]   = useState(false);
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    const vp = wrapper.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+    if (!vp) return;
+    const check = () => {
+      setCanScroll(vp.scrollWidth > vp.clientWidth);
+      setIsAtEnd(Math.abs(vp.scrollLeft) + vp.clientWidth >= vp.scrollWidth - 40);
+    };
+    check();
+    vp.addEventListener("scroll", check);
+    const ro = new ResizeObserver(check);
+    ro.observe(vp);
+    return () => { vp.removeEventListener("scroll", check); ro.disconnect(); };
+  }, [categories]);
+
   if (categories.length === 0) return null;
 
   const sectionTitle    = isAr ? info?.title_ar    : info?.title;
   const sectionSubtitle = isAr ? info?.subtitle_ar : info?.subtitle;
 
-  const isOdd      = categories.length % 2 !== 0;
-
   return (
-    <section className="my-2" dir={isAr ? "rtl" : "ltr"}>
+    <section className="my-4" dir={isAr ? "rtl" : "ltr"}>
 
       {sectionTitle && (
         <div className="mb-4 flex px-4 flex-col gap-1">
@@ -33,44 +54,82 @@ export default function CategorySection({ section }: any) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-0.5 px-4">
-        {categories.map((cat: any, index: number) => {
-          const label      = isAr ? cat.name_ar : cat.name;
-          const isLastOdd  = isOdd && index === categories.length - 1;
+      <div ref={wrapperRef} className="relative">
 
-          return (
-            <Link
-              key={index}
-              href={`/products/${cat.category_id}`}
-              className={`group/card relative block overflow-hidden bg-slate-100 active:scale-[0.99] transition-transform duration-200
-                ${isLastOdd ? "sm:col-span-2 aspect-16/7" : "aspect-4/5"}`}
+        {/* Wavy rope */}
+        <div className="absolute inset-x-0 top-[73px] md:top-[100px] -translate-y-1/2 z-0 pointer-events-none px-4">
+          <svg viewBox="0 0 400 14" preserveAspectRatio="none" className="w-full h-3.5" fill="none">
+            <path
+              d="M0 7 C15 1,30 13,45 7 S75 1,90 7 S120 13,135 7 S165 1,180 7 S210 13,225 7 S255 1,270 7 S300 13,315 7 S345 1,360 7 S385 13,400 7"
+              stroke="#cbd5e1"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+
+        {/* Arrow — exact same as ProductsHomeCarouselPro */}
+        {canScroll && !isAtEnd && (
+          <div className={`absolute top-0 bottom-0 z-20 pointer-events-none
+            ${isAr ? "left-0" : "right-0"}`}>
+            <div className={`absolute inset-y-0 w-20
+              ${isAr ? "bg-linear-to-r from-white to-transparent left-0" : "bg-linear-to-l from-white to-transparent right-0"}`} />
+            <button
+              onClick={() => {
+                const vp = wrapperRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+                vp?.scrollBy({ left: isAr ? -280 : 280, behavior: "smooth" });
+              }}
+              style={{ [isAr ? "left" : "right"]: "10px" }}
+              className="absolute pointer-events-auto top-[73px] md:top-[100px] -translate-y-1/2
+                w-9 h-9 rounded-full bg-white border border-slate-200 shadow-md
+                flex items-center justify-center text-slate-500
+                hover:bg-neutral-900  hover:text-white hover:border-neutral-900
+                transition-all duration-200 active:scale-90"
             >
-              {cat.image_url ? (
-                <Image
-                  src={cat.image_url}
-                  alt={label || "category"}
-                  fill
-                  sizes={isLastOdd ? "100vw" : "(max-width: 640px) 100vw, 50vw"}
-                  className="object-cover transition-transform duration-500 group-hover/card:scale-105"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-[9px] text-slate-300 uppercase tracking-widest">
-                  N/A
-                </div>
-              )}
+              {isAr ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
+            </button>
+          </div>
+        )}
 
-              <div className="absolute inset-0 bg-linear-to-t from-black/65 via-black/10 to-transparent" />
+        <ScrollArea dir={isAr ? "rtl" : "ltr"} className="w-full relative z-0">
+          <div className="flex gap-5 justify-evenly px-4 pb-3 pt-1">
+            {categories.map((cat: any, index: number) => {
+              const label = isAr ? cat.name_ar : cat.name;
+              return (
+                <Link
+                  key={index}
+                  href={`/products/${cat.category_id}`}
+                  className="group/card shrink-0 active:scale-[0.97] transition-transform duration-200"
+                >
+                  <div className="relative w-[110px] md:w-[150px] aspect-3/4 overflow-hidden rounded-sm bg-white ring-1 ring-slate-100 shadow-sm">
+                    {cat.image_url ? (
+                      <Image
+                        src={cat.image_url}
+                        alt={label || "category"}
+                        fill
+                        sizes="150px"
+                        className="object-cover transition-transform duration-500 group-hover/card:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[9px] text-slate-300 uppercase tracking-widest">
+                        N/A
+                      </div>
+                    )}
+                    <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/60 via-black/20 to-transparent pt-6 pb-2.5 px-2">
+                      <p className="text-center text-[10px] md:text-[11px] font-semibold text-white uppercase tracking-wide truncate drop-shadow">
+                        {label}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+          <ScrollBar orientation="horizontal" className="h-1 opacity-0" />
+        </ScrollArea>
 
-              <div className="absolute bottom-0 inset-x-0 px-4 pb-4">
-                <p className={`text-white font-semibold text-center leading-tight drop-shadow tracking-wide truncate
-                  ${isLastOdd ? "text-base" : "text-sm"}`}>
-                  {label}
-                </p>
-              </div>
-            </Link>
-          );
-        })}
       </div>
+
     </section>
   );
 }

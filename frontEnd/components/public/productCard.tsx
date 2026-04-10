@@ -79,7 +79,7 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <Card
       dir={isAr ? "rtl" : "ltr"}
-      className="group relative flex flex-col h-full w-full rounded-none border-0 shadow-none bg-white"
+      className="group relative gap-0 flex flex-col h-full w-full rounded-none border-0 shadow-none bg-white"
     >
       {/* Out of stock overlay */}
       {isOutOfStock && (

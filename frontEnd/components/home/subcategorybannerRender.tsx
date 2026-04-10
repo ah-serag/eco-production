@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ProductCard from "../public/productCard";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronRight, ChevronLeft, Loader2 } from "lucide-react";
@@ -36,8 +36,11 @@ export default function SubcategoryBannerRender({ section }: any) {
   const displayTitle = isArabic ? info?.title_ar : info?.title;
   const displaySubtitle = isArabic ? info?.subtitle_ar : info?.subtitle;
 
-  const [page, setPage] = useState(1);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [page, setPage]           = useState(1);
+  const [products, setProducts]   = useState<Product[]>([]);
+  const [canScroll, setCanScroll] = useState(false);
+  const [isAtEnd, setIsAtEnd]     = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const { data, isFetching } = useGetProductsBySubcategoryQuery(
     { subcategoryId, page, limit: 12 },
@@ -56,18 +59,20 @@ export default function SubcategoryBannerRender({ section }: any) {
   }, [data, page]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const viewport = document.querySelector('[data-radix-scroll-area-viewport]');
-      if (viewport) {
-        const scrollAmount = isArabic ? -40 : 40;
-        viewport.scrollTo({ left: scrollAmount, behavior: 'smooth' });
-        setTimeout(() => {
-          viewport.scrollTo({ left: 0, behavior: 'smooth' });
-        }, 500);
-      }
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [isArabic]);
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    const vp = wrapper.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+    if (!vp) return;
+    const checkScroll = () => {
+      setCanScroll(vp.scrollWidth > vp.clientWidth);
+      setIsAtEnd(Math.abs(vp.scrollLeft) + vp.clientWidth >= vp.scrollWidth - 40);
+    };
+    checkScroll();
+    vp.addEventListener("scroll", checkScroll);
+    const ro = new ResizeObserver(checkScroll);
+    ro.observe(vp);
+    return () => { vp.removeEventListener("scroll", checkScroll); ro.disconnect(); };
+  }, [products]);
 
   if (!subcategoryId) return null;
    if(data?.data.length == 0){
@@ -81,7 +86,7 @@ export default function SubcategoryBannerRender({ section }: any) {
       className="w-full bg-transparent border-none overflow-hidden my-4 group/section text-start"
     >
       
-      <div className="flex px-4 flex-col gap-0">
+      <div className="flex  flex-col gap-0">
 
         {/* ── Banner + Title overlay ── */}
         {(desktopImage || mobileImage) && (
@@ -134,7 +139,30 @@ export default function SubcategoryBannerRender({ section }: any) {
         )}
 
         {/* ── Products ── */}
-        <div className="w-full flex items-center">
+        <div ref={wrapperRef} className="relative w-full">
+
+          {/* scroll arrow — يختفي لما العميل يوصل للآخر */}
+          {canScroll && !isAtEnd && (
+            <div className={`absolute top-0 bottom-3 z-10 flex items-center pointer-events-none
+              ${isArabic ? "left-0" : "right-0"}`}>
+              <div className={`h-full w-20
+                ${isArabic ? "bg-linear-to-r from-white to-transparent" : "bg-linear-to-l from-white to-transparent"}`} />
+              <button
+                onClick={() => {
+                  const vp = wrapperRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+                  vp?.scrollBy({ left: isArabic ? -280 : 280, behavior: "smooth" });
+                }}
+                style={{ [isArabic ? "left" : "right"]: "10px" }}
+                className="absolute pointer-events-auto top-1/2 -translate-y-1/2
+                  w-9 h-9 rounded-full bg-white border border-slate-200 shadow-md
+                  flex items-center justify-center text-slate-500
+                  hover:bg-neutral-900 hover:text-white hover:border-neutral-900
+                  transition-all duration-200 active:scale-90"
+              >
+                {isArabic ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
+              </button>
+            </div>
+          )}
 
           <ScrollArea dir={isArabic ? "rtl" : "ltr"} className="w-full">
             <div className="flex gap-3 md:gap-4 px-4 py-4 w-max items-stretch">
@@ -173,6 +201,7 @@ export default function SubcategoryBannerRender({ section }: any) {
             <ScrollBar orientation="horizontal" className="h-1.5 bg-slate-100 [&>div]:bg-slate-300 [&>div]:rounded-full opacity-0 group-hover/section:opacity-100 transition-opacity duration-300" />
           </ScrollArea>
         </div>
+
 
       </div>
     </section>

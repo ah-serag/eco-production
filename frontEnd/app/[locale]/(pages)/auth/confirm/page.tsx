@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
-export default function ConfirmAccountPage() {
+function ConfirmAccountContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
@@ -49,29 +49,25 @@ export default function ConfirmAccountPage() {
   }, [token]);
 
   return (
-    // الخلفية: تدرج من الأسفل للأعلى (نفس ستايل Sign In)
     <div className="min-h-screen flex items-center justify-center bg-linear-to-t gradient-to-t from-chart-1/10 via-white to-white px-4">
-      
       <div className="w-full max-w-[400px] space-y-6">
-        {/* Logo Section */}
+
         <div className="flex justify-center mb-7">
           <Link href="/">
-            <Image 
-              src="/photo/logoVexa.svg" 
-              alt="Logo" 
-              width={90} 
-              height={35} 
-              priority 
+            <Image
+              src="/photo/logoVexa.svg"
+              alt="Logo"
+              width={90}
+              height={35}
+              priority
               className="object-contain"
             />
           </Link>
         </div>
 
-        {/* Card: بنفس الـ Shadow والـ Border الناعم */}
         <Card className="rounded-3xl border border-slate-200/60 bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] overflow-hidden">
           <CardContent className="pt-12 pb-10 px-8 flex flex-col items-center">
-            
-            {/* Loading State */}
+
             {status === "loading" && (
               <div className="flex flex-col items-center gap-4 py-4">
                 <Loader2 className="w-12 h-12 text-chart-1 animate-spin opacity-80" />
@@ -79,7 +75,6 @@ export default function ConfirmAccountPage() {
               </div>
             )}
 
-            {/* Success or Error States */}
             {status !== "loading" && (
               <div className="flex flex-col items-center text-center space-y-4 animate-in fade-in zoom-in duration-300">
                 <div className="mb-2">
@@ -89,7 +84,7 @@ export default function ConfirmAccountPage() {
                     <XCircle className="w-16 h-16 text-red-500" />
                   )}
                 </div>
-                
+
                 <div className="space-y-1">
                   <h1 className="text-xl font-bold text-slate-900 tracking-tight">
                     {status === "success" ? "Verification Success" : "Verification Failed"}
@@ -122,5 +117,13 @@ export default function ConfirmAccountPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function ConfirmAccountPage() {
+  return (
+    <Suspense fallback={null}>
+      <ConfirmAccountContent />
+    </Suspense>
   );
 }

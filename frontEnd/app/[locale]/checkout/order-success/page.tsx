@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import {
   CheckCircle2, ShieldCheck, ArrowRight,
   Home, Hash, CreditCard, Package,
@@ -12,7 +12,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 
-export default function OrderSuccessPage() {
+function OrderSuccessContent() {
   const t      = useTranslations("orderSuccess");
   const locale = useLocale();
   const isAr   = locale === "ar";
@@ -22,28 +22,10 @@ export default function OrderSuccessPage() {
   const orderId      = searchParams.get("id") || "—";
 
   const details = [
-    {
-      icon:  <Hash size={11} />,
-      label: t("label_order_id"),
-      value: `#${orderId}`,
-      mono:  true,
-    },
-    {
-      icon:  <Banknote size={11} />,
-      label: t("label_method"),
-      value: t("method_value"),
-      green: true,
-    },
-    {
-      icon:  <Package size={11} />,
-      label: t("label_status"),
-      value: t("status_value"),
-    },
-    {
-      icon:  <Truck size={11} />,
-      label: t("label_delivery"),
-      value: t("delivery_value"),
-    },
+    { icon: <Hash size={11} />,    label: t("label_order_id"), value: `#${orderId}`, mono: true },
+    { icon: <Banknote size={11} />, label: t("label_method"),  value: t("method_value"), green: true },
+    { icon: <Package size={11} />, label: t("label_status"),   value: t("status_value") },
+    { icon: <Truck size={11} />,   label: t("label_delivery"), value: t("delivery_value") },
   ];
 
   return (
@@ -53,7 +35,7 @@ export default function OrderSuccessPage() {
     >
       <div className="max-w-sm w-full space-y-6">
 
-        {/* ── Status card ── */}
+        {/* Status card */}
         <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-8 text-center space-y-4">
           <div className="flex justify-center">
             <CheckCircle2 className="w-14 h-14 text-emerald-500 stroke-[1.5]" />
@@ -66,7 +48,7 @@ export default function OrderSuccessPage() {
           </span>
         </div>
 
-        {/* ── Order details ── */}
+        {/* Order details */}
         <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
           <div className="px-5 py-3 border-b border-slate-50 flex items-center gap-2">
             <CreditCard size={13} className="text-slate-400" />
@@ -93,7 +75,7 @@ export default function OrderSuccessPage() {
           </div>
         </div>
 
-{/* ── Actions ── */}
+        {/* Actions */}
         <div className="flex flex-col gap-2.5">
           <Button
             onClick={() => router.push("/orders")}
@@ -110,7 +92,7 @@ export default function OrderSuccessPage() {
           </Button>
         </div>
 
-        {/* ── Security note ── */}
+        {/* Security note */}
         <div className="flex items-center justify-center gap-2 opacity-40 pb-4">
           <ShieldCheck size={11} className="text-slate-400" />
           <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-slate-500">
@@ -120,5 +102,13 @@ export default function OrderSuccessPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={null}>
+      <OrderSuccessContent />
+    </Suspense>
   );
 }

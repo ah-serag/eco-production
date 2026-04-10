@@ -6,7 +6,7 @@ import { setDirectCheckout, addToCart } from "../../redux/features/cartSlice/car
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Zap, Plus, Minus, Box, Check, AlertCircle, Truck, ShieldCheck, HandCoins, PlayCircle } from "lucide-react";
+import { ShoppingCart, Zap, Plus, Minus, Box, Check, AlertCircle, Truck, ShieldCheck, HandCoins, PlayCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
@@ -83,6 +83,23 @@ export default function ProductPreview({ product }: { product: Product }) {
   const [isMaxStock, setIsMaxStock] = useState(false); 
   
   const imgRef = useRef<HTMLDivElement>(null);
+  const thumbRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  useEffect(() => {
+    const el = thumbRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+    if (!el) return;
+    const check = () => {
+      setCanScrollLeft(el.scrollLeft > 0);
+      setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    };
+    check();
+    el.addEventListener("scroll", check);
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => { el.removeEventListener("scroll", check); ro.disconnect(); };
+  }, [allMedia]);
 
   const increaseQuantity = () => {
     if (quantity < stockCount) {
@@ -144,34 +161,60 @@ export default function ProductPreview({ product }: { product: Product }) {
         <div className="col-span-2 flex flex-col sm:flex-row gap-4">
           
           {/* Thumbnails Container using ScrollArea */}
-          <ScrollArea className="order-2 sm:order-1 w-full sm:w-24 h-[100px] sm:h-[520px]">
-            <div className="flex flex-row sm:flex-col sm:pr-4 gap-3 p-1">
-              {allMedia.map((media, index) => (
-                <div
-                  key={index}
-                  onClick={() => setSelectedMedia(media)}
-                  className={cn(
-                    "relative aspect-square h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden cursor-pointer rounded-lg border-2 transition-all duration-200 bg-gray-50 flex items-center justify-center group",
-                    selectedMedia?.url === media.url 
-                      ? "border-primary shadow-sm" 
-                      : "border-transparent hover:border-gray-200"
-                  )}
-                >
-                  {media.type === 'image' ? (
-                    <img src={media.url} alt="thumbnail" className="w-full h-full object-contain p-1" />
-                  ) : (
-                    <>
-                      <video src={media.url} className="absolute inset-0 w-full h-full object-cover opacity-60" />
-                      <PlayCircle className="text-slate-700 w-6 h-6 relative z-10 opacity-80 group-hover:opacity-100 transition-opacity" />
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-            {/* ScrollBars */}
-            <ScrollBar orientation="horizontal" className="sm:hidden " />
-            <ScrollBar orientation="vertical" className="hidden sm:block w-1.5" />
-          </ScrollArea>
+          <div ref={thumbRef} className="relative order-2 sm:order-1 w-full sm:w-24">
+            {/* Mobile scroll arrows */}
+            {canScrollLeft && (
+              <button
+                onClick={() => {
+                  const el = thumbRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+                  el?.scrollBy({ left: -150, behavior: "smooth" });
+                }}
+                className="sm:hidden absolute left-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-500 active:scale-90 transition-all"
+              >
+                <ChevronLeft size={14} />
+              </button>
+            )}
+            {canScrollRight && (
+              <button
+                onClick={() => {
+                  const el = thumbRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+                  el?.scrollBy({ left: 150, behavior: "smooth" });
+                }}
+                className="sm:hidden absolute right-0 top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-500 active:scale-90 transition-all"
+              >
+                <ChevronRight size={14} />
+              </button>
+            )}
+
+            <ScrollArea className="w-full sm:w-24 h-[100px] sm:h-[520px]">
+              <div className="flex flex-row sm:flex-col sm:pr-4 gap-3 p-1">
+                {allMedia.map((media, index) => (
+                  <div
+                    key={index}
+                    onClick={() => setSelectedMedia(media)}
+                    className={cn(
+                      "relative aspect-square h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden cursor-pointer rounded-lg border-2 transition-all duration-200 bg-gray-50 flex items-center justify-center group",
+                      selectedMedia?.url === media.url
+                        ? "border-slate-200 shadow-sm"
+                        : "border-transparent hover:border-gray-200"
+                    )}
+                  >
+                    {media.type === 'image' ? (
+                      <img src={media.url} alt="thumbnail" className="w-full h-full object-contain p-1" />
+                    ) : (
+                      <>
+                        <video src={media.url} className="absolute inset-0 w-full h-full object-cover opacity-60" />
+                        <PlayCircle className="text-slate-700 w-6 h-6 relative z-10 opacity-80 group-hover:opacity-100 transition-opacity" />
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {/* ScrollBars */}
+              <ScrollBar orientation="horizontal" className="sm:hidden" />
+              <ScrollBar orientation="vertical" className="hidden sm:block w-1.5" />
+            </ScrollArea>
+          </div>
 
           {/* Main Display View (Image or Video) */}
           <div

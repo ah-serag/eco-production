@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useGetProductsByCategoryQuery } from "../../redux/features/home/homeclientslice";
@@ -28,9 +28,12 @@ if (!categoryId || section.content.length === 0) {
   const displayTitle = isArabic ? info?.title_ar : info?.title;
   const displaySubtitle = isArabic ? info?.subtitle_ar : info?.subtitle;
 
-  const [page, setPage] = useState(1);
-  const [products, setProducts] = useState<Product[]>([]);
-  const limit = 10; 
+  const [page, setPage]           = useState(1);
+  const [products, setProducts]   = useState<Product[]>([]);
+  const [canScroll, setCanScroll] = useState(false);
+  const [isAtEnd, setIsAtEnd]     = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const limit = 10;
 
   const { data, isLoading, isFetching, isUninitialized } = useGetProductsByCategoryQuery(
     { categoryId, page, limit },
@@ -38,10 +41,24 @@ if (!categoryId || section.content.length === 0) {
   );
 
   useEffect(() => {
-    if (data?.data) {
-      setProducts(data.data);
-    }
+    if (data?.data) setProducts(data.data);
   }, [data, page]);
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    const vp = wrapper.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+    if (!vp) return;
+    const check = () => {
+      setCanScroll(vp.scrollWidth > vp.clientWidth);
+      setIsAtEnd(Math.abs(vp.scrollLeft) + vp.clientWidth >= vp.scrollWidth - 40);
+    };
+    check();
+    vp.addEventListener("scroll", check);
+    const ro = new ResizeObserver(check);
+    ro.observe(vp);
+    return () => { vp.removeEventListener("scroll", check); ro.disconnect(); };
+  }, [products]);
 
   if (!categoryId) return null;
 
@@ -94,7 +111,30 @@ if (!categoryId || section.content.length === 0) {
         </div>
       )}
 
-      <ScrollArea dir={isArabic ? "rtl" : "ltr"} className="w-full whitespace-nowrap overflow-hidden">
+      <div ref={wrapperRef} className="relative">
+        {canScroll && !isAtEnd && (
+          <div className={`absolute top-0 bottom-3 z-10 flex items-center pointer-events-none
+            ${isArabic ? "left-0" : "right-0"}`}>
+            <div className={`h-full w-20
+              ${isArabic ? "bg-linear-to-r from-white to-transparent" : "bg-linear-to-l from-white to-transparent"}`} />
+            <button
+              onClick={() => {
+                const vp = wrapperRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+                vp?.scrollBy({ left: isArabic ? -280 : 280, behavior: "smooth" });
+              }}
+              style={{ [isArabic ? "left" : "right"]: "10px" }}
+              className="absolute pointer-events-auto top-1/2 -translate-y-1/2
+                w-9 h-9 rounded-full bg-white border border-slate-200 shadow-md
+                flex items-center justify-center text-slate-500
+                hover:bg-neutral-900 hover:text-white hover:border-neutral-900
+                transition-all duration-200 active:scale-90"
+            >
+              {isArabic ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
+            </button>
+          </div>
+        )}
+
+        <ScrollArea dir={isArabic ? "rtl" : "ltr"} className="w-full whitespace-nowrap overflow-hidden">
         <div className="flex gap-1 md:gap-3 px-6 pb-6">
           {isLoading || isFetching ? (
             Array.from({ length: 4 }).map((_, i) => (
@@ -122,6 +162,7 @@ if (!categoryId || section.content.length === 0) {
           className="h-1.5 transition-opacity duration-300 opacity-0 group-hover/section:opacity-100" 
         />
       </ScrollArea>
+      </div>
     </section>
   );
 }

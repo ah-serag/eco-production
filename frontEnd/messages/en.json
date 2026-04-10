@@ -159,6 +159,22 @@
     "more": "More"
   },
 
+  "more_page": {
+    "tagline": "Your destination for premium products",
+    "explore": "Explore",
+    "legal": "Legal & Policies",
+    "support": "Support",
+    "about": "About Us",
+    "faq": "FAQs",
+    "contact": "Contact Us",
+    "privacy": "Privacy Policy",
+    "shipping": "Shipping Policy",
+    "returns": "Return Policy",
+    "terms": "Terms of Use",
+    "payment_title": "Secure Payments",
+    "rights": "© 2025 GOTIY. All rights reserved."
+  },
+
   "checkout": {
     "contactTitle": "Contact Information",
     "firstName": "First Name",
@@ -263,6 +279,106 @@
     "btn_track": "Track Your Order",
     "btn_home": "Return to Home",
     "security_note": "Gotiy Secure Checkout · Cash on Delivery"
+  },
+
+  "about_page": {
+    "title": "About Us",
+    "s1_title": "Who We Are",
+    "s1_body": "GOTIY is an Egyptian e-commerce platform dedicated to delivering premium products directly to your door. We believe shopping should be simple, trustworthy, and enjoyable.",
+    "s2_title": "Our Mission",
+    "s2_body": "We partner with top suppliers to bring you quality products at fair prices. Every order is handled with care — from warehouse to doorstep.",
+    "s3_title": "Our Promise",
+    "s3_body": "Fast delivery, easy returns, and responsive customer support. We are here every step of the way to ensure your satisfaction."
+  },
+
+  "faq_page": {
+    "title": "Frequently Asked Questions",
+    "q1_q": "How long does delivery take?",
+    "q1_a": "Most orders arrive within 1–3 business days in Cairo and Giza, and 3–5 days for other governorates.",
+    "q2_q": "Can I return a product?",
+    "q2_a": "Yes. You can return unused items within 14 days of delivery. Contact support@gotiy.com to initiate a return.",
+    "q3_q": "What payment methods are accepted?",
+    "q3_a": "We accept Visa, Mastercard, Meeza, Vodafone Cash, Orange Money, and Cash on Delivery.",
+    "q4_q": "How do I track my order?",
+    "q4_a": "After your order is dispatched you will receive a confirmation with tracking details. You can also track it from your account orders page.",
+    "q5_q": "Is my payment information secure?",
+    "q5_a": "Absolutely. All transactions are processed via Paymob's secure, PCI-compliant gateway with SSL encryption."
+  },
+
+  "contact_page": {
+    "title": "Contact Us",
+    "subtitle": "We're here to help. Reach out anytime.",
+    "email_label": "Email",
+    "phone_label": "Phone",
+    "hours_label": "Working Hours",
+    "hours_value": "Sun – Thu, 9:00 AM – 6:00 PM"
+  },
+
+  "privacy_page": {
+    "title": "Privacy Policy",
+    "s1_title": "What We Collect",
+    "s1_body": "We collect information you provide directly — such as your name, email, phone number, and shipping address — when you create an account or place an order.",
+    "s2_title": "How We Use It",
+    "s2_body": "Your data is used solely to process orders, send shipping updates, and improve your experience. We do not sell or share your personal information with third parties.",
+    "s3_title": "Data Security",
+    "s3_body": "All sensitive data is encrypted in transit and at rest. We use industry-standard security measures to protect your information.",
+    "s4_title": "Your Rights",
+    "s4_body": "You may request access to, correction of, or deletion of your personal data at any time by contacting us at support@gotiy.com."
+  },
+
+  "shipping_page": {
+    "title": "Shipping Policy",
+    "s1_title": "Delivery Areas",
+    "s1_body": "We currently ship to all governorates across Egypt. Delivery times vary by location — Cairo and Giza typically receive orders within 1–3 business days.",
+    "s2_title": "Shipping Fees",
+    "s2_body": "Shipping fees are calculated at checkout based on your location. Free shipping is available on orders above a specified minimum amount.",
+    "s3_title": "Order Processing",
+    "s3_body": "Orders are processed within 24 hours on business days. You will receive a confirmation email once your order has been dispatched.",
+    "s4_title": "Delays",
+    "s4_body": "In rare cases, external factors such as public holidays or courier disruptions may cause delays. We will notify you if your order is affected."
+  },
+
+  "returns_page": {
+    "title": "Return Policy",
+    "s1_title": "Eligibility",
+    "s1_body": "Items may be returned within 14 days of delivery, provided they are unused, in original packaging, and accompanied by proof of purchase.",
+    "s2_title": "Non-Returnable Items",
+    "s2_body": "Opened consumables, digital products, and items marked as final sale are not eligible for return.",
+    "s3_title": "How to Return",
+    "s3_body": "Contact our support team at support@gotiy.com with your order number and reason for return. We will guide you through the process.",
+    "s4_title": "Refunds",
+    "s4_body": "Approved refunds are processed within 5–7 business days to the original payment method."
+  },
+
+  "terms_page": {
+    "title": "Terms of Use",
+    "s1_title": "Acceptance",
+    "s1_body": "By accessing or using the GOTIY platform, you agree to be bound by these terms. If you do not agree, please do not use our services.",
+    "s2_title": "Account Responsibility",
+    "s2_body": "You are responsible for maintaining the confidentiality of your account credentials. GOTIY is not liable for any loss resulting from unauthorized account access.",
+    "s3_title": "Intellectual Property",
+    "s3_body": "All content on this platform — including logos, images, and text — is the property of GOTIY and may not be reproduced without prior written consent.",
+    "s4_title": "Changes to Terms",
+    "s4_body": "We reserve the right to update these terms at any time. Continued use of the platform after changes constitutes acceptance of the revised terms."
+  },
+
+  "footer": {
+    "tagline": "Your destination for premium products, delivered to your door.",
+    "links_title": "Quick Links",
+    "legal_title": "Legal",
+    "contact_title": "Contact Us",
+    "privacy": "Privacy Policy",
+    "shipping": "Shipping Policy",
+    "returns": "Return Policy",
+    "terms": "Terms of Use",
+    "about": "About Us",
+    "contact": "Contact",
+    "faq": "FAQs",
+    "email": "support@gotiy.com",
+    "phone": "+20 100 000 0000",
+    "payment_title": "Secure Payments",
+    "rights": "All rights reserved.",
+    "made_in": "Made in Egypt"
   }
 
 }

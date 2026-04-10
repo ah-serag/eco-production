@@ -1,7 +1,7 @@
 "use client";
 
 import CategorySection from "@/components/home/categoryHomeRender";
-import { useGetHomePageQuery } from "../../../redux/features/home/homeclientslice";
+import { useGetHomePageQuery } from "@/redux/features/home/homeclientslice";
 import HeroSlider from "@/components/home/heroslider";
 import ProductsHomeRender from "@/components/home/productsHomeRender";
 import LimitedOfferSection from "@/components/home/limitedOfferRender";
@@ -9,7 +9,6 @@ import SubcategorybannerRender from "@/components/home/subcategorybannerRender";
 import HomeLoading from "@/components/home/HomeLoding";
 import WideBannerRender from "@/components/home/wideBanner";
 import StripBannerRender from "@/components/home/stripBanner";
-
 export default function HomePage() {
   const { data, isLoading } = useGetHomePageQuery(undefined);
 

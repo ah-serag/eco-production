@@ -18,7 +18,7 @@ export default function CheckoutNavbar() {
         <div className="flex items-center gap-4 sm:gap-6">
         <div className="flex  shrink-0">
                  <Link href="/" className="group flex items-center">
-                   <span className="text-2xl font-serif font-bold tracking-widest uppercase text-cyan-900">GOTIY</span>
+                   <span className="text-2xl font-serif font-bold tracking-widest uppercase text-black ">GOTIY</span>
                  </Link>
                </div>
         </div>

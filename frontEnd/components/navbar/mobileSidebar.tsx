@@ -83,7 +83,7 @@ export function MobileSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: (
                   {category.items.map((sub: any) => (
                     <Link
                       key={sub.id}
-                      href={`/products/${sub.id}`}
+                      href={`/products/${category.id}?sub=${sub.id}`}
                       onClick={onClose}
                       className={cn(
                         "px-6 py-2.5 text-[13px] text-slate-500 hover:text-slate-800 transition-colors",

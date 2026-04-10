@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import {
   CheckCircle2, XCircle, Clock, ShieldCheck,
   ArrowRight, RotateCcw, Home, CreditCard,
@@ -13,17 +13,15 @@ import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-export default function CheckoutCallbackPage() {
+function CheckoutCallbackContent() {
   const searchParams = useSearchParams();
   const router       = useRouter();
   const t            = useTranslations("checkout_callback");
 
-  // ── Core status ──────────────────────────────────────────
   const success      = searchParams.get("success")       === "true";
   const pending      = searchParams.get("pending")       === "true";
   const errorOccured = searchParams.get("error_occured") === "true";
 
-  // ── Transaction fields ────────────────────────────────────
   const txnId        = searchParams.get("id");
   const paymobOrder  = searchParams.get("order");
   const amountCents  = searchParams.get("amount_cents");
@@ -238,5 +236,13 @@ export default function CheckoutCallbackPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function CheckoutCallbackPage() {
+  return (
+    <Suspense fallback={null}>
+      <CheckoutCallbackContent />
+    </Suspense>
   );
 }

@@ -6,13 +6,13 @@ services:
     container_name: my_postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: ecommerce
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
       interval: 5s
       retries: 5
     volumes:
@@ -28,23 +28,8 @@ services:
       - "3000:3000"
     depends_on:
       - db
-    environment:
-      DB_USER: postgres
-      DB_PASSWORD: 123456
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: ecommerce
-      CLOUDINARY_CLOUD_NAME: dxpzsx2ku
-      CLOUDINARY_API_KEY: 831324653337694
-      CLOUDINARY_API_SECRET: VYNq-7O43KRSGJX4KoSf_A-WoXs
-      EMAIL_FROM: aserag877@gmail.com
-      JWT_SECRET: "eco124@m34fde4r5@$ri$st#" 
-      JWT_REFRESH_SECRET: "dfh$ggdh%d6*sjhf&sq#df"
-      FRONT_END_URL: http://localhost:5000
-      PAYMOB_API_KEY: "ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2TVRFek5EQXlNeXdpYm1GdFpTSTZJbWx1YVhScFlXd2lmUS5WSWZaNUhaNHRSb2Z0WEQ0Y01rRURBX1pLd3hoeHRTVHNPOFVwdzhlYUxJTXYza2xkSDJTWWxtYnZ1Z0JDaGxNcUkycFNKQ05kQmxzbmh6bm4xX24xQQ=="
-      PAYMOB_INTEGRATION_ID: 5552013
-      PAYMOB_WALLET_INTEGRATION_ID: 5560097 
-      PAYMOB_IFRAME_ID: 1009273 
+    env_file:
+      - ./backend/.env
     volumes:
       - ./backend:/myProject
 
@@ -54,8 +39,8 @@ services:
     restart: always
     command:
       - "http"
-      - "express:3000" 
+      - "express:3000"
     environment:
-      - NGROK_AUTHTOKEN=38hM0DaK9OcOQQacDSxWfeLr6WD_7i67QrKWU4d5TB3vFs3Nr
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
     depends_on:
       - express

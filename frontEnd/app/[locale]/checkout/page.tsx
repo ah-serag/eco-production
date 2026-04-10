@@ -16,6 +16,7 @@ import {
 import { useGetBillingDataQuery } from "@/redux/features/checkoutData/checkoutDataSlice";
 import { checkoutSchema, type CheckoutFormData } from "@/lib/checkout.schema";
 import { useRouter } from "@/i18n/navigation";
+import PaymobIframeModal from "@/components/public/PaymobIframeModal";
 
 const FIELD_CLASS = "h-10 text-[12px] font-normal rounded-xl border-slate-200 focus-visible:ring-slate-300 bg-white";
 const AUTO_FILL   = "bg-blue-50/60 border-blue-100";
@@ -61,6 +62,8 @@ export default function CheckoutPage() {
 
   const { data: savedBilling, isLoading: isGettingData, isFetching: isGettingFetching } =
     useGetBillingDataQuery(undefined, { refetchOnMountOrArgChange: true });
+
+  const [iframeUrl, setIframeUrl] = useState<string | null>(null);
 
   const [checkoutCard,   { isLoading: isCardLoading   }] = useCheckoutMutation();
   const [checkoutWallet, { isLoading: isWalletLoading }] = useCheckoutWalletMutation();
@@ -116,13 +119,13 @@ export default function CheckoutPage() {
       const items = checkoutItems.map((i: any) => ({ id: i.id, quantity: i.quantity }));
       if (paymentType === "card") {
         const res = await checkoutCard({ items, billingData: result.data }).unwrap();
-        window.location.href = res.iframeUrl;
+        setIframeUrl(res.iframeUrl);
       } else if (paymentType === "wallet") {
         if (!walletNumber) return void toast.error(t("walletError"));
         const res = await checkoutWallet({ items, billingData: result.data, walletNumber }).unwrap();
         window.location.href = res.redirectUrl;
       } else {
-        const res = await checkoutCash({ items, billingData: result.data }).unwrap(); 
+        const res = await checkoutCash({ items, billingData: result.data }).unwrap();
         router.push(res.redirectUrl);
       }
     } catch (err: any) {
@@ -134,6 +137,10 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] antialiased" dir={isAr ? "rtl" : "ltr"}>
+
+      {iframeUrl && (
+        <PaymobIframeModal url={iframeUrl} onClose={() => setIframeUrl(null)} />
+      )}
       <div className="max-w-5xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
         {/* ── LEFT: Forms ── */}
