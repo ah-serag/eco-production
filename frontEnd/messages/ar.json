@@ -213,8 +213,14 @@
     "freeShippingTitle": "شحن مجاني",
     "freeShippingDesc": "لكل الطلبات",
     "securePayTitle": "دفع آمن",
-    "securePayDesc": "مشفر بالكامل"
-
+    "securePayDesc": "مشفر بالكامل" ,
+    "couponPlaceholder": "أدخل كود الخصم",
+    "apply": "تطبيق",
+    "couponApplied": "تم تطبيق الخصم بنجاح",
+    "subtotal": "المجموع الفرعي",
+    "discount": "قيمة الخصم",
+    "invalidCoupon": "كود الخصم غير صحيح"
+      
 
   } ,
 

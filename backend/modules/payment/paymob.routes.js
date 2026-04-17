@@ -10,7 +10,7 @@ router.post("/checkoutWallet" ,authenticateCheckout , controller.checkoutWallet)
 router.post("/checkoutCash" ,authenticateCheckout , controller.checkoutCash);
 router.post("/webhook"  , webhook.handleWebhook);
 router.get("/dataBillingUser/:userid" ,dataBillingUser.getBillingDataUser )
-router.post("/checkCoupons" , controller.checkCoupons );
+router.post("/check-Coupons" , controller.checkCoupons );
 
 
 

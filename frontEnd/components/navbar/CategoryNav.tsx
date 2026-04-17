@@ -56,18 +56,19 @@ export function MegaMenuNavbar() {
       onMouseLeave={closeMenu}
       dir={isAr ? "rtl" : "ltr"}
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto p-2 px-4">
         <ScrollArea className="w-full whitespace-nowrap">
-          <ul className="flex items-center justify-between gap-1 h-12">
+          <ul className="flex items-center transition-all justify-between gap-1 h-8">
             {(categories as Category[]).map((category) => (
               <li
                 key={category.id}
                 className="h-full flex shrink-0 items-center"
                 onMouseEnter={() => handleMouseEnter(category.id)}
               >
-                <button
+                <Link
+                 href={`/products/${activeCategory}`}
                   className={cn(
-                    "px-4 flex items-center gap-1.5 text-[13px] font-medium transition-all duration-100 h-full relative outline-none",
+                    "px-4  p-4 rounded-full flex items-center gap-1.5 text-[13px] font-medium transition-all duration-75 h-full relative outline-none",
                     activeCategory === category.id 
                       ? "text-primary bg-slate-200" 
                       : "text-primary"
@@ -81,7 +82,7 @@ export function MegaMenuNavbar() {
                     )} 
                   />
                 
-                </button>
+                </Link>
               </li>
             ))}
           </ul>
@@ -169,7 +170,7 @@ export function MegaMenuNavbar() {
               <Link 
                 href={`/products/${activeCategory}`}
                 onClick={closeMenu}
-                className="group flex items-center justify-start gap-3 bg-gray-100 p-3 text-slate-600  text-[15px] font-bold transition-all duration-500 active:scale-95"
+                className="group flex items-center justify-start gap-3 bg-slate-200 p-3 text-primary rounded-full px-7  text-[15px] font-bold transition-all duration-500 active:scale-95"
               >
                 {isAr ? "عرض المجموعة" : "View Collection"}
                 <ArrowRight size={25} className={cn("transition-transform text-primary", isAr ? "rotate-180 group-hover:-translate-x-1.5" : "group-hover:translate-x-1.5")} />

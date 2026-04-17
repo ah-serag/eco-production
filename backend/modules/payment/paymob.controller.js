@@ -38,70 +38,7 @@ const getOrCreateUser = async (client, userId, billingData) => {
   return newGuest.rows[0].id;
 };
 
-const processOrderAndItems = async (client, userId, items, statu ,payment_provider ,billingData) => {
-  const productIds = items.map(item => item.id);
-  
-  // Fetch active products
-  const productResult = await client.query(
-    `SELECT id, title, description, discount_price, stock 
-     FROM products 
-     WHERE id = ANY($1) AND is_active = true`,
-    [productIds]
-  );
 
-  const dbProducts = productResult.rows;
-
-  if (dbProducts.length !== items.length) {
-    throw new Error("Some products are missing or inactive");
-  }
-
-  let totalAmount = 0;
-  const processedItems = [];
-
-  // Validate stock and calculate total
-  for (const cartItem of items) {
-    const dbProduct = dbProducts.find(p => p.id === cartItem.id);
-    const quantity = Number(cartItem.quantity) || 1;
-
-    if (quantity > dbProduct.stock) {
-      throw new Error(`Insufficient stock for product: ${dbProduct.title}`);
-    }
-
-    const price = Number(dbProduct.discount_price);
-    totalAmount += price * quantity;
-
-    processedItems.push({
-      id: dbProduct.id,
-      title: dbProduct.title,
-      description: dbProduct.description,
-      price,
-      quantity
-    });
-  }
-
-  // Insert main order
-  const orderResult = await client.query(
-    `INSERT INTO orders (user_id, status, total_amount, currency, payment_provider, billing_details)
-     VALUES ($1, $2 , $3, 'EGP', $4 ,$5 ) RETURNING id`,
-    [userId,statu , totalAmount ,payment_provider, JSON.stringify(billingData)]
-  );
-
-  const orderId = orderResult.rows[0].id;
-
-  // Insert order items
-  for (const pItem of processedItems) {
-    await client.query(
-      `INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_title, product_description)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [orderId, pItem.id, pItem.quantity, pItem.price, pItem.title, pItem.description]
-    );
-  
-    await client.query(`UPDATE products SET stock = stock - $1 WHERE id = $2`, [pItem.quantity, pItem.id]);
-
-  }
-
-  return { orderId, totalAmount };
-};
 
 const addBillingDataToUser = async (client, userId, billingData) => {
 
@@ -135,12 +72,266 @@ const addBillingDataToUser = async (client, userId, billingData) => {
 };
 
 
+
+const calculateTotalWithDiscount = async  (totalAmount, couponCode) => {
+    try {
+        // 1. Basic check if coupon code is provided
+        if (!couponCode) {
+            return {
+                success: true,
+                totalWithDiscount: totalAmount,
+                discountApplied: 0,
+                message: "No coupon provided"
+            };
+        }
+
+        // 2. Fetch coupon from PostgreSQL
+        // Replace 'pool.query' with your actual database connection logic
+        const query = `
+            SELECT * FROM coupons 
+            WHERE code = $1 AND is_active = TRUE
+            LIMIT 1
+        `;
+        const result = await pool.query(query, [couponCode]);
+        const coupon = result.rows[0];
+
+        // 3. Validation Chain
+        if (!coupon) {
+            throw new Error("Invalid or inactive coupon code.");
+        }
+
+        const now = new Date();
+        if (new Date(coupon.expiry_date) < now) {
+            throw new Error("This coupon has expired.");
+        }
+
+        if (coupon.usage_limit !== null && coupon.used_count >= coupon.usage_limit) {
+            throw new Error("This coupon has reached its maximum usage limit.");
+        }
+
+        if (totalAmount < parseFloat(coupon.min_order_value)) {
+            throw new Error(`Minimum order value of ${coupon.min_order_value} is required for this coupon.`);
+        }
+
+        // 4. Calculate Discount
+        let discountAmount = 0;
+        const discountValue = parseFloat(coupon.discount_value);
+
+        if (coupon.discount_type === 'percentage') {
+            // Percentage Discount logic
+            discountAmount = totalAmount * (discountValue / 100);
+            
+            // Check for Max Discount Cap
+            if (coupon.max_discount_amount && discountAmount > parseFloat(coupon.max_discount_amount)) {
+                discountAmount = parseFloat(coupon.max_discount_amount);
+            }
+        } else {
+            // Fixed Amount Discount logic
+            discountAmount = discountValue;
+        }
+
+        // 5. Final Safety Checks
+        if (discountAmount > totalAmount) {
+            discountAmount = totalAmount;
+        }
+
+        const totalWithDiscount = totalAmount - discountAmount;
+
+        return {
+            success: true,
+            originalTotal: totalAmount,
+            discountApplied: Number(discountAmount.toFixed(2)),
+            totalWithDiscount: Number(totalWithDiscount.toFixed(2)),
+            couponId: coupon.id,
+            message: "Coupon applied successfully"
+        };
+
+    } catch (error) {
+        // Return errors to be displayed under the input field in UI
+        return {
+            success: false,
+            totalWithDiscount: totalAmount,
+            discountApplied: 0,
+            error: error.message
+        };
+    }
+}
+
+
+// const processOrderAndItems = async (client, userId, items, statu ,payment_provider ,billingData) => {
+
+
+//   const productIds = items.map(item => item.id);
+  
+//   // Fetch active products
+//   const productResult = await client.query(
+//     `SELECT id, title, description, discount_price, stock 
+//      FROM products 
+//      WHERE id = ANY($1) AND is_active = true`,
+//     [productIds]
+//   );
+
+//   const dbProducts = productResult.rows;
+
+//   if (dbProducts.length !== items.length) {
+//     throw new Error("Some products are missing or inactive");
+//   }
+
+//   let totalAmount = 0;
+//   const processedItems = [];
+
+//   // Validate stock and calculate total
+//   for (const cartItem of items) {
+//     const dbProduct = dbProducts.find(p => p.id === cartItem.id);
+//     const quantity = Number(cartItem.quantity) || 1;
+
+//     if (quantity > dbProduct.stock) {
+//       throw new Error(`Insufficient stock for product: ${dbProduct.title}`);
+//     }
+
+//     const price = Number(dbProduct.discount_price);
+//     totalAmount += price * quantity;
+
+//     processedItems.push({
+//       id: dbProduct.id,
+//       title: dbProduct.title,
+//       description: dbProduct.description,
+//       price,
+//       quantity
+//     });
+//   }
+
+//   // Insert main order
+//   const orderResult = await client.query(
+//     `INSERT INTO orders (user_id, status, total_amount, currency, payment_provider, billing_details)
+//      VALUES ($1, $2 , $3, 'EGP', $4 ,$5 ) RETURNING id`,
+//     [userId,statu , totalAmount ,payment_provider, JSON.stringify(billingData)]
+//   );
+
+//   const orderId = orderResult.rows[0].id;
+
+//   // Insert order items
+//   for (const pItem of processedItems) {
+//     await client.query(
+//       `INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_title, product_description)
+//        VALUES ($1, $2, $3, $4, $5, $6)`,
+//       [orderId, pItem.id, pItem.quantity, pItem.price, pItem.title, pItem.description]
+//     );
+  
+//     await client.query(`UPDATE products SET stock = stock - $1 WHERE id = $2`, [pItem.quantity, pItem.id]);
+
+//   }
+
+//   return { orderId, totalAmount };
+// };
+
+
+
+
+
+
+
+
+
 // 1. Online Card Checkout
+
+
+const processOrderAndItems = async (client, userId, items, statu, payment_provider, billingData, couponCode) => {
+  const productIds = items.map(item => item.id);
+
+  // 1. Fetch active products
+  const productResult = await client.query(
+    `SELECT id, title, description, discount_price, stock 
+     FROM products 
+     WHERE id = ANY($1) AND is_active = true`,
+    [productIds]
+  );
+
+  const dbProducts = productResult.rows;
+
+  if (dbProducts.length !== items.length) {
+    throw new Error("Some products are missing or inactive");
+  }
+
+  let subtotal = 0;
+  const processedItems = [];
+
+  // 2. Validate stock and calculate original subtotal
+  for (const cartItem of items) {
+    const dbProduct = dbProducts.find(p => p.id === cartItem.id);
+    const quantity = Number(cartItem.quantity) || 1;
+
+    if (quantity > dbProduct.stock) {
+      throw new Error(`Insufficient stock for product: ${dbProduct.title}`);
+    }
+
+    const price = Number(dbProduct.discount_price);
+    subtotal += price * quantity;
+
+    processedItems.push({
+      id: dbProduct.id,
+      title: dbProduct.title,
+      description: dbProduct.description,
+      price,
+      quantity
+    });
+  }
+
+  // 3. Handle Coupon Logic (if couponCode exists)
+  let finalAmount = subtotal;
+  let appliedCouponId = null;
+
+  if (couponCode) {
+    // Calling the function we created earlier
+    // Note: Pass 'client' if your function needs to use the current transaction
+    const couponCalc = await calculateTotalWithDiscount(subtotal, couponCode, client);
+    
+    if (!couponCalc.success) {
+      throw new Error(couponCalc.error); // Stop order if coupon is invalid/expired
+    }
+
+    finalAmount = couponCalc.totalWithDiscount;
+    appliedCouponId = couponCalc.couponId;
+  }
+
+  // 4. Insert main order (Using finalAmount after discount)
+  const orderResult = await client.query(
+    `INSERT INTO orders (user_id, status, total_amount, currency, payment_provider, billing_details, coupon_id)
+     VALUES ($1, $2, $3, 'EGP', $4, $5, $6) RETURNING id`,
+    [userId, statu, finalAmount, payment_provider, JSON.stringify(billingData), appliedCouponId]
+  );
+
+  const orderId = orderResult.rows[0].id;
+
+  // 5. Insert order items & Update Stock
+  for (const pItem of processedItems) {
+    await client.query(
+      `INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_title, product_description)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [orderId, pItem.id, pItem.quantity, pItem.price, pItem.title, pItem.description]
+    );
+
+    await client.query(`UPDATE products SET stock = stock - $1 WHERE id = $2`, [pItem.quantity, pItem.id]);
+  }
+
+  // 6. If coupon was used, increment the usage count
+  if (appliedCouponId) {
+    await client.query(
+      `UPDATE coupons SET used_count = used_count + 1 WHERE id = $1`,
+      [appliedCouponId]
+    );
+  }
+
+  return { orderId, totalAmount: finalAmount };
+};
+
+
+
 exports.checkout = async (req, res) => {
   const client = await pool.connect();
 
   try {
-    const { items, billingData } = req.body;
+    const { items, billingData ,couponCode } = req.body;
     let userId = req.userId;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -157,7 +348,7 @@ exports.checkout = async (req, res) => {
     ///  
     
    await addBillingDataToUser(client ,userId ,billingData)
-   const OrderAndItems = await processOrderAndItems(client ,userId,items,"pending", "Card" ,billingData)
+   const OrderAndItems = await processOrderAndItems(client ,userId,items,"pending", "Card" ,billingData ,couponCode)
 
     const token = await paymobService.getAuthToken();
     const amountInCents = Math.round(OrderAndItems.totalAmount * 100);
@@ -185,7 +376,7 @@ exports.checkout = async (req, res) => {
 exports.checkoutWallet = async (req, res) => {
   const client = await pool.connect();
   try {
-    const { items, billingData, walletNumber } = req.body;
+    const { items, billingData, walletNumber ,couponCode } = req.body;
     let userId = req.userId;
 
     if (!walletNumber) return res.status(400).json({ error: "Wallet number is required" });
@@ -198,7 +389,7 @@ exports.checkoutWallet = async (req, res) => {
     }
 
      await addBillingDataToUser(client ,userId ,billingData)
-     const OrderAndItems = await processOrderAndItems(client ,userId,items,"pending" ,"Wallet" ,billingData)
+     const OrderAndItems = await processOrderAndItems(client ,userId,items,"pending" ,"Wallet" ,billingData ,couponCode)
 
     const token = await paymobService.getAuthToken();
     const amountInCents = Math.round(OrderAndItems.totalAmount * 100);
@@ -234,7 +425,7 @@ exports.checkoutWallet = async (req, res) => {
 exports.checkoutCash = async (req, res) => {
   const client = await pool.connect();
   try {
-    const { items, billingData } = req.body;
+    const { items, billingData , couponCode} = req.body;
     let userId = req.userId;
 
     if (!items || items.length === 0) return res.status(400).json({ error: "No items provided" });
@@ -246,9 +437,11 @@ exports.checkoutCash = async (req, res) => {
     }
 
     await addBillingDataToUser(client ,userId ,billingData)
-    const OrderAndItems = await processOrderAndItems(client ,userId,items,"processing", "cash on delivary" ,billingData)
+    const OrderAndItems = await processOrderAndItems(client ,userId,items,"processing", "cash on delivary" ,billingData ,couponCode)
+    
     
 
+     
     await client.query("COMMIT");
 
     const htmlTemp = orderConfirmationEmail({name : billingData.first_name , orderId :OrderAndItems.orderId ,total : OrderAndItems.totalAmount})
@@ -265,6 +458,7 @@ exports.checkoutCash = async (req, res) => {
 };
 
 
+
 exports.checkCoupons = async (req, res) => {
   try {
     const { itemscheckout, couponCode } = req.body;
@@ -277,13 +471,11 @@ exports.checkCoupons = async (req, res) => {
     
     for (const item of itemscheckout) {
       // Example DB query to get the real price:
-      // const productResult = await pool.query('SELECT price FROM products WHERE id = $1', [item.id]);
-      // if (productResult.rows.length === 0) return res.status(404).json({ error: `Product ${item.id} not found.` });
-      // const realPrice = productResult.rows[0].price;
-      
-      // MOCK: Replace this with the real DB fetch logic above
-      const realPrice = item.price; // DO NOT use item.price from frontend in production
-      
+
+      const productResult = await pool.query('SELECT discount_price FROM products WHERE id = $1', [item.id]);
+      if (productResult.rows.length === 0) return res.status(404).json({ error: `Product ${item.id} not found.` });
+      const realPrice = productResult.rows[0].discount_price;
+            
       // Ensure quantity is a valid positive number
     const quantity = Math.max(1, parseInt(item.quantity) || 1);
       originalTotal += (realPrice * quantity);
@@ -312,7 +504,7 @@ exports.checkCoupons = async (req, res) => {
 
       // Validation Step 3: Check expiry date
       const currentDate = new Date();
-      
+
       if (new Date(coupon.expiry_date) < currentDate) {
         return res.status(400).json({ error: "This coupon has expired." });
       }
@@ -321,7 +513,7 @@ exports.checkCoupons = async (req, res) => {
       if (coupon.usage_limit !== null && coupon.used_count >= coupon.usage_limit) {
         return res.status(400).json({ error: "This coupon has reached its maximum usage limit." });
       }
-
+ 
       // Validation Step 5: Check minimum order value
       if (originalTotal < parseFloat(coupon.min_order_value)) {
         return res.status(400).json({ 

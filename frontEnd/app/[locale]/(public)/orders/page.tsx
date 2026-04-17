@@ -158,10 +158,10 @@ export default function ClientOrdersPage() {
                         {t('products_count', { count: order.items.length })}
                       </span>
                     </div>
-                    <div className="bg-gray-100 px-4 py-2 text-gray-600 shadow-sm flex flex-col items-end min-w-[100px]">
+                    <div className="bg-slate-100 px-4 py-2 text-primary shadow-sm flex flex-col items-end min-w-[100px]">
                       <span className="text-[12px] font-semibold uppercase tracking-widest">{t('grand_total')}</span>
                       <div className="flex items-baseline gap-1" dir="ltr">
-                        <span className="text-base font-semibold tracking-tighter">{order.total_amount}</span>
+                        <span className="text-base font-semibold tracking-tighter">   {Math.trunc(order.total_amount).toLocaleString("en-US")} </span>
                         <span className="text-[13px] font-semibold uppercase">{t('currency')}</span>
                       </div>
                     </div>

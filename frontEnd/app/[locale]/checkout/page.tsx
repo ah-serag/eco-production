@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { useTranslations, useLocale } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, CreditCard, MapPin, User, Wallet, Banknote, Truck, ShieldCheck, Lock } from "lucide-react";
+import { Loader2, CreditCard, MapPin, User, Wallet, Banknote, Truck, ShieldCheck, Lock, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -13,10 +13,12 @@ import {
   useCheckoutWalletMutation,
   useCheckoutCashMutation,
 } from "@/redux/features/paybom/paybomSlice";
+// Added useCheckCouponsMutation import here (adjust path if needed)
 import { useGetBillingDataQuery } from "@/redux/features/checkoutData/checkoutDataSlice";
 import { checkoutSchema, type CheckoutFormData } from "@/lib/checkout.schema";
 import { useRouter } from "@/i18n/navigation";
 import PaymobIframeModal from "@/components/public/PaymobIframeModal";
+import { useCheckCouponsMutation } from "@/redux/features/coupons/couponsApiSlice";
 
 const FIELD_CLASS = "h-10 text-[12px] font-normal rounded-xl border-slate-200 focus-visible:ring-slate-300 bg-white";
 const AUTO_FILL   = "bg-blue-50/60 border-blue-100";
@@ -63,6 +65,9 @@ export default function CheckoutPage() {
   const { data: savedBilling, isLoading: isGettingData, isFetching: isGettingFetching } =
     useGetBillingDataQuery(undefined, { refetchOnMountOrArgChange: true });
 
+  // Add the coupon mutation hook
+  const [checkCoupons, { isLoading: isCheckingCoupon }] = useCheckCouponsMutation();
+
   const [iframeUrl, setIframeUrl] = useState<string | null>(null);
 
   const [checkoutCard,   { isLoading: isCardLoading   }] = useCheckoutMutation();
@@ -76,6 +81,11 @@ export default function CheckoutPage() {
     phone_number: "", city: "", state: "", street: "", building: "",
   });
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({});
+
+  // Coupon state variables
+  const [couponCode, setCouponCode] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [discountData, setDiscountData] = useState<{ discountAmount: number; finalTotal: number } | null>(null);
 
   useEffect(() => {
     if (!isGettingData && !isGettingFetching && savedBilling?.first_name) {
@@ -106,7 +116,26 @@ export default function CheckoutPage() {
     }
   }
 
+  // Handle apply coupon function
+  async function handleApplyCoupon() {
+    setCouponError("");
+    if (!couponCode.trim()) return;
+     const couponUperrCase = couponCode.toUpperCase()
+    try {
+      const res = await checkCoupons({ itemscheckout: checkoutItems, couponCode:couponUperrCase }).unwrap();
+      setDiscountData({
+        discountAmount: res.discountAmount,
+        finalTotal: res.finalTotal,
+      });
+    } catch (err: any) {
+      setCouponError(err?.data?.error || "Invalid coupon code");
+      setDiscountData(null);
+    }
+  }
+
   async function handleCheckout() {
+
+
     if (checkoutItems.length === 0) return;
     const result = checkoutSchema.safeParse(form);
     if (!result.success) {
@@ -116,16 +145,18 @@ export default function CheckoutPage() {
       return;
     }
     try {
+               const couponUperrCase = couponCode.toUpperCase()
+
       const items = checkoutItems.map((i: any) => ({ id: i.id, quantity: i.quantity }));
       if (paymentType === "card") {
-        const res = await checkoutCard({ items, billingData: result.data }).unwrap();
+        const res = await checkoutCard({ items, billingData: result.data, couponCode: discountData ? couponUperrCase : undefined }).unwrap();
         setIframeUrl(res.iframeUrl);
       } else if (paymentType === "wallet") {
         if (!walletNumber) return void toast.error(t("walletError"));
-        const res = await checkoutWallet({ items, billingData: result.data, walletNumber }).unwrap();
+        const res = await checkoutWallet({ items, billingData: result.data, walletNumber, couponCode: discountData ? couponUperrCase : undefined }).unwrap();
         window.location.href = res.redirectUrl;
       } else {
-        const res = await checkoutCash({ items, billingData: result.data }).unwrap();
+        const res = await checkoutCash({ items, billingData: result.data, couponCode: discountData ? couponUperrCase : undefined }).unwrap();
         router.push(res.redirectUrl);
       }
     } catch (err: any) {
@@ -248,16 +279,80 @@ export default function CheckoutPage() {
               ))}
             </div>
 
-            {/* Total */}
-            <div className="px-5 py-4 border-t border-slate-100 flex justify-between items-center">
-              <span className="text-[11px] uppercase tracking-widest font-semibold text-slate-500">{t("total")}</span>
-              <span className="text-[20px] font-semibold text-slate-900 tracking-tight" dir="ltr">
-                {isAr && <span className="text-[11px] font-normal text-slate-400 me-1">{t("currency")}</span>}
-                {Math.trunc(Number(totalPrice)).toLocaleString("en-US")}
-                {!isAr && <span className="text-[11px] font-normal text-slate-400 ms-1">{t("currency")}</span>}
-              </span>
+            {/* Coupon Section */}
+            <div className="px-5 py-4 pt-20 border-t border-slate-100 bg-slate-50/50 space-y-2">
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    placeholder={t("couponPlaceholder") || "Enter coupon code"}
+                    value={couponCode}
+                    onChange={(e) => {
+                      setCouponCode(e.target.value);
+                      if (couponError) setCouponError("");
+                    }}
+                    disabled={isCheckingCoupon || !!discountData}
+                    className={cn(
+                      "h-10 text-[12px] rounded-xl border-slate-200 ps-9 transition-colors",
+                      couponError && "border-red-400 focus-visible:ring-red-100",
+                      discountData && "border-emerald-200 bg-emerald-50/50 text-emerald-700"
+                    )}
+                  />
+                  <Tag size={14} className={cn("absolute start-3 top-1/2 -translate-y-1/2", discountData ? "text-emerald-500" : "text-green-400")} />
+                </div>
+                <button
+                  onClick={handleApplyCoupon}
+                  disabled={isCheckingCoupon || !couponCode || !!discountData}
+                  className="h-10 px-5 rounded-xl bg-green-700 hover:bg-green-800 text-white text-[10px] uppercase font-semibold tracking-widest disabled:opacity-50 transition-colors shrink-0 flex items-center justify-center min-w-[80px]"
+                >
+                  {isCheckingCoupon ? <Loader2 size={14} className="animate-spin" /> : t("apply") || "Apply"}
+                </button>
+              </div>
+              {/* Inline Coupon Error */}
+              {couponError && (
+                <p className="text-[10px] text-red-500 ms-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                  {couponError}
+                </p>
+              )}
+              {/* Success Message */}
+              {discountData && (
+                <p className="text-[10px] text-emerald-600 ms-1 flex items-center gap-1 animate-in fade-in duration-200 font-medium">
+                  <ShieldCheck size={12} /> {t("couponApplied") || "Coupon applied successfully"}
+                </p>
+              )}
+            </div>
+
+            {/* Total Section With Discount Display */}
+            <div className="px-5 py-4 border-t border-slate-100 space-y-3">
+              {/* Show Subtotal and Discount if a coupon is applied */}
+              {discountData && (
+                <>
+                  <div className="flex justify-between items-center text-[12px] text-slate-500">
+                    <span>{t("subtotal") || "Subtotal"}</span>
+                    <span dir="ltr">{Math.trunc(Number(totalPrice)).toLocaleString("en-US")} {t("currency")}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[12px] text-emerald-600 font-medium">
+                    <span>{t("discount") || "Discount"}</span>
+                    <span dir="ltr">-{Math.trunc(Number(discountData.discountAmount)).toLocaleString("en-US")} {t("currency")}</span>
+                  </div>
+                </>
+              )}
+              
+              <div className="flex justify-between items-center pt-1">
+                <span className="text-[11px] uppercase tracking-widest font-semibold text-slate-500">{t("total")}</span>
+                <span className="text-[20px] font-semibold text-slate-900 tracking-tight" dir="ltr">
+                  {isAr && <span className="text-[11px] font-normal text-slate-400 me-1">{t("currency")}</span>}
+                  {Math.trunc(Number(discountData ? discountData.finalTotal : totalPrice)).toLocaleString("en-US")}
+                  {!isAr && <span className="text-[11px] font-normal text-slate-400 ms-1">{t("currency")}</span>}
+                </span>
+              </div>
             </div>
           </section>
+
+
+
+
+
+
 
           {/* Payment */}
           <section className="bg-white border border-slate-100 rounded-2xl p-5 space-y-4">

@@ -213,7 +213,13 @@
       "freeShippingTitle": "Free Shipping",
   "freeShippingDesc": "On all orders",
   "securePayTitle": "Secure Payment",
-  "securePayDesc": "Fully encrypted"
+  "securePayDesc": "Fully encrypted" ,
+  "couponPlaceholder": "Enter coupon code",
+    "apply": "Apply",
+    "couponApplied": "Coupon applied successfully",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "invalidCoupon": "Invalid coupon code"
 
   } ,
 
