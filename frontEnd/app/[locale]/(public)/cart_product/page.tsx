@@ -100,7 +100,7 @@ export default function CartPage() {
             {isAr ? <ArrowRight size={12} /> : <ArrowLeft size={12} />} {t("back_to_shop")}
           </Link>
           <div className="flex items-baseline gap-3">
-            <h1 className={` font-semibold text-xl tracking-tight uppercase text-slate-800`}>{t("your_cart")}</h1>
+            <h1 className={` font-semibold text-xl tracking-tight uppercase text-primary`}>{t("your_cart")}</h1>
             <span className="text-slate-400 text-[10px] font-normal uppercase tracking-widest">{cart.length} {t("items")}</span>
           </div>
         </div>
@@ -181,7 +181,7 @@ export default function CartPage() {
 
           {/* RIGHT: ORDER SUMMARY */}
           <div className="lg:col-span-5 lg:sticky lg:top-10">
-            <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
+            <div className="bg-white border border-slate-100  p-6 shadow-sm">
               <h2 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-6 text-center">{t("summary")}</h2>
 
               <div className="space-y-3 mb-6">
@@ -205,7 +205,7 @@ export default function CartPage() {
 
               <button
                 onClick={handleCheckout}
-                className="w-full h-11 rounded-xl text-[10px] font-semibold tracking-widest bg-neutral-900 hover:bg-neutral-700 text-white transition-colors flex items-center justify-center gap-2 uppercase"
+                className="w-full h-11  text-[10px] font-semibold tracking-widest bg-primary hover:bg-primary/90 text-white transition-colors flex items-center justify-center gap-2 uppercase"
               >
                 {t("checkout")}
                 {isAr ? <ArrowLeft size={13} /> : <ArrowRight size={13} />}

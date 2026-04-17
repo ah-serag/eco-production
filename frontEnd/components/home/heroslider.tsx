@@ -24,7 +24,7 @@ export default function HeroSlider({ section }: any) {
   const nextSlide = () => setCurrent((prev) => (prev === length - 1 ? 0 : prev + 1));
 
   return (
-    <section className="relative w-full px-4 aspect-4/5   md:aspect-3/1  overflow-hidden shadow-sm group/slider">
+    <section className="relative w-full   px-4 aspect-4/5   md:aspect-2/1  overflow-hidden shadow-sm group/slider">
       <style jsx>{`
         @keyframes soft-pulse {
           0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }

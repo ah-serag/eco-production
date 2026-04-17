@@ -4,15 +4,16 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { 
-  LayoutGrid, Package, ListTree, Users, ShoppingBag, 
+  LayoutGrid, Package, ListTree, Users, ShoppingBag,
   LucidePackagePlus, ImageIcon, House, ChevronDown,
-  PlusCircle, FileSpreadsheet, ImageUp, 
+  PlusCircle, FileSpreadsheet, ImageUp,
   ClipboardList, Receipt, CreditCard, Search,
   Menu,
   Video,
   VideoIcon,
   TvMinimalPlay,
-  MonitorUp
+  MonitorUp,
+  Tag
 } from "lucide-react";
 
 import {
@@ -147,6 +148,7 @@ export function AdminNav() {
 
                     <MobileSimpleLink href="/admin/users" active={pathname.includes("users")} icon={<Users size={18} />} onClick={() => setOpen(false)}>Users</MobileSimpleLink>
                     <MobileSimpleLink href="/admin/vendors" active={pathname.includes("vendors")} icon={<ShoppingBag size={18} />} onClick={() => setOpen(false)}>Vendors</MobileSimpleLink>
+                    <MobileSimpleLink href="/admin/coupons" active={pathname.includes("coupons")} icon={<Tag size={18} />} onClick={() => setOpen(false)}>Coupons</MobileSimpleLink>
 
                     {/* Home UI */}
                     <AccordionItem value="home-ui" className="border-none">
@@ -224,6 +226,7 @@ export function AdminNav() {
             
             <NavItem href="/admin/users" active={pathname.includes("users")} icon={<Users size={16} />}>Users</NavItem>
             <NavItem href="/admin/vendors" active={pathname.includes("vendors")} icon={<ShoppingBag size={16} />}>Vendors</NavItem>
+            <NavItem href="/admin/coupons" active={pathname.includes("coupons")} icon={<Tag size={16} />}>Coupons</NavItem>
 
             <MenuDropdown label="Home UI" icon={<House size={16} />} active={pathname.includes("home")}>
               <div className="grid grid-cols-2 w-[400px]">

@@ -63,7 +63,7 @@ export function SearchInput() {
           type="submit"
           variant="default"
           size="icon"
-          className="bg-primary text-white shadow-sm h-full w-12 rounded-none hover:bg-gray-100 transition-colors shrink-0"
+          className="bg-primary text-white shadow-sm h-full w-12 rounded-none hover:bg-primary/80 transition-colors shrink-0"
         >
           <SearchIcon size={15} />
         </Button>

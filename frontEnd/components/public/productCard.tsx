@@ -94,17 +94,17 @@ export default function ProductCard({ product }: { product: Product }) {
       <Link href={`/product/${slug}`} className="block relative">
         {discountPercent > 0 && (
           <span className={cn(
-            "absolute top-2 z-10 text-[8px] font-medium text-white bg-neutral-800 px-1.5 py-0.5 tracking-wide",
+            "absolute top-2 z-10 text-[8px] font-medium text-white bg-primary px-1.5 py-0.5 tracking-wide",
             isAr ? "right-2" : "left-2"
           )}>
             -{discountPercent}%
           </span>
         )}
-        <div className="w-full aspect-square flex items-center justify-center overflow-hidden bg-slate-50 p-3">
+        <div className="w-full aspect-square flex items-center justify-center overflow-hidden  p-3">
           <img
             src={product.image_url || "/placeholder-image.png"}
             alt={displayTitle}
-            className="max-h-[80%] max-w-[80%] object-contain transition-transform duration-500 group-hover:scale-105"
+            className="max-h-[90%] max-w-[90%] object-contain transition-transform duration-500 group-hover:scale-105"
           />
         </div>
       </Link>

@@ -26,4 +26,7 @@ router.patch('/toggleCategoryStatus/:id',authenticate,attachUser,auhtorize("admi
 router.patch('/toggleSubcategoryStatus/:id',authenticate,attachUser,auhtorize("admin" ,"Super Admin"), catagoryControll.toggleSubcategoryStatus);
 
 
-module.exports = router;
+module.exports = router; 
+
+
+

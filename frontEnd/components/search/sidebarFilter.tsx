@@ -82,7 +82,7 @@ export default function FilterSidebar() {
 
   const FilterContent = () => (
     <div className={cn("space-y-5", isAr ? "pr-0 text-right" : "pl-0 text-left")} dir={isAr ? "rtl" : "ltr"}>
-      <div className="hidden md:flex w-full items-center justify-between py-5 px-3    text-gray-600 mb-4">
+      <div className="hidden md:flex w-full items-center justify-between py-5 px-3 bg-transparent    text-gray-600 mb-4">
         <div className="flex items-center  gap-2">
             <SlidersHorizontal size={14}  />
             <h2 className="text-[14px]  font-semibold tracking-tight">{isAr ? "تصفية النتائج" : "Filter Results"}</h2>
@@ -192,7 +192,7 @@ export default function FilterSidebar() {
 
   return (
     <>
-      <div className="hidden md:block  relative">
+      <div className="hidden md:block h-full bg-gray-50 shadow-sm border border-neutral-50 relative">
         {!isDesktopOpen && (
           <button
             onClick={() => setIsDesktopOpen(true)}
@@ -205,7 +205,7 @@ export default function FilterSidebar() {
           </button>
         )}
         <aside className={cn(
-          "sticky top-28 h-fit transition-all duration-500 bg-white   overflow-hidden",
+          "sticky top-28 h-fit transition-all duration-500 bg-transparent   overflow-hidden",
           isDesktopOpen ? "w-64 opacity-100 visible" : "w-0 opacity-0 invisible pointer-events-none"
         )}>
           <div className="w-64">

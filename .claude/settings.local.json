@@ -9,7 +9,11 @@
       "Bash(cp faq/page.tsx \"\\(with-footer\\)/faq/page.tsx\")",
       "Bash(mkdir -p \"\\(with-footer\\)/contact\")",
       "Bash(cp \"d:\\\\ecommerces\\\\vexaShop\\\\frontEnd\\\\app\\\\[locale]\\\\\\(public\\)\\\\page.tsx\" \"d:\\\\ecommerces\\\\vexaShop\\\\frontEnd\\\\app\\\\[locale]\\\\\\(public\\)\\\\\\(with-footer\\)\\\\page.tsx\")",
-      "Bash(rm \"d:\\\\ecommerces\\\\vexaShop\\\\frontEnd\\\\app\\\\[locale]\\\\\\(public\\)\\\\page.tsx\")"
+      "Bash(rm \"d:\\\\ecommerces\\\\vexaShop\\\\frontEnd\\\\app\\\\[locale]\\\\\\(public\\)\\\\page.tsx\")",
+      "Bash(ls -la /d/ecommerces/vexaShop/frontEnd/app/[locale]/\\\\\\(pages\\\\\\)/admin/)",
+      "Bash(find /d/ecommerces/vexaShop/frontEnd/app/[locale]/\\\\\\(pages\\\\\\)/admin -name \"page.tsx\" -o -name \"page.jsx\")",
+      "Bash(grep -r \"from \\\\\"@/components/ui\" /d/ecommerces/vexaShop/frontEnd/app/[locale]/\\\\\\(pages\\\\\\)/admin --include=\"*.tsx\")",
+      "Bash(wc -l /d/ecommerces/vexaShop/frontEnd/app/[locale]/\\\\\\(pages\\\\\\)/admin/products/page.tsx)"
     ]
   }
 }

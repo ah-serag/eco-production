@@ -27,7 +27,7 @@ const getHomePage = async (req, res) => {
                 'title',       c.title,
                 'is_active',   c.is_active,
                 'name',        cat.name,
-                'name_ar',     cat.name_ar              )
+                'name_ar',     cat.name_ar)
             ), '[]')
             FROM home_categories c
             INNER JOIN categories cat ON c.category_id = cat.id

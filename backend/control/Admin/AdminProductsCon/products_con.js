@@ -1,9 +1,9 @@
 
 
+
 const pool = require("../../../config/condb");
 const uploadToCloudinary = require("../../../utils/uploadToCloudinary");
 const parseExcel = require("../../../utils/parseExcel")
-
 
 
 
@@ -25,13 +25,13 @@ const getProductsAdmin = async (req, res) => {
   try {
     const validSortColumns = ["price", "created_at"];
     let sortColumn = validSortColumns.includes(sort_by) ? sort_by : "created_at";
-    let sortOrder = "DESC"; 
+    let sortOrder = "DESC";
     if (sort_by === "oldest") {
       sortColumn = "created_at";
       sortOrder = "ASC";
     }
 
-   
+
     const filterParams = [
       status || null,
       category_id ? Number(category_id) : null,
@@ -45,21 +45,23 @@ const getProductsAdmin = async (req, res) => {
     `;
 
     const dataQuery = `
-      SELECT 
+      SELECT
           p.id,
           p.title,
           p.price,
+          p.title_ar ,
           p.stock,
           p.description,
+          p.description_ar,
           p.discount_price,
           p.is_active,
           p.created_at,
           p.slug,
           i.url AS image_url
       FROM products p
-      LEFT JOIN product_images pi 
+      LEFT JOIN product_images pi
             ON pi.product_id = p.id AND pi.is_main = true
-      LEFT JOIN images i 
+      LEFT JOIN images i
             ON i.id = pi.image_id
       ${whereClause}
       ORDER BY ${sortColumn} ${sortOrder}
@@ -67,7 +69,7 @@ const getProductsAdmin = async (req, res) => {
     `;
 
     const countQuery = `
-      SELECT COUNT(*) AS total 
+      SELECT COUNT(*) AS total
       FROM products p
       ${whereClause}
     `;
@@ -124,15 +126,15 @@ const toggleActive = async (req, res) => {
 
 const editProduct = async (req, res) => {
   const { id } = req.params;
-  const { title, price, stock, description , discount_price } = req.body;
+  const { title, title_ar, price, stock, description, description_ar, discount_price } = req.body;
 
   try {
     const result = await pool.query(
       `UPDATE products
-       SET title = $1, price = $2, stock = $3, description = $4 , discount_price = $5
-       WHERE id = $6
+       SET title = $1, title_ar = $2, price = $3, stock = $4, description = $5, description_ar = $6, discount_price = $7
+       WHERE id = $8
        RETURNING *`,
-      [title, price, stock, description ,discount_price, id]
+      [title, title_ar, price, stock, description, description_ar, discount_price, id]
     );
 
     if (result.rows.length === 0) {
@@ -150,6 +152,7 @@ const editProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
   const { id } = req.params;
+  const cloudinary = require("../../../config/cloudinary");
   const client = await pool.connect();
 
   try {
@@ -163,186 +166,95 @@ const deleteProduct = async (req, res) => {
     if (orderCheck.rowCount > 0) {
       throw new Error("ERR_PRODUCT_HAS_ORDERS");
     }
-  
 
-  
+    // جيب الصور
     const imagesQuery = await client.query(
-      `SELECT i.public_id, i.id 
+      `SELECT i.public_id, i.id
        FROM images i
        JOIN product_images pi ON i.id = pi.image_id
        WHERE pi.product_id = $1`,
       [id]
     );
-    
 
+    // جيب الفيديوهات
+    const videosQuery = await client.query(
+      `SELECT v.public_id, v.id
+       FROM videos v
+       JOIN product_videos pv ON v.id = pv.video_id
+       WHERE pv.product_id = $1`,
+      [id]
+    );
 
-    const publicIdsToDelete = imagesQuery.rows.map(row => row.public_id);
-    const imageIds = imagesQuery.rows.map(row => row.id);
+    const imagePublicIds = imagesQuery.rows.map(r => r.public_id);
+    const imageIds       = imagesQuery.rows.map(r => r.id);
+    const videoPublicIds = videosQuery.rows.map(r => r.public_id);
+    const videoIds       = videosQuery.rows.map(r => r.id);
 
+    // احذف العلاقات
     await client.query("DELETE FROM product_images WHERE product_id = $1", [id]);
+    await client.query("DELETE FROM product_videos WHERE product_id = $1", [id]);
 
+    // احذف المنتج
     const productDeleteResult = await client.query("DELETE FROM products WHERE id = $1", [id]);
+    if (productDeleteResult.rowCount === 0) throw new Error("ERR_PRODUCT_NOT_FOUND");
 
-    if (productDeleteResult.rowCount === 0) {
-      throw new Error("ERR_PRODUCT_NOT_FOUND");
-    }
+    // احذف الصور والفيديوهات من الجداول
+    if (imageIds.length > 0) await client.query("DELETE FROM images WHERE id = ANY($1)", [imageIds]);
+    if (videoIds.length > 0) await client.query("DELETE FROM videos WHERE id = ANY($1)", [videoIds]);
 
-    // 6. Delete from main images table
-    if (imageIds.length > 0) {
-      await client.query("DELETE FROM images WHERE images.id = ANY($1)", [imageIds]);
-    }
-
-    // 7. Commit changes to Database
     await client.query("COMMIT");
 
-    // 8. Cleanup Cloudinary assets (After DB success)
-    if (publicIdsToDelete.length > 0) {
-      const cloudinaryDeletions = publicIdsToDelete.map(publicId => 
-        cloudinary.uploader.destroy(publicId)
-      );
-      await Promise.all(cloudinaryDeletions);
-    }
+    // احذف من Cloudinary بعد الـ commit
+    const cloudinaryJobs = [
+      ...imagePublicIds.map(pid => cloudinary.uploader.destroy(pid, { resource_type: "image" })),
+      ...videoPublicIds.map(pid => cloudinary.uploader.destroy(pid, { resource_type: "video" })),
+    ];
+    if (cloudinaryJobs.length > 0) await Promise.all(cloudinaryJobs);
 
-    res.status(200).json({ 
-      success: true, 
-      message: "Product and all related assets have been permanently deleted." 
+    res.status(200).json({
+      success: true,
+      message: "Product and all related assets have been permanently deleted."
     });
 
   } catch (err) {
     await client.query("ROLLBACK");
-    
+
     console.error("Deletion Process Error:", err.message);
 
     if (err.message === "ERR_PRODUCT_HAS_ORDERS") {
-      return res.status(409).json({ 
+      return res.status(409).json({
         success: false,
         error: "Integrity Violation",
-        message: "Cannot delete product: It is linked to existing customer orders. " 
+        message: "Cannot delete product: It is linked to existing customer orders. "
       });
     }
 
     if (err.message === "ERR_PRODUCT_NOT_FOUND") {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
         error: "Not Found",
-        message: "The requested product does not exist in our records." 
+        message: "The requested product does not exist in our records."
       });
     }
 
-    // Generic Internal Server Error
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       error: "Internal Server Error",
-      message: "An unexpected error occurred while deleting the product. Please try again later." 
+      message: "An unexpected error occurred while deleting the product. Please try again later."
     });
 
   } finally {
-    // Release client back to the pool
     client.release();
   }
 };
-
-
-
-
-
-
-
-// const addProductWithImages = async (req, res) => {
-//   const client = await pool.connect();
-//   try {
-//     const {
-//       title, title_ar, slug, description, description_ar, price, 
-//       discount_price, stock, sku, brand, weight, length, width, 
-//       height, category_id, subcategory_id, is_active
-//     } = req.body;
-
-//     const slugCheck = await client.query("SELECT 1 FROM products WHERE slug = $1 LIMIT 1", [slug]);
-//     if (slugCheck.rowCount > 0) {
-//       return res.status(400).json({ message: "Slug already exists. Please use a unique title." });
-//     }
-
-//     if (!req.files?.mainImage || req.files.mainImage.length === 0) {
-//       throw new Error("Main image is required");
-//     }
-
-//     await client.query("BEGIN");
-
-//     const queryProduct = `
-//       SELECT add_product($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) AS product_id
-//     `;
-
-//     const valuesProduct = [
-//       title, title_ar, slug, price, description, description_ar, 
-//       discount_price, stock, sku, brand, weight, length, width, 
-//       height, category_id, subcategory_id, is_active
-//     ];
-
-//     const result = await client.query(queryProduct, valuesProduct);
-//     const productId = result.rows[0].product_id;
-
-//     if(req?.user.role == "vendor"){
-//       await client.query(`INSERT INTO vendors_products (product_id, vendor_id)
-//         VALUES ($1, $2)`, [productId ,req.user.id])
-//     }
-
-//     const queryImages = `SELECT add_image($1, $2) AS id`;
-//     const mainImageFile = req.files?.mainImage?.[0] ?? null;
-//     const galleryFiles = req.files?.gallery ?? [];
-
-//     const mainResult = await new Promise((resolve, reject) => {
-//       const stream = cloudinary.uploader.upload_stream(
-//         { folder: "products", public_id: `${productId}_main_${Date.now()}` },
-//         (err, result) => (err ? reject(err) : resolve(result))
-//       );
-//       streamifier.createReadStream(mainImageFile.buffer).pipe(stream);
-//     });
-
-//     const addMainImage = await client.query(queryImages , [mainResult.secure_url , mainResult.public_id])
-
-//     await client.query(
-//       `INSERT INTO product_images (product_id, image_id, is_main, position)
-//        VALUES ($1, $2, true, 0)`,
-//       [productId, addMainImage.rows[0].id]
-//     );
-
-//     for (let i = 0; i < galleryFiles.length; i++) {
-//       const file = galleryFiles[i];
-//       const uploadResult = await new Promise((resolve, reject) => {
-//         const stream = cloudinary.uploader.upload_stream(
-//           { folder: "products", public_id: `${productId}_gallery_${Date.now()}_${i}` },
-//           (err, result) => (err ? reject(err) : resolve(result))
-//         );
-//         streamifier.createReadStream(file.buffer).pipe(stream);
-//       });
-      
-//       const addImages = await client.query(queryImages, [uploadResult.secure_url , uploadResult.public_id]);
-    
-//       await client.query(
-//         `INSERT INTO product_images (product_id, image_id, is_main, position)
-//          VALUES ($1, $2, false, $3)`,
-//         [productId, addImages.rows[0].id, i + 1]
-//       );
-//     }
-
-//     await client.query("COMMIT");
-//     res.status(201).json({ message: "Product added successfully", product_id: productId });
-//   } catch (err) {
-//     await client.query("ROLLBACK");
-//     console.error(err);
-//     res.status(500).json({ message: err.message || "Failed to add product" });
-//   } finally {
-//     client.release();
-//   }
-// };
 
 
 const addProductWithImages = async (req, res) => {
   const client = await pool.connect();
   try {
     const {
-      title, title_ar, slug, description, description_ar, price, 
-      discount_price, stock, sku, brand, weight, length, width, 
+      title, title_ar, slug, description, description_ar, price,
+      discount_price, stock, sku, brand, weight, length, width,
       height, category_id, subcategory_id, is_active
     } = req.body;
 
@@ -374,7 +286,7 @@ const addProductWithImages = async (req, res) => {
     // --- Handle Images ---
     const mainImg = req.files.mainImage[0];
     const gallery = req.files.gallery || [];
-    
+
     // Upload main image
     const mainImgRes = await uploadToCloudinary(mainImg.buffer, "products/images", "image", `${productId}_${Date.now()}`);
     const addImgDb = await client.query(`SELECT add_image($1, $2) AS id`, [mainImgRes.secure_url, mainImgRes.public_id]);
@@ -436,8 +348,8 @@ const addProductsFromExcel = async (req, res) => {
         mainImage, images
       } = resultExcel[i];
 
-    
-     // get category id and subcategory id 
+
+     // get category id and subcategory id
      const categoryAndSubIds = await client.query(`SELECT id as subcategory_id , category_id FROM subcategories WHERE LOWER(subcategories.name) = LOWER($1)` ,[subcategory])
      const {category_id , subcategory_id} = categoryAndSubIds.rows[0] ;
     // add product
@@ -446,7 +358,7 @@ const addProductsFromExcel = async (req, res) => {
         weight, length, width, height,category_id,subcategory_id, is_active
       ];
 
-      const queryProduct = ` 
+      const queryProduct = `
         SELECT add_product(
           $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15
         ) AS product_id
@@ -543,33 +455,17 @@ const addProductFromAI = async (req, res) => {
       images = []
     } = req.body;
 
-    // validation بسيط
     if (!title || !price || !category_id || !mainImage) {
-      return res.status(400).json({
-        error: "Missing required fields"
-      });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     client = await pool.connect();
     await client.query("BEGIN");
 
-    // 🔹 add product مباشرة
     const valuesProduct = [
-      title,
-      slug,
-      price,
-      description,
-      discount_price,
-      stock,
-      sku,
-      brand,
-      weight,
-      length,
-      width,
-      height,
-      category_id,
-      subcategory_id,
-      is_active
+      title, slug, price, description, discount_price, stock,
+      sku, brand, weight, length, width, height,
+      category_id, subcategory_id, is_active
     ];
 
     const queryProduct = `
@@ -581,7 +477,6 @@ const addProductFromAI = async (req, res) => {
     const productRes = await client.query(queryProduct, valuesProduct);
     const productId = productRes.rows[0].product_id;
 
-    // 🔹 main image
     const mainImgRes = await client.query(
       "SELECT id FROM images WHERE url = $1",
       [mainImage]
@@ -597,7 +492,6 @@ const addProductFromAI = async (req, res) => {
       [productId, mainImgRes.rows[0].id]
     );
 
-    // 🔹 other images
     let position = 1;
     for (const url of images) {
       const imgRes = await client.query(
@@ -618,40 +512,18 @@ const addProductFromAI = async (req, res) => {
 
     await client.query("COMMIT");
 
-    return res.status(201).json({
-      success: true,
-      product_id: productId
-    });
+    return res.status(201).json({ success: true, product_id: productId });
 
   } catch (err) {
     if (client) await client.query("ROLLBACK");
     console.error(err);
-
-    return res.status(500).json({
-      success: false,
-      error: err.message || "Failed to add product"
-    });
+    return res.status(500).json({ success: false, error: err.message || "Failed to add product" });
   } finally {
     if (client) client.release();
   }
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-module.exports = {  
-   addProductWithImages , addProductsFromExcel 
+module.exports = {
+   addProductWithImages , addProductsFromExcel
   , getProductsAdmin ,toggleActive , editProduct ,deleteProduct , addProductFromAI };
-
-
-
-

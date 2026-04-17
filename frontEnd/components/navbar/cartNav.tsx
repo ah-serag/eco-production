@@ -18,7 +18,7 @@ export function CartNav() {
       />
 
       {/* Badge */}
-      <span className="absolute -top-1 -right-2 flex items-center justify-center min-w-4 h-4 px-1 text-[10px] font-semibold text-white bg-green-400 rounded-full">
+      <span className="absolute -top-1 -right-2 flex items-center justify-center min-w-4 h-4 px-1 text-[10px] font-semibold text-white bg-primary/90 rounded-full">
         <CartBadge />
       </span>
     </Link>

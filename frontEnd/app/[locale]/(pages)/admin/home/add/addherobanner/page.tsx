@@ -143,7 +143,7 @@ export default function AddHeroBannerPage() {
 
           {/* Desktop Image */}
           <ImagePicker
-            label="Desktop Image" hint="Ratio 3:1 — JPG, PNG, WEBP"
+            label="Desktop Image" hint="Ratio 2:1 — JPG, PNG, WEBP"
             icon={Monitor}
             file={desktopFile} preview={desktopPreview}
             onSelect={(f) => selectFile(f, setDesktopFile, setDesktopPreview)}

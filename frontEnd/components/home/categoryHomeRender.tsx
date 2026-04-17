@@ -42,15 +42,27 @@ export default function CategorySection({ section }: any) {
     <section className="my-4" dir={isAr ? "rtl" : "ltr"}>
 
       {sectionTitle && (
-        <div className="mb-4 flex px-4 flex-col gap-1">
-          <h2 className="font-normal text-gray-900 text-lg md:text-xl uppercase tracking-tight">
-            {sectionTitle}
-          </h2>
-          {sectionSubtitle && (
-            <span className="font-normal uppercase text-slate-400 text-[10px] tracking-[0.2em]">
-              {sectionSubtitle}
-            </span>
-          )}
+        <div className={`relative mb-4  flex py-4 bg-slate-50 p-2 border  border-neutral-100 items-center justify-between gap-3 ${isAr ? "flex-row-reverse" : ""}`}>
+
+          <div className={`flex flex-col gap-1 ${isAr ? "items-end" : "items-start"}`}>
+            <h2 className={`font-semibold text-slate-900 leading-none ${
+              isAr ? "text-[18px] md:text-[22px]" : "text-[15px] md:text-[18px] uppercase tracking-wide"
+            }`}>
+              {sectionTitle}
+            </h2>
+            {sectionSubtitle && (
+              <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-[0.3em] text-slate-400">
+                {sectionSubtitle}
+              </span>
+            )}
+          </div>
+
+          <div className={`hidden md:flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : ""}`}>
+            {[1,2,3].map(i => (
+              <span key={i} className="w-1 h-1 rounded-full bg-slate-200" style={{ opacity: 1 - i * 0.25 }} />
+            ))}
+          </div>
+
         </div>
       )}
 
@@ -101,7 +113,7 @@ export default function CategorySection({ section }: any) {
                   href={`/products/${cat.category_id}`}
                   className="group/card shrink-0 active:scale-[0.97] transition-transform duration-200"
                 >
-                  <div className="relative w-[110px] md:w-[150px] aspect-3/4 overflow-hidden rounded-sm bg-white ring-1 ring-slate-100 shadow-sm">
+                  <div className="relative w-[110px] md:w-[150px] aspect-3/4 overflow-hidden  bg-white ring-1 ring-slate-100 shadow-sm">
                     {cat.image_url ? (
                       <Image
                         src={cat.image_url}

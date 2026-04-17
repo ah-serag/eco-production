@@ -263,3 +263,111 @@ exports.checkoutCash = async (req, res) => {
     client.release();
   }
 };
+
+
+exports.checkCoupons = async (req, res) => {
+  try {
+    const { itemscheckout, couponCode } = req.body;
+
+    if (!itemscheckout || !Array.isArray(itemscheckout) || itemscheckout.length === 0) {
+      return res.status(400).json({ error: "Cart is empty or invalid." });
+    }
+
+    let originalTotal = 0;
+    
+    for (const item of itemscheckout) {
+      // Example DB query to get the real price:
+      // const productResult = await pool.query('SELECT price FROM products WHERE id = $1', [item.id]);
+      // if (productResult.rows.length === 0) return res.status(404).json({ error: `Product ${item.id} not found.` });
+      // const realPrice = productResult.rows[0].price;
+      
+      // MOCK: Replace this with the real DB fetch logic above
+      const realPrice = item.price; // DO NOT use item.price from frontend in production
+      
+      // Ensure quantity is a valid positive number
+    const quantity = Math.max(1, parseInt(item.quantity) || 1);
+      originalTotal += (realPrice * quantity);
+    }
+
+    let discountAmount = 0;
+    let finalTotal = originalTotal;
+
+    if (couponCode) {
+      // Fetch the coupon from the database
+      const couponQuery = `
+        SELECT * FROM coupons 
+        WHERE code = $1
+      `;
+      const couponResult = await pool.query(couponQuery, [couponCode]);
+      const coupon = couponResult.rows[0];
+
+      if (!coupon) {
+        return res.status(404).json({ error: "Invalid coupon code." });
+      }
+
+      // Validation Step 2: Check if coupon is active
+      if (!coupon.is_active) {
+        return res.status(400).json({ error: "This coupon is currently inactive." });
+      }
+
+      // Validation Step 3: Check expiry date
+      const currentDate = new Date();
+      
+      if (new Date(coupon.expiry_date) < currentDate) {
+        return res.status(400).json({ error: "This coupon has expired." });
+      }
+
+      // Validation Step 4: Check usage limit
+      if (coupon.usage_limit !== null && coupon.used_count >= coupon.usage_limit) {
+        return res.status(400).json({ error: "This coupon has reached its maximum usage limit." });
+      }
+
+      // Validation Step 5: Check minimum order value
+      if (originalTotal < parseFloat(coupon.min_order_value)) {
+        return res.status(400).json({ 
+          error: `Minimum order value of ${coupon.min_order_value} is required to use this coupon.` 
+        });
+      }
+
+      // 4. Calculate the discount amount
+      const discountValue = parseFloat(coupon.discount_value);
+
+      if (coupon.discount_type === 'percentage') {
+        discountAmount = originalTotal * (discountValue / 100);
+        
+        // Validation Step 6: Apply the maximum discount cap if it exists
+        if (coupon.max_discount_amount !== null) {
+          const maxDiscount = parseFloat(coupon.max_discount_amount);
+          if (discountAmount > maxDiscount) {
+            discountAmount = maxDiscount;
+          }
+        }
+      } else if (coupon.discount_type === 'fixed') {
+        discountAmount = discountValue;
+      }
+
+      // Validation Step 7: Ensure the discount is never greater than the total order amount
+      if (discountAmount > originalTotal) {
+        discountAmount = originalTotal;
+      }
+
+      // Calculate the final price after discount
+      finalTotal = originalTotal - discountAmount;
+    }
+
+    // 5. Return the successful calculation
+    return res.status(200).json({
+      success: true,
+      originalTotal: Number(originalTotal.toFixed(2)),
+      discountAmount: Number(discountAmount.toFixed(2)),
+      finalTotal: Number(finalTotal.toFixed(2)),
+      message: couponCode ? "Coupon applied successfully." : "Checkout total calculated successfully."
+    });
+
+  } catch (error) {
+    console.error("Error during checkout calculation:", error);
+    return res.status(500).json({ error: "An unexpected error occurred during calculation." });
+  }
+};
+
+

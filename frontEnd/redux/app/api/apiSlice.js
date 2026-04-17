@@ -36,7 +36,7 @@ export const apiSlice = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ['Users' ,"Images" ,"Products" ,"Categories" ,"HomeSections" ,"HeroBanners" 
     ,"HomeCategories" ,"HomeProducts" ,"LimitedOfferBanners" ,"SubcategoryBanners" ,"userInfo" ,
-     "Orders" ,"OrderItems" ,"ClientOrders", "BillingData" ,"Videos" , "Profile"],
+     "Orders" ,"OrderItems" ,"ClientOrders", "BillingData" ,"Coupons" ,"Videos" , "Profile"],
   endpoints: () => ({})
 
 });

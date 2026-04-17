@@ -67,10 +67,10 @@ export function MegaMenuNavbar() {
               >
                 <button
                   className={cn(
-                    "px-4 flex items-center gap-1.5 text-[13px] font-medium transition-all h-full relative outline-none",
+                    "px-4 flex items-center gap-1.5 text-[13px] font-medium transition-all duration-100 h-full relative outline-none",
                     activeCategory === category.id 
-                      ? "text-slate-600" 
-                      : "text-slate-500 "
+                      ? "text-primary bg-slate-200" 
+                      : "text-primary"
                   )}
                 >
                   {isAr ? category.categoryName_ar : category.categoryName}
@@ -172,7 +172,7 @@ export function MegaMenuNavbar() {
                 className="group flex items-center justify-start gap-3 bg-gray-100 p-3 text-slate-600  text-[15px] font-bold transition-all duration-500 active:scale-95"
               >
                 {isAr ? "عرض المجموعة" : "View Collection"}
-                <ArrowRight size={25} className={cn("transition-transform text-secondary/80", isAr ? "rotate-180 group-hover:-translate-x-1.5" : "group-hover:translate-x-1.5")} />
+                <ArrowRight size={25} className={cn("transition-transform text-primary", isAr ? "rotate-180 group-hover:-translate-x-1.5" : "group-hover:translate-x-1.5")} />
               </Link>
             </div>
           </div>

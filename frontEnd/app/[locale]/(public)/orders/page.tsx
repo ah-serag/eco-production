@@ -51,16 +51,16 @@ export default function ClientOrdersPage() {
     <div className="p-4 md:p-12 bg-[#FAFAFA] min-h-screen antialiased pb-20 font-sans text-slate-800">
       <div className="max-w-4xl mx-auto space-y-5">
         
-        <header className="flex items-end justify-between">
+        <header className="flex items-end pt-5 justify-between">
           <div className="space-y-1 text-start">
-            <h1 className={`${headingSize} font-semibold tracking-tight uppercase text-slate-800`}>{t('title')}</h1>
+            <h1 className={`${headingSize} font-semibold tracking-tight uppercase text-primary`}>{t('title')}</h1>
             <p className={`${isAr ? "text-[13px]" : "text-[10px]"} text-slate-500 font-normal uppercase tracking-[0.2em]`}>{t('history')}</p>
           </div>
 
           {totalOrders > 0 && (
             <div className="flex flex-col items-end gap-0.5">
               <span className="text-[9px] uppercase tracking-[0.25em] text-slate-400">{t('total_orders')}</span>
-              <span className="text-[28px] font-semibold text-slate-900 leading-none tracking-tight">
+              <span className="text-[28px] font-semibold text-primary leading-none tracking-tight">
                 {totalOrders}
               </span>
             </div>

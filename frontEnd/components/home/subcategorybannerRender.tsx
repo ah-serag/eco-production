@@ -38,8 +38,9 @@ export default function SubcategoryBannerRender({ section }: any) {
 
   const [page, setPage]           = useState(1);
   const [products, setProducts]   = useState<Product[]>([]);
-  const [canScroll, setCanScroll] = useState(false);
-  const [isAtEnd, setIsAtEnd]     = useState(false);
+  const [canScroll, setCanScroll]   = useState(false);
+  const [isAtEnd, setIsAtEnd]       = useState(false);
+  const [isAtStart, setIsAtStart]   = useState(true);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const { data, isFetching } = useGetProductsBySubcategoryQuery(
@@ -66,6 +67,7 @@ export default function SubcategoryBannerRender({ section }: any) {
     const checkScroll = () => {
       setCanScroll(vp.scrollWidth > vp.clientWidth);
       setIsAtEnd(Math.abs(vp.scrollLeft) + vp.clientWidth >= vp.scrollWidth - 40);
+      setIsAtStart(Math.abs(vp.scrollLeft) < 10);
     };
     checkScroll();
     vp.addEventListener("scroll", checkScroll);
@@ -83,65 +85,70 @@ export default function SubcategoryBannerRender({ section }: any) {
   return (
     <section 
       dir={isArabic ? "rtl" : "ltr"} 
-      className="w-full bg-transparent border-none overflow-hidden my-4 group/section text-start"
+      className="w-full bg-transparent border-none  overflow-hidden my-4 group/section text-start"
     >
       
       <div className="flex  flex-col gap-0">
 
         {/* ── Banner + Title overlay ── */}
         {(desktopImage || mobileImage) && (
-          <div className="group relative w-full aspect-4/2 md:aspect-4/1 overflow-hidden shrink-0">
+          <div className="group relative w-full    overflow-hidden shrink-0">
+            {/* Desktop image */}
             <img
               src={desktopImage || mobileImage!}
               alt="Promotion Banner"
-              className="w-full h-full object-cover transition-transform duration-2000 ease-out group-hover:scale-105"
+              className="w-full h-full  aspect-4/1 hidden md:block transition-transform duration-2000 ease-out group-hover:scale-105"
             />
-
+            {/* Mobile image */}
+            <img
+              src={mobileImage || desktopImage!}
+              alt="Promotion Banner"
+              className="w-full h-auto aspect-4/2  md:hidden transition-transform duration-2000 ease-out group-hover:scale-105"
+            />
             {/* gradient overlay */}
             <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
 
             {/* title + cta */}
-            {displayTitle && (
-              <div
-                className="absolute bottom-0 inset-x-0 px-4 pb-4 md:pb-5 flex flex-col gap-2"
-                dir={isArabic ? "rtl" : "ltr"}
-
-                
-              >
-
-                      <h2 className={`font-semibold text-white leading-tight drop-shadow-sm
+            <div
+              className="absolute bottom-0 inset-x-0 px-4 pb-4 md:pb-5 flex flex-col gap-2"
+              dir={isArabic ? "rtl" : "ltr"}
+            >
+              {displayTitle && (
+                <h2 className={`font-semibold text-white leading-tight drop-shadow-sm
                   ${isArabic ? "text-[16px] md:text-[30px]" : "text-[14px] md:text-[28px] uppercase tracking-wide"}`}>
                   {displayTitle}
                 </h2>
-                {displaySubtitle && (
-                  <span className={`text-white/50 font-normal tracking-[0.25em] uppercase
-                    ${isArabic ? "text-[9px] md:text-[10px]" : "text-[8px] md:text-[9px]"}`}>
-                    {displaySubtitle}
+              )}
+              {displaySubtitle && (
+                <span className={`text-white/50 font-normal tracking-[0.25em] uppercase
+                  ${isArabic ? "text-[9px] md:text-[10px]" : "text-[8px] md:text-[9px]"}`}>
+                  {displaySubtitle}
+                </span>
+              )}
+              {categoryId && (
+                <Link
+                  href={`/products/${categoryId}?sub=${subcategoryId}`}
+                  className="group/btn self-start mt-1 inline-flex items-center gap-2
+                    text-[9px] md:text-[13px] uppercase tracking-[0.2em] font-semibold
+                    bg-white/10 hover:bg-white text-white hover:text-slate-900
+                    backdrop-blur-sm border border-white/30 hover:border-white
+                    px-3 py-1.5 
+                    transition-all duration-300"
+                >
+                  {isArabic ? "تسوق الآن" : "Shop Now"}
+                  <span className="transition-transform duration-300 group-hover/btn:translate-x-0.5">
+                    {isArabic ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
                   </span>
-                )}
-          
-
-                {categoryId && (
-                  <Link
-                    href={`/products/${categoryId}?sub=${subcategoryId}`}
-                    className={`self-start mt-1 inline-flex items-center gap-2
-                      text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-medium
-                      text-white/80 hover:text-white transition-colors duration-200
-                      border-b border-white/30 hover:border-white/80 pb-0.5`}
-                  >
-                    {isArabic ? "تسوق الآن" : "Shop Now"}
-                    <span className={`text-[10px] ${isArabic ? "rotate-180" : ""}`}>→</span>
-                  </Link>
-                )}
-              </div>
-            )}
+                </Link>
+              )}
+            </div>
           </div>
         )}
 
         {/* ── Products ── */}
         <div ref={wrapperRef} className="relative w-full">
 
-          {/* scroll arrow — يختفي لما العميل يوصل للآخر */}
+          {/* سهم الأمام */}
           {canScroll && !isAtEnd && (
             <div className={`absolute top-0 bottom-3 z-10 flex items-center pointer-events-none
               ${isArabic ? "left-0" : "right-0"}`}>
@@ -160,6 +167,29 @@ export default function SubcategoryBannerRender({ section }: any) {
                   transition-all duration-200 active:scale-90"
               >
                 {isArabic ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
+              </button>
+            </div>
+          )}
+
+          {/* سهم الرجوع — ديسكتوب فقط */}
+          {canScroll && !isAtStart && (
+            <div className={`hidden md:flex absolute top-0 bottom-3 z-10 items-center pointer-events-none
+              ${isArabic ? "right-0" : "left-0"}`}>
+              <div className={`h-full w-20
+                ${isArabic ? "bg-linear-to-l from-white to-transparent" : "bg-linear-to-r from-white to-transparent"}`} />
+              <button
+                onClick={() => {
+                  const vp = wrapperRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement | null;
+                  vp?.scrollBy({ left: isArabic ? 280 : -280, behavior: "smooth" });
+                }}
+                style={{ [isArabic ? "right" : "left"]: "10px" }}
+                className="absolute pointer-events-auto top-1/2 -translate-y-1/2
+                  w-9 h-9 rounded-full bg-white border border-slate-200 shadow-md
+                  flex items-center justify-center text-slate-500
+                  hover:bg-neutral-900 hover:text-white hover:border-neutral-900
+                  transition-all duration-200 active:scale-90"
+              >
+                {isArabic ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
               </button>
             </div>
           )}

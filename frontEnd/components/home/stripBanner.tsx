@@ -29,15 +29,15 @@ export default function StripBannerRender({ section }: StripBannerProps) {
   if (!banners || length === 0) return null;
 
   return (
-    <section className=" w-full">
-      <div className="relative w-full aspect-5/1 overflow-hidden  bg-white ">
+    <section className=" w-full ">
+      <div className="relative w-full  aspect-4/1 overflow-hidden  bg-white ">
         
         {banners.map((url, index) => (
             
           <div
             key={index}
             className={cn(
-              "absolute inset-0 transition-all duration-1000 ease-in-out",
+              "absolute inset-0 transition-all  duration-1000 ease-in-out",
               index === current 
                 ? "opacity-100 translate-x-0" 
                 : "opacity-0 translate-x-4"
@@ -48,7 +48,7 @@ export default function StripBannerRender({ section }: StripBannerProps) {
               alt={`Info Strip ${index + 1}`}
               fill
               priority={index === 0}
-              className="object-cover"
+              className="object-cover  "
               sizes="(max-w-1400px) 100vw, 1400px"
             />
           </div>

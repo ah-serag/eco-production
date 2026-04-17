@@ -6,7 +6,7 @@ import { setDirectCheckout, addToCart } from "../../redux/features/cartSlice/car
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Zap, Plus, Minus, Box, Check, AlertCircle, Truck, ShieldCheck, HandCoins, PlayCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShoppingCart, Zap, Plus, Minus, Box, Check, AlertCircle, Truck, ShieldCheck, HandCoins, PlayCircle, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
@@ -77,7 +77,8 @@ export default function ProductPreview({ product }: { product: Product }) {
   // 2. Selected Media State (defaults to main image or first available media)
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(allMedia[0] || null);
   
-  const [zoom, setZoom] = useState({ x: 0, y: 0, active: false });
+  const [zoomed, setZoomed] = useState(false);
+  const [origin, setOrigin] = useState({ x: 50, y: 50 });
   const [isAdding, setIsAdding] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [isMaxStock, setIsMaxStock] = useState(false); 
@@ -140,11 +141,22 @@ export default function ProductPreview({ product }: { product: Product }) {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!imgRef.current || selectedMedia?.type !== 'image') return; // Only zoom for images
+    if (!imgRef.current || selectedMedia?.type !== "image" || !zoomed) return;
     const rect = imgRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setZoom({ x, y, active: true });
+    setOrigin({ x, y });
+  };
+
+  const handleImageClick = (e: React.MouseEvent) => {
+    if (selectedMedia?.type !== "image") return;
+    if (!zoomed && imgRef.current) {
+      const rect = imgRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      setOrigin({ x, y });
+    }
+    setZoomed(prev => !prev);
   };
 
   const hasDiscount    = product.discount_price && product.discount_price < product.price;
@@ -221,37 +233,45 @@ export default function ProductPreview({ product }: { product: Product }) {
             ref={imgRef}
             className={cn(
               "relative w-full order-1 sm:order-2 overflow-hidden h-[350px] md:h-[520px] border border-slate-100 rounded-2xl bg-[#fafafa]",
-              selectedMedia?.type === 'image' ? "cursor-zoom-in" : ""
+              zoomed ? "cursor-crosshair" : ""
             )}
             onMouseMove={handleMouseMove}
-            onMouseLeave={() => setZoom({ ...zoom, active: false })}
+            onMouseLeave={() => { if (zoomed) setZoomed(false); }}
           >
-            {selectedMedia?.type === 'image' ? (
+            {selectedMedia?.type === "image" ? (
               <>
-                <img 
-                  src={selectedMedia.url} 
-                  alt={displayTitle} 
-                  className="object-contain py-6 w-full h-full transition-transform duration-500" 
+                <img
+                  src={selectedMedia.url}
+                  alt={displayTitle}
+                  className="object-contain py-6 w-full h-full select-none"
+                  style={{
+                    transform: zoomed ? "scale(2.2)" : "scale(1)",
+                    transformOrigin: `${origin.x}% ${origin.y}%`,
+                    transition: zoomed ? "transform-origin 0s" : "transform 0.35s ease",
+                  }}
+                  draggable={false}
                 />
-                
-                {zoom.active && (
-                  <div className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block z-10 bg-white">
-                    <div 
-                      className="absolute inset-0 w-full h-full" 
-                      style={{ 
-                        backgroundImage: `url(${selectedMedia.url})`, 
-                        backgroundPosition: `${zoom.x}% ${zoom.y}%`, 
-                        backgroundSize: "220%",
-                        backgroundRepeat: "no-repeat"
-                      }} 
-                    />
-                  </div>
-                )}
+
+                {/* Zoom toggle button */}
+                <button
+                  onClick={handleImageClick}
+                  className={cn(
+                    "absolute bottom-3 right-3 z-20 flex items-center gap-1.5",
+                    "px-2.5 py-1.5 rounded-full text-[10px] font-medium uppercase tracking-wider",
+                    "border transition-all duration-200 shadow-sm backdrop-blur-sm",
+                    zoomed
+                      ? "bg-neutral-900 text-white border-neutral-900 hover:bg-neutral-700"
+                      : "bg-white/80 text-slate-600 border-slate-200 hover:bg-white hover:text-slate-900"
+                  )}
+                >
+                  {zoomed ? <ZoomOut size={12} /> : <ZoomIn size={12} />}
+                  {zoomed ? "Exit" : "Zoom"}
+                </button>
               </>
             ) : selectedMedia?.type === 'video' ? (
-              <video 
-                src={selectedMedia.url} 
-                controls 
+              <video
+                src={selectedMedia.url}
+                controls
                 autoPlay
                 className="w-full h-full object-contain bg-black/5 rounded-2xl"
               />
