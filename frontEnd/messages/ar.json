@@ -150,7 +150,10 @@
     "empty_sub": "جرب كلمات مختلفة أو تحقق من الإملاء.",
     "prev": "السابق",
     "next": "التالي",
-    "updating": "جاري تحديث النتائج..."
+    "updating": "جاري تحديث النتائج..." ,
+    "category": "قسم رئيسي",
+    "subcategory": "قسم فرعي",
+    "view_all": "عرض الكل"
   } ,
   "mobileNav": {
     "contact": "تواصل",
@@ -219,8 +222,9 @@
     "couponApplied": "تم تطبيق الخصم بنجاح",
     "subtotal": "المجموع الفرعي",
     "discount": "قيمة الخصم",
-    "invalidCoupon": "كود الخصم غير صحيح"
-      
+    "invalidCoupon": "كود الخصم غير صحيح" ,
+      "limitedReqest" : "يرجى المحاولة مرة أخرى بعد 5 دقائق."
+
 
   } ,
 
@@ -251,8 +255,9 @@
       "login_link": "تسجيل الدخول",
       "required": "الاسم والبريد وكلمة المرور مطلوبة.",
       "already_registered": "هذا البريد مسجل بالفعل." ,
-      "internal_error": "خطأ داخلي في الخادم"
-
+      "internal_error": "خطأ داخلي في الخادم" ,
+      "limitedReqest" : "يرجى المحاولة مرة أخرى بعد 5 دقائق."
+  
     },
 
     "signin": {
@@ -266,8 +271,8 @@
       "login_success": "تم تسجيل الدخول بنجاح",
       "incorrect_password": "كلمة السر غير صحيحة" ,
       "invalid_credentials": "بيانات الدخول غير صحيحة" ,
-      "internal_error": "خطأ داخلي في الخادم" 
-
+      "internal_error": "خطأ داخلي في الخادم"  ,
+       "limitedReqest" : "يرجى المحاولة مرة أخرى بعد 5 دقائق."
 
     } 
 

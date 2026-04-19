@@ -64,7 +64,7 @@ export default function WideBannerRender({ section }: WideBannerProps) {
               alt={`Banner ${index + 1}`}
               fill
               priority={index === 0}
-              className="object-cover hover:scale-105 transition-transform duration-700"
+              className="object-cover  hover:scale-105 transition-transform duration-700"
               sizes="(max-w-1400px) 100vw, 1400px"
             />
           </Link>

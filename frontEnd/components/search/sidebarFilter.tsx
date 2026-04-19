@@ -192,7 +192,7 @@ export default function FilterSidebar() {
 
   return (
     <>
-      <div className="hidden md:block h-full bg-gray-50 shadow-sm border border-neutral-50 relative">
+      <div className="hidden md:block h-full bg-gray-50   border-x border-neutral-50 relative">
         {!isDesktopOpen && (
           <button
             onClick={() => setIsDesktopOpen(true)}

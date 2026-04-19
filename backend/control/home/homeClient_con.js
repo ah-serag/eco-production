@@ -497,10 +497,63 @@ const searchProducts = async (req, res) => {
 
 
 
+const getSearchSuggestions = async (req, res) => {
+  const { q } = req.query;
 
+  try {
+    if (!q || q.trim().length < 2) return res.json({ success: true, data: [] });
 
+    const searchTerm = `%${q}%`;
 
+    const result = await pool.query(
+      `
+      WITH search_results AS (
+        SELECT
+          p.title, 
+          p.title_ar,
+          c.id AS Category_id ,
+          s.id AS SubCategory_id ,
+          c.name AS category,
+          c.name_ar AS category_ar,
+          s.name AS subcategory,
+          s.name_ar AS subcategory_ar,
+          (
+            CASE WHEN p.title ILIKE $1 THEN 10 ELSE 0 END +
+            CASE WHEN p.title_ar ILIKE $1 THEN 10 ELSE 0 END +
+            CASE WHEN c.name ILIKE $1 THEN 5 ELSE 0 END +
+            CASE WHEN c.name_ar ILIKE $1 THEN 5 ELSE 0 END +
+            CASE WHEN s.name ILIKE $1 THEN 2 ELSE 0 END +
+            CASE WHEN s.name_ar ILIKE $1 THEN 2 ELSE 0 END
+          ) AS rank
+        FROM products p
+        INNER JOIN categories c ON c.id = p.category_id
+        LEFT JOIN subcategories s ON s.id = p.subcategory_id
+        WHERE p.is_active = true
+          AND c.is_active = true
+          AND (s.id IS NULL OR s.is_active = true)
+          AND (
+            p.title ILIKE $1 OR 
+            p.title_ar ILIKE $1 OR 
+            c.name ILIKE $1 OR 
+            c.name_ar ILIKE $1 OR
+            s.name ILIKE $1 OR 
+            s.name_ar ILIKE $1
+          )
+      )
+      SELECT DISTINCT title, title_ar, Category_id ,  category,  category_ar, SubCategory_id , subcategory, subcategory_ar, rank
+      FROM search_results
+      ORDER BY rank DESC
+      LIMIT 8
+      `,
+      [searchTerm]
+    );
 
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error("Suggestions Error:", error);
+    res.status(500).json({ success: false });
+  }
+};
 
 
 
@@ -512,5 +565,6 @@ CategoryAndSubcategoyOption ,
 searchProducts ,
 searchProductscatAndSub ,
 filterCategory ,
+getSearchSuggestions
 
 };

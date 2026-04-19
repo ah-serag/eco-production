@@ -50,6 +50,8 @@ function LoginForm() {
         errorMessage = t("incorrect_password");
       } else if (serverMessage === "Email and password are required") {
         errorMessage = t("required_fields");
+      }else if (err?.data == "Please try again after 10 minutes."){
+        errorMessage = t("limitedReqest")
       }
 
       setServerError(errorMessage);

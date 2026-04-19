@@ -1,5 +1,5 @@
 
-const hosts = ["http://localhost:3001", "http://localhost:5000"]; 
+const hosts = ["http://localhost:3001", "http://localhost:5001"]; 
 
 
 module.exports = {

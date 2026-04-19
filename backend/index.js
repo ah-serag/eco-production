@@ -3,17 +3,26 @@ const express = require("express");
 const corsOption = require("./config/controllCors")
 const cors = require("cors")
 const cookieParser  = require("cookie-parser")
+const helmet = require("helmet")
+const limitReq = require("express-rate-limit")
+const hpp = require('hpp')
+require("dotenv").config()
 
 const app = express();
 app.use(cookieParser())
 app.use(express.json())
 
 
+// security
 app.use(cors(corsOption))
+app.use(hpp())
+app.use(helmet())
+
+
+
 
 
 // [Auth]
-
 app.use("/auth" ,require("./routes/AuthRoute/authroute") )
 
 //  [Admin route] 

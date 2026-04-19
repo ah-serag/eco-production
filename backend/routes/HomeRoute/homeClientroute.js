@@ -11,6 +11,7 @@ router.get("/getCategoryOption" , catagoryControll.getCategoryOptions)
 
 // product search 
 router.get("/products/search", homeClientControll.searchProducts)
+router.get("/products/getSearchSuggestions", homeClientControll.getSearchSuggestions)
 
 // filter route 
 router.get("/getFilterCategorys", homeClientControll.filterCategory)

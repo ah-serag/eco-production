@@ -50,7 +50,7 @@ function CheckoutCallbackContent() {
 
   const isWallet = sourceType?.toLowerCase() === "wallet";
 
-  // ── State config ──────────────────────────────────────────
+  // ── State config 
   type StateKey = "success" | "pending" | "error";
   const stateKey: StateKey = success && !errorOccured ? "success" : pending ? "pending" : "error";
 
@@ -82,7 +82,7 @@ function CheckoutCallbackContent() {
 
   const cfg = stateConfig[stateKey];
 
-  // ── Detail rows ───────────────────────────────────────────
+  // ── Detail rows ─
   const details = [
     {
       icon:  <Hash size={11} />,

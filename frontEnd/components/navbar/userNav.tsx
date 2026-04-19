@@ -50,9 +50,9 @@ export function UserNav() {
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <button className={`flex items-center hover:bg-gray-100 gap-2 group p-1 ${isAr ? 'pl-2.5 pr-2 flex-row-reverse' : 'pr-2.5 pl-1.5'} rounded-full transition-all`}>
-            <UserRound size={17} className="text-slate-500" strokeWidth={2.5}/>
+            <UserRound size={17} className="text-primary" strokeWidth={2.5}/>
             <div className={`flex items-center gap-1.5 ${isAr ? "flex-row-reverse" : ""}`}>
-              <span className={`text-[12px] uppercase font-bold text-slate-500 hidden sm:block truncate max-w-20`}>
+              <span className={`text-[12px] uppercase font-bold text-primary hidden sm:block truncate max-w-20`}>
                 {isGuest ? t("login_title") : firstName}
               </span>
             </div>

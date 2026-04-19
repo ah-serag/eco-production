@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react"; // أيقونة للخطأ
 
-import 'react-phone-number-input/style.css';
 import { registerSchema } from "@/lib/zodSchema";
 import { useRegisterMutation } from "../../../../../redux/features/auth/AuthapiSlice";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -41,6 +40,8 @@ export default function RegisterPage() {
         errorMessage = t("required");
       } else if (err.status === 500) {``
         errorMessage = t("internal_error");
+      }else if (err?.data == "Please try again after 15 minutes."){
+        errorMessage = t("limitedReqest")
       }
 
       setServerError(errorMessage);

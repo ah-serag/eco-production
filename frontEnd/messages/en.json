@@ -150,7 +150,10 @@
     "empty_sub": "Try different keywords or check spelling.",
     "prev": "Previous",
     "next": "Next",
-    "updating": "Updating Results..."
+    "updating": "Updating Results..." ,
+     "category": "Category",
+    "subcategory": "Subcategory",
+    "view_all": "View All"
   } ,
   "mobileNav": {
     "contact": "Contact",
@@ -219,7 +222,9 @@
     "couponApplied": "Coupon applied successfully",
     "subtotal": "Subtotal",
     "discount": "Discount",
-    "invalidCoupon": "Invalid coupon code"
+    "invalidCoupon": "Invalid coupon code" ,
+     "limitedReqest" : "Please try again after5 minutes." 
+
 
   } ,
 
@@ -251,7 +256,9 @@
       "login_link": "Log in",
       "internal_error": "Internal Server Error",
       "required": "Full name, email, and password are required.",
-      "already_registered": "Email is already registered as a member."
+      "already_registered": "Email is already registered as a member." ,
+       "limitedReqest" : "Please try again after 5 minutes." 
+
     },
    "signin": {
       "email_label": "Email Address",
@@ -264,7 +271,8 @@
       "login_success": "Login successful.",
       "incorrect_password": "Incorrect password." ,
       "invalid_credentials": "Incorrect information" ,
-       "internal_error": "Internal Server Error"
+       "internal_error": "Internal Server Error" ,
+       "limitedReqest" : "Please try again after 5 minutes." 
 
 
     } 

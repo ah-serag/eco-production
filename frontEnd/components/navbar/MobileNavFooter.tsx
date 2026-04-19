@@ -30,7 +30,7 @@ export default function MobileBottomNav() {
           />
           {isBadge && (
             <span className={cn(
-              "absolute -top-1 -right-1 text-[7px] font-bold h-3.5 w-3.5 flex items-center bg-primary text-white justify-center rounded-full ",
+              "absolute -top-1 -right-1 text-[7px] font-bold h-3.5 w-3.5 border-2 border-white flex items-center bg-primary text-white justify-center rounded-full ",
             )}>
               <CartBadge />
             </span>

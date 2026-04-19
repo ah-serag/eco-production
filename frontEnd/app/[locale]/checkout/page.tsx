@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { useTranslations, useLocale } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, CreditCard, MapPin, User, Wallet, Banknote, Truck, ShieldCheck, Lock, Tag } from "lucide-react";
+import { Loader2, CreditCard, MapPin, User, Wallet, Banknote, Truck, ShieldCheck, Lock, Tag, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -13,7 +13,6 @@ import {
   useCheckoutWalletMutation,
   useCheckoutCashMutation,
 } from "@/redux/features/paybom/paybomSlice";
-// Added useCheckCouponsMutation import here (adjust path if needed)
 import { useGetBillingDataQuery } from "@/redux/features/checkoutData/checkoutDataSlice";
 import { checkoutSchema, type CheckoutFormData } from "@/lib/checkout.schema";
 import { useRouter } from "@/i18n/navigation";
@@ -65,7 +64,6 @@ export default function CheckoutPage() {
   const { data: savedBilling, isLoading: isGettingData, isFetching: isGettingFetching } =
     useGetBillingDataQuery(undefined, { refetchOnMountOrArgChange: true });
 
-  // Add the coupon mutation hook
   const [checkCoupons, { isLoading: isCheckingCoupon }] = useCheckCouponsMutation();
 
   const [iframeUrl, setIframeUrl] = useState<string | null>(null);
@@ -86,6 +84,9 @@ export default function CheckoutPage() {
   const [couponCode, setCouponCode] = useState("");
   const [couponError, setCouponError] = useState("");
   const [discountData, setDiscountData] = useState<{ discountAmount: number; finalTotal: number } | null>(null);
+
+  // General Checkout Error State
+  const [checkoutError, setCheckoutError] = useState("");
 
   useEffect(() => {
     if (!isGettingData && !isGettingFetching && savedBilling?.first_name) {
@@ -116,7 +117,6 @@ export default function CheckoutPage() {
     }
   }
 
-  // Handle apply coupon function
   async function handleApplyCoupon() {
     setCouponError("");
     if (!couponCode.trim()) return;
@@ -134,8 +134,7 @@ export default function CheckoutPage() {
   }
 
   async function handleCheckout() {
-
-
+    setCheckoutError(""); // Reset error on new attempt
     if (checkoutItems.length === 0) return;
     const result = checkoutSchema.safeParse(form);
     if (!result.success) {
@@ -145,14 +144,17 @@ export default function CheckoutPage() {
       return;
     }
     try {
-               const couponUperrCase = couponCode.toUpperCase()
+       const couponUperrCase = couponCode.toUpperCase()
 
       const items = checkoutItems.map((i: any) => ({ id: i.id, quantity: i.quantity }));
       if (paymentType === "card") {
         const res = await checkoutCard({ items, billingData: result.data, couponCode: discountData ? couponUperrCase : undefined }).unwrap();
         setIframeUrl(res.iframeUrl);
       } else if (paymentType === "wallet") {
-        if (!walletNumber) return void toast.error(t("walletError"));
+        if (!walletNumber) {
+           setCheckoutError(t("walletError"));
+           return;
+        }
         const res = await checkoutWallet({ items, billingData: result.data, walletNumber, couponCode: discountData ? couponUperrCase : undefined }).unwrap();
         window.location.href = res.redirectUrl;
       } else {
@@ -160,9 +162,12 @@ export default function CheckoutPage() {
         router.push(res.redirectUrl);
       }
     } catch (err: any) {
-      const msg = err?.data?.error || "";
-      if (paymentType === "wallet") toast.error(t("walletPaymentFailed"), { description: msg || t("walletNotFoundDesc") });
-      else toast.error(t("checkoutError"), { description: msg });
+      if (err.data === "Please try again after 5 minutes.") {
+        setCheckoutError(t("limitedReqest"));
+      } else {
+        const msg = err?.data?.error || "";
+        setCheckoutError(msg || (paymentType === "wallet" ? t("walletPaymentFailed") : t("checkoutError")));
+      }
     }
   }
 
@@ -323,7 +328,6 @@ export default function CheckoutPage() {
 
             {/* Total Section With Discount Display */}
             <div className="px-5 py-4 border-t border-slate-100 space-y-3">
-              {/* Show Subtotal and Discount if a coupon is applied */}
               {discountData && (
                 <>
                   <div className="flex justify-between items-center text-[12px] text-slate-500">
@@ -348,12 +352,6 @@ export default function CheckoutPage() {
             </div>
           </section>
 
-
-
-
-
-
-
           {/* Payment */}
           <section className="bg-white border border-slate-100 rounded-2xl p-5 space-y-4">
             <h2 className="text-[10px] uppercase tracking-widest font-semibold text-slate-400">{t("paymentMethod")}</h2>
@@ -366,7 +364,7 @@ export default function CheckoutPage() {
                 return (
                   <button
                     key={method}
-                    onClick={() => setPaymentType(method)}
+                    onClick={() => { setPaymentType(method); setCheckoutError(""); }}
                     className={cn(
                       "h-14 rounded-xl  border flex flex-col items-center justify-center gap-1.5 transition-all duration-200",
                       paymentType === method
@@ -380,6 +378,14 @@ export default function CheckoutPage() {
                 );
               })}
             </div>
+
+            {/* Error display under payment selector */}
+            {checkoutError && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 animate-in fade-in slide-in-from-top-1 duration-200">
+                <AlertCircle size={14} className="shrink-0" />
+                <p className="text-[10px] font-medium leading-tight">{checkoutError}</p>
+              </div>
+            )}
 
             {/* Payment logos */}
             <div className="flex items-center justify-center gap-3 py-1">
@@ -395,7 +401,7 @@ export default function CheckoutPage() {
                 <>
                   <img src="/photo/payment/Vodafone_cash.svg"           className="h-7 w-auto opacity-30" alt="vodafone" />
                   <img src="/photo/payment/Logo_Orange_Money.svg"        className="h-4 w-auto opacity-30" alt="orange" />
-                  <img src="/photo/payment/Etisalat_eand_Logo_EN.svg"   className="h-3.5 w-auto opacity-30" alt="etisalat" />
+                  <img src="/photo/payment/Etisalat_eand_Logo_EN.svg"    className="h-3.5 w-auto opacity-30" alt="etisalat" />
                 </>
               )}
             </div>
@@ -406,7 +412,7 @@ export default function CheckoutPage() {
                 <Input
                   placeholder={t("walletPlaceholder")}
                   value={walletNumber}
-                  onChange={(e) => setWalletNumber(e.target.value)}
+                  onChange={(e) => { setWalletNumber(e.target.value); setCheckoutError(""); }}
                   className="h-10 text-[12px] rounded-xl border-slate-200 ps-10"
                 />
                 <img src="/photo/payment/Flag_of_Egypt.svg" className="absolute start-3 top-1/2 -translate-y-1/2 h-3.5 w-auto" alt="EG" />

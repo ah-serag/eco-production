@@ -62,14 +62,14 @@ function SearchContent() {
 
 
   return (
-    <div dir={isAr ? "rtl" : "ltr"} className="container mx-auto py-4 pb-20 px-4">
+    <div dir={isAr ? "rtl" : "ltr"} className="container mx-auto py-4 pb-20 px-6">
       {/* Header Section */}
       <div className="flex flex-col mb-8 border-b border-gray-100 pb-5">
-        <h1 className="text-xl font-semibold text-[#161f2d] tracking-tight uppercase">
+        <h1 className="text-xl font-semibold text-primary tracking-tight uppercase">
           {t("title")}
         </h1>
         <p className="text-gray-500 text-sm mt-1">
-          {t("subtitle")} : <span className="text-[oklch(53.679%_0.13515_245.014)] font-bold">{query}</span>
+          {t("subtitle")} : <span className="text-primary font-semibold">{query}</span>
         </p>
       </div>
 

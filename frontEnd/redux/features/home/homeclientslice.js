@@ -6,15 +6,18 @@ export const homeClientApiSlice = apiSlice.injectEndpoints({
     getHomePage: builder.query({
       query: () => "/homeClient/getHomePage",  
     }),
-
     searchProducts: builder.query({
       query: ({ q, page = 1, limit = 24 }) =>
         `/homeClient/products/search?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}`,
     }),
 
+   getSearchSuggestions: builder.query({
+      query: (q) =>
+        `/homeClient/products/getSearchSuggestions?q=${encodeURIComponent(q)}`,
+    }),
 
-
-      searchProductscatAndsub: builder.query({
+// ------------------
+ searchProductscatAndsub: builder.query({
   query: ({ category, subcategory, page = 1, limit = 30, price_min, price_max, brand, rating }) => {
     const params = new URLSearchParams();
 
@@ -73,6 +76,6 @@ export const homeClientApiSlice = apiSlice.injectEndpoints({
 });
 
 
-export const { useGetHomePageQuery ,  useGetUserInfoQuery , useGetFilterCategoryQuery ,useSearchProductscatAndsubQuery
+export const { useGetHomePageQuery ,  useGetUserInfoQuery , useGetFilterCategoryQuery ,useSearchProductscatAndsubQuery ,useGetSearchSuggestionsQuery
    ,  useGetProductsByCategoryQuery , useGetCagegoryAndSubOptionClientQuery , useGetProductsBySubcategoryQuery ,useGetCategoryOptionClientQuery ,useLazySearchProductsQuery}
     = homeClientApiSlice;

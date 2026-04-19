@@ -462,6 +462,8 @@ exports.checkoutCash = async (req, res) => {
 exports.checkCoupons = async (req, res) => {
   try {
     const { itemscheckout, couponCode } = req.body;
+      
+
 
     if (!itemscheckout || !Array.isArray(itemscheckout) || itemscheckout.length === 0) {
       return res.status(400).json({ error: "Cart is empty or invalid." });

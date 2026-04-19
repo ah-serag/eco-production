@@ -82,8 +82,8 @@ export default function EditBillingPage() {
   const schema = z.object({
     first_name:   z.string().min(1, t("err_required")),
     last_name:    z.string().min(1, t("err_required")),
-    email:        z.string().refine((v) => v === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), t("err_email_invalid")),
-    phone_number: z.string().min(1, t("err_required")),
+    email:        z.email().refine((v) => v === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), t("err_email_invalid")),
+    phone_number: z.string().min(11, t("err_required")),
     city:         z.string().min(1, t("err_required")),
     state:        z.string().min(1, t("err_required")),
     street:       z.string().min(1, t("err_required")),
