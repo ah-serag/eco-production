@@ -16,8 +16,7 @@ services:
       interval: 5s
       retries: 5
     volumes:
-      - ./database/data:/var/lib/postgresql/
-
+      - ./database/data:/var/lib/postgresql
   express:
     build:
       context: ./backend

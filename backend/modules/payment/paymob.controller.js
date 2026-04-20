@@ -10,7 +10,6 @@ const { orderConfirmationEmail } = require("../../config/orderConfirmationEmail"
 
 
 
-
 const getOrCreateUser = async (client, userId, billingData) => {
   if (userId) return userId;
 
@@ -157,83 +156,6 @@ const calculateTotalWithDiscount = async  (totalAmount, couponCode) => {
     }
 }
 
-
-// const processOrderAndItems = async (client, userId, items, statu ,payment_provider ,billingData) => {
-
-
-//   const productIds = items.map(item => item.id);
-  
-//   // Fetch active products
-//   const productResult = await client.query(
-//     `SELECT id, title, description, discount_price, stock 
-//      FROM products 
-//      WHERE id = ANY($1) AND is_active = true`,
-//     [productIds]
-//   );
-
-//   const dbProducts = productResult.rows;
-
-//   if (dbProducts.length !== items.length) {
-//     throw new Error("Some products are missing or inactive");
-//   }
-
-//   let totalAmount = 0;
-//   const processedItems = [];
-
-//   // Validate stock and calculate total
-//   for (const cartItem of items) {
-//     const dbProduct = dbProducts.find(p => p.id === cartItem.id);
-//     const quantity = Number(cartItem.quantity) || 1;
-
-//     if (quantity > dbProduct.stock) {
-//       throw new Error(`Insufficient stock for product: ${dbProduct.title}`);
-//     }
-
-//     const price = Number(dbProduct.discount_price);
-//     totalAmount += price * quantity;
-
-//     processedItems.push({
-//       id: dbProduct.id,
-//       title: dbProduct.title,
-//       description: dbProduct.description,
-//       price,
-//       quantity
-//     });
-//   }
-
-//   // Insert main order
-//   const orderResult = await client.query(
-//     `INSERT INTO orders (user_id, status, total_amount, currency, payment_provider, billing_details)
-//      VALUES ($1, $2 , $3, 'EGP', $4 ,$5 ) RETURNING id`,
-//     [userId,statu , totalAmount ,payment_provider, JSON.stringify(billingData)]
-//   );
-
-//   const orderId = orderResult.rows[0].id;
-
-//   // Insert order items
-//   for (const pItem of processedItems) {
-//     await client.query(
-//       `INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase, product_title, product_description)
-//        VALUES ($1, $2, $3, $4, $5, $6)`,
-//       [orderId, pItem.id, pItem.quantity, pItem.price, pItem.title, pItem.description]
-//     );
-  
-//     await client.query(`UPDATE products SET stock = stock - $1 WHERE id = $2`, [pItem.quantity, pItem.id]);
-
-//   }
-
-//   return { orderId, totalAmount };
-// };
-
-
-
-
-
-
-
-
-
-// 1. Online Card Checkout
 
 
 const processOrderAndItems = async (client, userId, items, statu, payment_provider, billingData, couponCode) => {

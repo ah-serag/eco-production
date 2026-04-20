@@ -71,7 +71,10 @@ function LoginForm() {
           className={`h-11 rounded-xl border-slate-200 bg-transparent focus:ring-1 focus:ring-chart-1 transition-all ${
             errors.email ? "border-red-500" : ""
           }`}
+          
         />
+        <span className="text-[13px] text-red-500">{errors.email?.message} </span>
+
       </div>
 
       <div className="space-y-2">
@@ -88,9 +91,10 @@ function LoginForm() {
           placeholder="••••••••"
           {...register("password")}
           className={`h-11 rounded-xl border-slate-200 bg-transparent focus:ring-1 focus:ring-chart-1 transition-all ${
-            errors.password ? "border-red-500" : ""
+            errors.password?.message ? "border-red-500" : ""
           }`}
         />
+        <span className="text-[13px] text-red-500">{errors.password?.message} </span>
       </div>
 
       {serverError && (

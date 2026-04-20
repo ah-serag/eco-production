@@ -82,6 +82,7 @@ const register = async (req, res) => {
 
 const sign_in = async (req, res) => {
   try {
+    
     const {  email  , password } = req.body;
 
     if (!email || !password) {

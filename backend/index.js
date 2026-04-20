@@ -15,8 +15,8 @@ app.use(express.json())
 
 // security
 app.use(cors(corsOption))
-app.use(hpp())
-app.use(helmet())
+app.use(hpp()) // http paramater 
+app.use(helmet()) 
 
 
 

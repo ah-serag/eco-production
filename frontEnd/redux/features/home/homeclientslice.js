@@ -6,6 +6,8 @@ export const homeClientApiSlice = apiSlice.injectEndpoints({
     getHomePage: builder.query({
       query: () => "/homeClient/getHomePage",  
     }),
+
+    
     searchProducts: builder.query({
       query: ({ q, page = 1, limit = 24 }) =>
         `/homeClient/products/search?q=${encodeURIComponent(q)}&page=${page}&limit=${limit}`,
