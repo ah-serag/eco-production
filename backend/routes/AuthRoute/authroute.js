@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authControll  = require("../../control/auth/auth_con")
 const limit = require("express-rate-limit")
-const validate = require("../../middleware/validateZod/validateZod")
+const {validatebody} = require("../../middleware/validateZod/validateZod")
 const {loginSchema ,registerSchema} = require("../../utils/zodShemas")
 
 
@@ -22,9 +22,8 @@ const limitAuthRegister = limit.rateLimit({
 })
 
 
-
-router.post("/register" ,limitAuthRegister, validate(registerSchema) , authControll.register)
-router.post("/sign_in" , limitAuthSignIn , validate(loginSchema) ,authControll.sign_in )
+router.post("/register" ,limitAuthRegister, validatebody(registerSchema ) , authControll.register)
+router.post("/sign_in" , limitAuthSignIn , validatebody(loginSchema ) ,authControll.sign_in )
 router.get("/refresh" ,authControll.refresh )
 router.post("/logout" , authControll.logOut)
 

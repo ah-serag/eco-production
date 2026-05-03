@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react"; // أيقونة للخطأ
 
-import { registerSchema } from "@/lib/zodSchema";
+import { getRegisterSchema } from "@/lib/zodSchema";
 import { useRegisterMutation } from "../../../../../redux/features/auth/AuthapiSlice";
 import { Link, useRouter } from "@/i18n/navigation";
 
@@ -20,6 +20,9 @@ export default function RegisterPage() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [registerUser, { isLoading }] = useRegisterMutation();
+
+
+const registerSchema = getRegisterSchema(t)
 
   const { register, handleSubmit, formState: { errors }, setError } = useForm({ 
     resolver: zodResolver(registerSchema) 

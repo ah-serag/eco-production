@@ -34,7 +34,7 @@ export function SearchInput() {
   const uniqueSubcategories = Array.from(new Set(suggestions.map((item: any) => 
     locale === "ar" ? {sub_name : item.subcategory_ar , cat_id : item.category_id , sub_id :item.subcategory_id} 
       : {sub_name : item.subcategory , cat_id : item.category_id, sub_id :item.subcategory_id}
-  ))).slice(0, 2);
+  ))).slice(0, 1);
 
   useEffect(() => {
     if (isOpen) setTimeout(() => inputRef.current?.focus(), 100);

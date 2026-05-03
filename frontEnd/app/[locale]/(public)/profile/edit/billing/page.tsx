@@ -23,6 +23,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import {  getBillingSchema } from "@/lib/checkout.schema";
 
 function SectionSkeleton() {
   return (
@@ -74,22 +75,17 @@ function Field({
 
 export default function EditBillingPage() {
   const t        = useTranslations("profile_edit");
+  const t_billing        = useTranslations("checkout");
   const locale   = useLocale();
   const isAr     = locale === "ar";
   const router   = useRouter();
   const BackIcon = isAr ? ChevronRight : ChevronLeft;
+  
+  const billingSchema = getBillingSchema(t_billing)
+  
+  
 
-  const schema = z.object({
-    first_name:   z.string().min(1, t("err_required")),
-    last_name:    z.string().min(1, t("err_required")),
-    email:        z.email().refine((v) => v === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), t("err_email_invalid")),
-    phone_number: z.string().min(11, t("err_required")),
-    city:         z.string().min(1, t("err_required")),
-    state:        z.string().min(1, t("err_required")),
-    street:       z.string().min(1, t("err_required")),
-    building:     z.string().optional(),
-  });
-  type FormData = z.infer<typeof schema>;
+  type FormData = z.infer<typeof billingSchema>;
 
   const { data, isLoading } = useGetProfileQuery(undefined, { refetchOnMountOrArgChange: true });
   const [updateBilling, { isLoading: saving }] = useUpdateBillingMutation();
@@ -100,7 +96,7 @@ export default function EditBillingPage() {
     reset,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(billingSchema),
     defaultValues: {
       first_name: "", last_name: "", email: "",
       phone_number: "", city: "", state: "", street: "", building: "",

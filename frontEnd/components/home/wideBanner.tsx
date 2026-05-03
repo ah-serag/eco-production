@@ -5,6 +5,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { useLocale } from "next-intl";
 
 interface BannerItem {
   url_image: string;
@@ -23,6 +24,9 @@ export default function WideBannerRender({ section }: WideBannerProps) {
   const [current, setCurrent] = useState(0);
   const banners = section.info.wideBinner_items ?? [];
   const length = banners.length;
+  const locale = useLocale();
+  
+  const isAr = locale == "ar" ;
 
   useEffect(() => {
     if (length <= 1) return;
@@ -53,22 +57,64 @@ export default function WideBannerRender({ section }: WideBannerProps) {
         {banners.map((item, index) => (
           <Link 
             key={index} 
-            href={item.link || "#"}
+            href={item?.link || "#"}
             className={cn(
-              "absolute inset-0 transition-all duration-1000 ease-in-out",
+              "absolute inset-0 transition-transform duration-2000 ease-out",
               index === current ? "opacity-100 scale-100 z-10" : "opacity-0 scale-105 z-0 pointer-events-none"
             )}
           >
             <Image
-              src={item.url_image}
+              src={`${item?.url_image}`}
               alt={`Banner ${index + 1}`}
               fill
               priority={index === 0}
               className="object-cover  hover:scale-105 transition-transform duration-700"
               sizes="(max-w-1400px) 100vw, 1400px"
             />
+
+
+            
+                    <div
+                        className="absolute bottom-0 inset-x-0 px-4 pb-4 md:pb-5 flex flex-col gap-2"
+                        dir={isAr ? "rtl" : "ltr"}
+                      >
+           
+                {item?.link && (
+  <span
+    className="group/btn self-start mt-1 inline-flex items-center gap-2
+      text-[9px] md:text-[13px] uppercase tracking-[0.2em] font-semibold
+      bg-white/10 hover:bg-white text-white hover:text-slate-900
+      backdrop-blur-sm border border-white/30 hover:border-white
+      px-3 py-1.5
+      transition-all duration-300"
+  >
+    {isAr ? "تسوق الآن" : "Shop Now"}
+    <span className="transition-transform duration-300 group-hover/btn:translate-x-0.5">
+      {isAr ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
+    </span>
+  </span>
+)}
+
+
+                      </div>
           </Link>
+
+
+
         ))}
+          
+
+                  
+
+
+
+
+
+
+
+
+
+
 
         {/* أزرار التحكم - تظهر فقط لو وجد أكثر من صورة */}
         {length > 1 && (

@@ -14,7 +14,7 @@ import {
   useCheckoutCashMutation,
 } from "@/redux/features/paybom/paybomSlice";
 import { useGetBillingDataQuery } from "@/redux/features/checkoutData/checkoutDataSlice";
-import { checkoutSchema, type CheckoutFormData } from "@/lib/checkout.schema";
+import { getBillingSchema, type billingSchemaFormData } from "@/lib/checkout.schema";
 import { useRouter } from "@/i18n/navigation";
 import PaymobIframeModal from "@/components/public/PaymobIframeModal";
 import { useCheckCouponsMutation } from "@/redux/features/coupons/couponsApiSlice";
@@ -52,7 +52,8 @@ export default function CheckoutPage() {
   const locale = useLocale();
   const isAr = locale === "ar";
   const router = useRouter();
-
+  
+  const billingSchema = getBillingSchema(t)
   const dispatch = useDispatch();
   const [checkoutItems, setCheckoutItems] = useState<any[]>([]);
 
@@ -74,11 +75,11 @@ export default function CheckoutPage() {
 
   const [paymentType, setPaymentType] = useState<"card" | "wallet" | "cash">("card");
   const [walletNumber, setWalletNumber] = useState("");
-  const [form, setForm] = useState<CheckoutFormData>({
+  const [form, setForm] = useState<billingSchemaFormData>({
     first_name: "", last_name: "", email: "",
     phone_number: "", city: "", state: "", street: "", building: "",
   });
-  const [errors, setErrors] = useState<Partial<Record<keyof CheckoutFormData, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof billingSchemaFormData, string>>>({});
 
   // Coupon state variables
   const [couponCode, setCouponCode] = useState("");
@@ -112,8 +113,8 @@ export default function CheckoutPage() {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
-    if (errors[e.target.name as keyof CheckoutFormData]) {
-      setErrors((p) => { const c = { ...p }; delete c[e.target.name as keyof CheckoutFormData]; return c; });
+    if (errors[e.target.name as keyof billingSchemaFormData]) {
+      setErrors((p) => { const c = { ...p }; delete c[e.target.name as keyof billingSchemaFormData]; return c; });
     }
   }
 
@@ -136,10 +137,10 @@ export default function CheckoutPage() {
   async function handleCheckout() {
     setCheckoutError(""); // Reset error on new attempt
     if (checkoutItems.length === 0) return;
-    const result = checkoutSchema.safeParse(form);
+    const result = billingSchema.safeParse(form);
     if (!result.success) {
-      const fe: Partial<Record<keyof CheckoutFormData, string>> = {};
-      result.error.issues.forEach((e: any) => { fe[e.path[0] as keyof CheckoutFormData] = e.message; });
+      const fe: Partial<Record<keyof billingSchemaFormData, string>> = {};
+      result.error.issues.forEach((e: any) => { fe[e.path[0] as keyof billingSchemaFormData] = e.message; });
       setErrors(fe);
       return;
     }

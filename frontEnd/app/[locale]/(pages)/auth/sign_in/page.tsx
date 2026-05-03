@@ -11,12 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { loginSchema } from "@/lib/zodSchema";
+import { getLoginSchema } from "@/lib/zodSchema";
 import { useLoginMutation } from "../../../../../redux/features/auth/AuthapiSlice";
 import { useSearchParams } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 
-type LoginFormData = z.infer<typeof loginSchema>;
+
+
 
 function LoginForm() {
   const t = useTranslations("auth.signin");
@@ -24,8 +25,11 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const [login, { isLoading }] = useLoginMutation();
   const [serverError, setServerError] = useState<string | null>(null);
-
+   
   const callbackUrl = searchParams.get("checkout_url") || "/";
+
+  const  loginSchema = getLoginSchema(t)
+type LoginFormData = z.infer<typeof loginSchema>;
 
   const {
     register,

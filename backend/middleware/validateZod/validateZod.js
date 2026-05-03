@@ -1,7 +1,7 @@
 
 
 
-const validate = (schema) => (req, res, next) => {
+const validatebody = (schema) => (req, res, next) => {
   const result = schema.safeParse(req.body);
 
   if (!result.success) {
@@ -13,5 +13,7 @@ const validate = (schema) => (req, res, next) => {
   req.body = result.data;
   next();
 };
+ 
+module.exports = {validatebody} 
 
-module.exports = validate
+

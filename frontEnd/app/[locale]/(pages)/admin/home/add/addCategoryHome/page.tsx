@@ -107,7 +107,7 @@ export default function AddCategoryHomePage() {
             <label className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Image</label>
             <div
               onClick={() => !file && inputRef.current?.click()}
-              className={`relative rounded-xl border-2 border-dashed overflow-hidden transition-colors w-32 aspect-3/4
+              className={`relative rounded-xl border-2 border-dashed overflow-hidden transition-colors p-3 w-32 aspect-5/3
                 ${file ? "border-slate-200 cursor-default" : "border-slate-200 hover:border-slate-400 bg-slate-50 hover:bg-slate-100 cursor-pointer"}`}
             >
               {preview ? (
@@ -121,9 +121,9 @@ export default function AddCategoryHomePage() {
                   </button>
                 </>
               ) : (
-                <div className="absolute inset-0 flex flex-col aspect-3/4 items-center justify-center gap-1.5 text-slate-400">
+                <div className="absolute inset-0 flex flex-col aspect-5/3 items-center justify-center gap-1.5 text-slate-400">
                   <ImagePlus size={22} />
-                  <span className="text-[11px] font-medium">Click to upload : 3:4</span>
+                  <span className="text-[11px] font-medium">Click to upload : 5:3</span>
                   <span className="text-[10px] text-slate-300">JPG, PNG, WEBP</span>
                 </div>
               )}

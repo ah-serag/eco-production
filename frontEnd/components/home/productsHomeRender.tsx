@@ -70,32 +70,29 @@ export default function ProductsHomeCarouselPro({ section }: any) {
   const hasMore = data?.pagination?.page < data?.pagination?.totalPages;
 
   return (
-    <section className="relative bg-transparent  py-2 group/section">
+    <section className="relative bg-transparent  group/section">
 
       {/* Header */}
       {displayTitle && (
-        <div className={`relative mb-4  py-4 bg-slate-50 p-2 border border-neutral-100  flex items-center justify-between gap-3 ${isArabic ? "flex-row-reverse" : ""}`}>
+        <div 
+          dir={isArabic ? "rtl" : "ltr"}
+        className={`relative mb-4  py-4 bg-slate-50 p-2 border border-neutral-100  flex items-center justify-between gap-3 `}>
 
           {/* title + subtitle */}
-          <div className={`flex flex-col gap-1 ${isArabic ? "items-end" : "items-start"}`}>
+          <div className={`flex flex-col gap-2 `}>
             <h2 className={`font-semibold  text-primary leading-none ${
               isArabic ? "text-[18px] md:text-[22px]" : "text-[15px] md:text-[18px] uppercase tracking-wide"
             }`}>
               {displayTitle}
             </h2>
             {displaySubtitle && (
-              <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-[0.3em] text-slate-400">
+              <span className="text-[8px] md:text-[12px] font-bold uppercase tracking-[0.3em] text-slate-400">
                 {displaySubtitle}
               </span>
             )}
           </div>
 
-          {/* decorative dots */}
-          <div className={`hidden md:flex items-center gap-1.5 ${isArabic ? "flex-row-reverse" : ""}`}>
-            {[1,2,3].map(i => (
-              <span key={i} className="w-1 h-1 rounded-full bg-slate-200" style={{ opacity: 1 - i * 0.25 }} />
-            ))}
-          </div>
+  
 
         </div>
       )}

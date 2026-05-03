@@ -3,7 +3,10 @@ const router = express.Router();
 const authenticateCheckout = require("../../middleware/checkout/authenticateCheckout")
 const checkoutdata = require("../../control/checkoutPage/dataBillingUser")
 
-router.get("/user-billingdata" , authenticateCheckout ,checkoutdata.getBillingDataUser )
+
+
+
+router.get("/user-billingdata" ,  authenticateCheckout ,checkoutdata.getBillingDataUser )
 
 
 

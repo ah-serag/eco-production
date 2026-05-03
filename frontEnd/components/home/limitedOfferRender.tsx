@@ -56,22 +56,33 @@ export default function LimitedOfferSection({ section }: Props) {
   if (!banners.length) return null;
 
   return (
-    <section dir={isAr ? "rtl" : "ltr"} className="w-full border-none bg-transparent my-12 text-start px-4 md:px-8">
+    <section dir={isAr ? "rtl" : "ltr"} className="w-full border-none bg-transparent  text-start  ">
       
       {displayTitle && (
-        <div className="mb-8 flex flex-col gap-1">
-          <h2 className="font-normal text-gray-900 text-lg md:text-xl tracking-tight">
-            {displayTitle}
-          </h2>
-          {displaySubtitle && (
-            <span className="font-normal uppercase text-slate-400 text-[10px] tracking-[0.2em]">
-              {displaySubtitle}
-            </span>
-          )}
+        <div 
+          dir={isAr ? "rtl" : "ltr"}
+        className={`relative mb-4  py-1 bg-slate-50 p-2 border border-neutral-100  flex items-center justify-between gap-3 `}>
+
+          {/* title + subtitle */}
+          <div className={`flex flex-col gap-2 py-2`}>
+            <h2 className={`font-semibold  text-primary leading-none ${
+              isAr ? "text-[18px] md:text-[22px]" : "text-[15px] md:text-[18px] uppercase tracking-wide"
+            }`}>
+              {displayTitle}
+            </h2>
+            {displaySubtitle && (
+              <span className="text-[8px] md:text-[12px] font-bold uppercase tracking-[0.3em] text-slate-400">
+                {displaySubtitle}
+              </span>
+            )}
+          </div>
+
+  
+
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 px-2 gap-6">
         {banners.map((banner, index) => {
           const time = timeLeft[index];
           const isExpired = time === "Expired";
@@ -80,12 +91,12 @@ export default function LimitedOfferSection({ section }: Props) {
             <div key={index} className="flex flex-col gap-4">
               <Link 
                 href={banner.link_url || "#"} 
-                className="group relative block aspect-[16/8] w-full overflow-hidden rounded-2xl bg-gray-50 border border-gray-100"
+                className="group relative block aspect-2/1 w-full overflow-hidden rounded-sm bg-gray-50 border border-gray-100"
               >
                 <img
                   src={banner.image_url}
                   alt="Offer"
-                  className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
 
                 <div className={`absolute top-4 ${isAr ? "right-4" : "left-4"} flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full border border-gray-100 z-20`}>

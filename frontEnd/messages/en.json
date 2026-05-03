@@ -223,8 +223,21 @@
     "subtotal": "Subtotal",
     "discount": "Discount",
     "invalidCoupon": "Invalid coupon code" ,
-     "limitedReqest" : "Please try again after5 minutes." 
+     "limitedReqest" : "Please try again after5 minutes."  ,
 
+     "errors": {
+      "first_name_min": "First name must be at least 2 characters",
+      "first_name_max": "First name too long",
+      "last_name_min": "Last name must be at least 2 characters",
+      "last_name_max": "Last name too long",
+      "email_invalid": "Invalid email address",
+      "phone_invalid": "Invalid Egyptian phone number",
+      "city_required": "City is required",
+      "state_required": "State is required",
+      "street_required": "Street is required",
+      "building_required": "Building is required"
+    }
+    
 
   } ,
 
@@ -257,8 +270,14 @@
       "internal_error": "Internal Server Error",
       "required": "Full name, email, and password are required.",
       "already_registered": "Email is already registered as a member." ,
-       "limitedReqest" : "Please try again after 5 minutes." 
-
+       "limitedReqest" : "Please try again after 5 minutes."  ,
+       "errors": {
+      "name_min": "Full name must be at least 3 characters",
+      "email_invalid": "Invalid email format",
+      "password_min": "Password must be at least 8 characters",
+      "password_mismatch": "Passwords do not match"
+    }
+ 
     },
    "signin": {
       "email_label": "Email Address",
@@ -272,9 +291,12 @@
       "incorrect_password": "Incorrect password." ,
       "invalid_credentials": "Incorrect information" ,
        "internal_error": "Internal Server Error" ,
-       "limitedReqest" : "Please try again after 5 minutes." 
+       "limitedReqest" : "Please try again after 5 minutes." ,
 
-
+     "errors": {
+      "email_invalid": "Invalid email format",
+      "password_min": "Password must be at least 6 characters"
+    }
     } 
 
   } ,

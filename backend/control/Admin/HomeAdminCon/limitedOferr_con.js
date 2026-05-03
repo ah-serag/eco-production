@@ -1,38 +1,40 @@
 const pool = require("../../../config/condb");
+const uploadToCloudinary = require("../../../utils/uploadToCloudinary");
 
-/**
- * Add Limited Offer Banner
- */
+
 const addLimitedOfferBanner = async (req, res) => {
-  const {
-    section_id,
-    image_url,
-    link_url,
-    start_at,
-    end_at
-  } = req.body;
-
   try {
+
+
+
+    const { section_id, link_url, start_at, end_at } = req.body;
+
+    if (!section_id) return res.status(400).json({ error: "section_id is required" });
+
+    const imageFile = req.files?.[0];
+
+    if (!imageFile) {
+      return res.status(400).json({ error: "image is required" });
+    }
+
+    const imageRes = await uploadToCloudinary(imageFile.buffer, "banners/limited-offers");
+
+    await pool.query(`SELECT add_image($1, $2) AS id`, [imageRes.secure_url, imageRes.public_id]);
+
     const result = await pool.query(
-      `
-      INSERT INTO limited_offer_banners
-      (section_id, image_url, link_url, start_at, end_at)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-      `,
-      [section_id, image_url, link_url, start_at, end_at]
+      `INSERT INTO limited_offer_banners (section_id, image_url, link_url, start_at, end_at)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [section_id, imageRes.secure_url, link_url || null, start_at || null, end_at || null]
     );
 
-    res.json({
+    res.status(201).json({
       message: "Limited offer banner added successfully",
-      banner: result.rows[0],
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Failed to add limited offer banner" });
+    res.status(500).json({ error: err.message || "Failed to add limited offer banner" });
   }
 };
-
 
 /**
  * Get All Limited Offer Banners (Admin)

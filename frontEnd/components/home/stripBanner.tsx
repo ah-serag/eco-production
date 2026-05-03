@@ -29,7 +29,7 @@ export default function StripBannerRender({ section }: StripBannerProps) {
   if (!banners || length === 0) return null;
 
   return (
-    <section className=" w-full ">
+    <section className=" w-full py-4 ">
       <div className="relative w-full  aspect-4/1 overflow-hidden  bg-white ">
         
         {banners.map((url, index) => (

@@ -5,10 +5,10 @@ export const limitedOfferBannerApiSlice = apiSlice.injectEndpoints({
 
 
     addLimitedOfferBanner: builder.mutation({
-      query: (data) => ({
+      query: (formData) => ({
         url: "/home/admin/add-limited-offer-banner",
         method: "POST",
-        body: data,
+        body: formData,
       }),
       invalidatesTags: ["LimitedOfferBanners"],
     }),

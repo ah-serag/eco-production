@@ -1,14 +1,20 @@
 const express = require("express");
 const router = express.Router();
+const { handleImageUpload } = require("../../../config/multer");
 
 const limitedOfferBannerController = require(
   "../../../control/Admin/HomeAdminCon/limitedOferr_con"
 );
 
 
+
+
+
+
+
+
 router.post(
-  "/admin/add-limited-offer-banner",
-  limitedOfferBannerController.addLimitedOfferBanner
+  "/admin/add-limited-offer-banner",  handleImageUpload("image" ,1) ,limitedOfferBannerController.addLimitedOfferBanner
 );
 
 router.get(

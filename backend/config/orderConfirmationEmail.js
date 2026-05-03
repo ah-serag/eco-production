@@ -10,7 +10,7 @@ const orderConfirmationEmail = ({
   return {
     subject: `Order Confirmed – GOTIY #${orderId}`,
 
-    text: `Dear ${name},\n\nThank you for your order.\n\nOrder ID: #${orderId}\nDate: ${date}\nTotal: ${total}\n\nWe will notify you once your order has been shipped.\n\nWarm regards,\nGOTIY Customer Care`,
+    text: `Hello ${name},\n\nYour order is confirmed and being prepared with care.\n\nOrder ID: #${orderId}\nDate: ${date}\nTotal: ${total}\n\nA shipping confirmation with tracking details will follow soon.\n\n— GOTIY Studio`,
 
     html: `
 <!doctype html>
@@ -20,101 +20,100 @@ const orderConfirmationEmail = ({
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Order Confirmed – GOTIY</title>
 </head>
-<body style="margin:0;padding:0;background:#f2f2f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+<body style="margin:0;padding:0;background:#f5f5f3;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
 
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f2f2f5;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f3;padding:0;">
 <tr><td align="center">
+<table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;overflow:hidden;border:1px solid #e8e8e6;">
 
-  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
+  <!-- Header -->
+  <tr>
+    <td style="padding:17px 30px 17px;border-bottom:13px solid #f1f1f1;background:#00235e;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td>
+            <p style="margin:0;font-size:31px;letter-spacing:3px;color:#ffffff;text-transform:uppercase;font-weight:700;">GOTIY
+            <p style="margin:0;font-size:17px;font-weight:400;color:#ffffff;letter-spacing:-0.5px;padding:0 0 0 5px">Order confirmed</p>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
 
-    <!-- ─── BRAND HEADER ─── -->
-    <tr>
-      <td style="background:#006988;padding:36px 40px 28px;text-align:center;">
-        <p style="margin:0 0 4px;font-size:11px;letter-spacing:5px;color:rgba(255,255,255,0.55);text-transform:uppercase;font-weight:600;">
-          Official Confirmation
-        </p>
-        <h1 style="margin:0;font-size:30px;letter-spacing:8px;color:#ffffff;font-weight:800;text-transform:uppercase;">
-          GOTIY
-        </h1>
-      </td>
-    </tr>
+  <!-- Body -->
+  <tr>
+    <td style="padding:28px 40px;">
+      <p style="margin:0 0 24px;font-size:14px;color:#666;line-height:1.7;">
+        Hello <strong style="color:#111;font-weight:500;">${name}</strong>, your order is being prepared with care and will be on its way soon.
+      </p>
 
+      <!-- Order details block -->
+      <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #ebebea;border-radius:8px;overflow:hidden;margin-bottom:24px;">
+        <tr>
+          <td style="padding:14px 16px;border-bottom:1px solid #ebebea;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="font-size:11px;color:#aaa;letter-spacing:1px;text-transform:uppercase;">Order ID</td>
+                <td align="right" style="font-size:13px;font-weight:500;color:#111;font-family:monospace;">#${orderId}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:14px 16px;border-bottom:1px solid #ebebea;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="font-size:11px;color:#aaa;letter-spacing:1px;text-transform:uppercase;">Date</td>
+                <td align="right" style="font-size:13px;color:#666;">${date}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px;background:#fafaf9;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="font-size:11px;color:#aaa;letter-spacing:1px;text-transform:uppercase;">Total</td>
+                <td align="right" style="font-size:20px;font-weight:400;color:#111;">${total}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
 
-    <!-- ─── BODY ─── -->
-    <tr>
-      <td style="background:#ffffff;padding:40px 40px 32px;">
+      <!-- Info banner -->
+      // <table width="100%" cellpadding="0" cellspacing="0" style="background:#e8f1fb;border-radius:8px;">
+      //   <tr>
+      //     <td style="padding:14px 16px;font-size:12px;color:#185FA5;line-height:1.6;">
+      //       &#9432;&nbsp; A shipping confirmation with tracking details will be sent to your email.
+      //     </td>
+      //   </tr>
+      // </table>
+    </td>
+  </tr>
 
-        <p style="margin:0 0 8px;font-size:13px;color:#888;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;">
-          Dear Customer
-        </p>
-        <h2 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#111;">
-          ${name}
-        </h2>
-        <p style="margin:0 0 28px;font-size:15px;line-height:1.75;color:#555;">
-          Thank you for choosing <strong style="color:#111;">GOTIY</strong>.
-        </p>
+  <!-- Footer -->
+  <tr>
+    <td style="padding:20px 40px;border-top:1px solid #f0f0ee;background:#00235e;">
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="font-size:11px;color:#ffffff;letter-spacing:1px;text-transform:uppercase;">GOTIY.COM</td>
+          <td align="right">
+            <span style="font-size:11px;color:#ffffff;margin-left:16px;">Privacy</span>
+            <span style="font-size:11px;color:#ffffff;margin-left:16px;">Support</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
 
-        <!-- ─── ORDER DETAILS BOX ─── -->
-        <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8ec;overflow:hidden;margin-bottom:28px;">
-
-          <tr>
-            <td colspan="2" style="background:#f8f8fa;padding:14px 24px;border-bottom:1px solid #e8e8ec;">
-              <span style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:2px;">
-                Order Summary
-              </span>
-            </td>
-          </tr>
-
-          <tr>
-            <td style="padding:18px 24px;border-bottom:1px solid #f0f0f3;width:50%;">
-              <p style="margin:0 0 4px;font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:1px;">Order ID</p>
-              <p style="margin:0;font-size:16px;font-weight:700;color:#111;font-family:'Courier New',monospace;">
-                #${orderId}
-              </p>
-            </td>
-            <td style="padding:18px 24px;border-bottom:1px solid #f0f0f3;width:50%;">
-              <p style="margin:0 0 4px;font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:1px;">Date</p>
-              <p style="margin:0;font-size:14px;font-weight:600;color:#333;">
-                ${date}
-              </p>
-            </td>
-          </tr>
-
-          <tr>
-            <td colspan="2" style="padding:18px 24px;">
-              <p style="margin:0 0 4px;font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:1px;">Order Total</p>
-              <p style="margin:0;font-size:24px;font-weight:800;color:#006988;">
-                ${total}
-              </p>
-            </td>
-          </tr>
-
-        </table>
-
-      </td>
-    </tr>
-
-    <!-- ─── FOOTER ─── -->
-    <tr>
-      <td style="background:#006988;padding:28px 40px;text-align:center;">
-        <p style="margin:0 0 6px;font-size:19px;font-weight:700;color:#eaeaea;letter-spacing:4px;text-transform:uppercase;">
-          GOTIY
-        </p>
-        <p style="margin:0;font-size:11px;color:#eaeaea;line-height:1.6;">
-          This is an automated message. Please do not reply directly to this email.<br/>
-          © ${new Date().getFullYear()} GOTIY. All rights reserved.
-        </p>
-      </td>
-    </tr>
-
-  </table>
-
+</table>
 </td></tr>
 </table>
-
 </body>
 </html>
-`,
+    `,
   };
 };
 

@@ -17,7 +17,7 @@ export const userProfileApiSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: ["Profile"],
+      invalidatesTags: ["Profile" , "userInfo"],
     }),
 
     updateBilling: builder.mutation({
