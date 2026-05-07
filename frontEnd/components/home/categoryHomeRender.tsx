@@ -48,7 +48,7 @@ export default function CategorySection({ section }: any) {
     <section className="" dir={isAr ? "rtl" : "ltr"}>
 
       {sectionTitle && (
-        <div className="relative mb-4 flex py-4 bg-slate-50 p-2 border border-neutral-100 items-center justify-between gap-3">
+        <div className="relative  flex py-4 bg-slate-50 p-2 border border-neutral-100 items-center justify-between gap-3">
           <div className="flex flex-col gap-1">
             <h2 className={`font-semibold text-primary leading-none ${
               isAr ? "text-[18px] md:text-[22px]" : "text-[15px] md:text-[18px] uppercase tracking-wide"

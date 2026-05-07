@@ -5,7 +5,7 @@ const pool = require("../../config/condb");
 const getClientOrders = async (req, res) => {
   try {
     const customerId = req.userId;
-    const { status, limit = 6, offset = 0 } = req.query;
+    const { limit = 6, offset = 0 } = req.query;
 
     if (!customerId) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
@@ -34,7 +34,7 @@ const getClientOrders = async (req, res) => {
         ) AS items
       FROM orders o
       LEFT JOIN order_items oi ON o.id = oi.order_id
-      WHERE o.user_id = $1
+      WHERE  o.user_id = $1
     `;
 
     // 2. استعلام لجلب الإجمالي الكلي (Count Query)
@@ -44,14 +44,6 @@ const getClientOrders = async (req, res) => {
     const countParams = [customerId];
     let paramIndex = 2;
 
-    if (status) {
-      const statusCondition = ` AND o.status = $${paramIndex}`;
-      dataQuery += statusCondition;
-      countQuery += statusCondition; 
-      queryParams.push(status);
-      countParams.push(status);
-      paramIndex++;
-    }
 
     dataQuery += ` 
       GROUP BY o.id 

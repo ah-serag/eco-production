@@ -36,4 +36,5 @@ export const getBillingSchema = (t : any) => z.object({
     .min(1, t("errors.building_required")),
 });
 
+
 export type billingSchemaFormData = z.infer<ReturnType<typeof getBillingSchema>>;

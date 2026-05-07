@@ -249,6 +249,8 @@ const processOrderAndItems = async (client, userId, items, statu, payment_provid
 
 
 
+
+
 exports.checkout = async (req, res) => {
   const client = await pool.connect();
 
@@ -270,10 +272,12 @@ exports.checkout = async (req, res) => {
     ///  
     
    await addBillingDataToUser(client ,userId ,billingData)
+
    const OrderAndItems = await processOrderAndItems(client ,userId,items,"pending", "Card" ,billingData ,couponCode)
 
     const token = await paymobService.getAuthToken();
     const amountInCents = Math.round(OrderAndItems.totalAmount * 100);
+
     const paymobOrder = await paymobService.createOrder(token, {
       amount: amountInCents,
       billingData: billingData,
@@ -283,6 +287,7 @@ exports.checkout = async (req, res) => {
     const paymentKey = await paymobService.generatePaymentKey(token, paymobOrder.id, amountInCents, billingData, integrationIdCard);
 
     await client.query("COMMIT");
+    
     const iframeUrl = `https://accept.paymob.com/api/acceptance/iframes/${process.env.PAYMOB_IFRAME_ID}?payment_token=${paymentKey}`;
     res.json({ iframeUrl });
 

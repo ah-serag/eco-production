@@ -5,7 +5,7 @@ const dataBillingUser =require("../../control/checkoutPage/dataBillingUser")
 const authenticateCheckout = require("../../middleware/checkout/authenticateCheckout")
 const limit = require("express-rate-limit")
 const {validatebody} = require("../../middleware/validateZod/validateZod")
-const {checkoutSchema} = require("../../utils/zodShemas")
+const {checkout_Card_Schema , checkout_Wallet_Schema} = require("../../utils/zodShemas")
 
 
 
@@ -24,9 +24,9 @@ const limitCheckout = limit.rateLimit({
 
 
 
-router.post("/checkout" , validatebody(checkoutSchema  ) , limitCheckout , authenticateCheckout , controller.checkout);
-router.post("/checkoutWallet" ,validatebody(checkoutSchema ) , limitCheckout,authenticateCheckout , controller.checkoutWallet);
-router.post("/checkoutCash" ,validatebody(checkoutSchema ) , limitCheckout ,authenticateCheckout , controller.checkoutCash);
+router.post("/checkout" , validatebody(checkout_Card_Schema  ) , limitCheckout , authenticateCheckout , controller.checkout);
+router.post("/checkoutWallet" ,validatebody(checkout_Wallet_Schema ) , limitCheckout,authenticateCheckout , controller.checkoutWallet);
+router.post("/checkoutCash" ,validatebody(checkout_Card_Schema ,) , limitCheckout ,authenticateCheckout , controller.checkoutCash);
 router.post("/webhook"  , webhook.handleWebhook);
 router.get("/dataBillingUser/:userid" ,dataBillingUser.getBillingDataUser )
 router.post("/check-Coupons" , controller.checkCoupons );

@@ -20,8 +20,7 @@ export function UserNav() {
   const t = useTranslations("user_nav");
   const locale = useLocale();
   const isAr = locale === "ar";
-  const router = useRouter();
-  const pathname = usePathname();
+
 
   const { data, isLoading, isError } = useGetUserInfoQuery(undefined);
   const [logout] = useLogoutMutation();
@@ -111,11 +110,24 @@ export function UserNav() {
               <div className="py-1">
                 {[
                   { href: "/profile", icon: UserIcon, label: t("profile") },
+                ].map((item, idx) => (
+                  <DropdownMenuItem key={idx} asChild className="cursor-pointer py-2.5 px-2 focus:bg-blue-200 bg-blue-100  group">
+                    <Link href={item.href} className={`flex items-center w-full ${isAr ? "flex-row-reverse text-right" : ""}`}>
+                      <item.icon className={`${isAr ? "ml-2.5" : "mr-2.5"} h-3.5 w-3.5 text-slate-500 group-hover:text-slate-600 transition-colors`} />
+                      <span className={`${isAr ? "text-[13px]" : "text-[12px]"} font-normal text-slate-600 group-hover:text-slate-800`}>
+                        {item.label}
+                      </span>
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </div>
+                 <div className="py-1">
+                {[
                   { href: "/orders", icon: Package, label: t("orders") },
                 ].map((item, idx) => (
-                  <DropdownMenuItem key={idx} asChild className="cursor-pointer py-2.5 px-2 focus:bg-slate-50 rounded-lg group">
+                  <DropdownMenuItem key={idx} asChild className="cursor-pointer py-2.5 px-2 focus:bg-green-200 bg-green-100  group">
                     <Link href={item.href} className={`flex items-center w-full ${isAr ? "flex-row-reverse text-right" : ""}`}>
-                      <item.icon className={`${isAr ? "ml-2.5" : "mr-2.5"} h-3.5 w-3.5 text-slate-400 group-hover:text-slate-500 transition-colors`} />
+                      <item.icon className={`${isAr ? "ml-2.5" : "mr-2.5"} h-3.5 w-3.5 text-slate-500 group-hover:text-slate-600   transition-colors`} />
                       <span className={`${isAr ? "text-[13px]" : "text-[12px]"} font-normal text-slate-600 group-hover:text-slate-800`}>
                         {item.label}
                       </span>

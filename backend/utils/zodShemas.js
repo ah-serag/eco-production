@@ -67,12 +67,18 @@ const itemSchema = z.object({
 });
 
 
-const checkoutSchema = z.object({
+const checkout_Card_Schema = z.object({
   items: z.array(itemSchema),
   billingData: billingSchema,
   couponCode: z.string().optional(),
 });
 
+const checkout_Wallet_Schema = z.object({
+  items: z.array(itemSchema),
+  billingData: billingSchema,
+  couponCode: z.string().optional(),
+  walletNumber : z.string().regex(/^01[0125][0-9]{8}$/, "phone_invalid")
+});
 
 const edeitAccountschema = z.object({
     full_name: z.string().min(1, "full name reqired"),
@@ -80,7 +86,7 @@ const edeitAccountschema = z.object({
       .refine((v) => v === "" || /^01[0125][0-9]{8}$/.test(v), "invalid phone number"),
 });
 
-module.exports ={registerSchema ,loginSchema , checkoutSchema ,billingSchema ,edeitAccountschema }
+module.exports ={registerSchema ,loginSchema , checkout_Wallet_Schema, checkout_Card_Schema ,billingSchema ,edeitAccountschema }
 
 
 

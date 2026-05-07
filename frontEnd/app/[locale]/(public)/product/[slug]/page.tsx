@@ -36,7 +36,7 @@ export default function ProductDetailsPage() {
         <p className="text-slate-500 text-sm mb-6">
           {isArabic ? "هذا المنتج غير متوفر حالياً." : "The product is currently unavailable."}
         </p>
-        <Link href="/products">
+        <Link href="/">
           <button className="flex items-center justify-center w-full h-11 bg-secondary text-white rounded-xl text-xs font-bold uppercase tracking-widest gap-2">
             <ArrowLeft size={16} className={isArabic ? "rotate-180" : ""} />
             {isArabic ? "العودة للتسوق" : "Back to Shopping"}
