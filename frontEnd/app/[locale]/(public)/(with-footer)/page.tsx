@@ -9,6 +9,7 @@ import SubcategorybannerRender from "@/components/home/subcategorybannerRender";
 import HomeLoading from "@/components/home/HomeLoding";
 import WideBannerRender from "@/components/home/wideBanner";
 import StripBannerRender from "@/components/home/stripBanner";
+import TextStripRender from "@/components/home/textSrtipRewnder";
 export default function HomePage() {
   const { data, isLoading } = useGetHomePageQuery(undefined);
 
@@ -18,6 +19,8 @@ export default function HomePage() {
     <div className="space-y-0 bg-white rounded-md pb-15 scroll-smooth">
       {data?.sections.map((section: any) => {
         switch (section.type) {
+           case "text_strip":
+           return <TextStripRender key={section.id} section={section} />;
           case "hero":
             return <HeroSlider key={section.id} section={section.content} />;
           case "category":
