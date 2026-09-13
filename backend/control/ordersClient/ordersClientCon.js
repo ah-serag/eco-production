@@ -34,7 +34,7 @@ const getClientOrders = async (req, res) => {
         ) AS items
       FROM orders o
       LEFT JOIN order_items oi ON o.id = oi.order_id
-      WHERE  o.user_id = $1
+      WHERE  o.user_id = $1 AND o.status != 'pending' 
     `;
 
     // 2. استعلام لجلب الإجمالي الكلي (Count Query)
@@ -44,6 +44,14 @@ const getClientOrders = async (req, res) => {
     const countParams = [customerId];
     let paramIndex = 2;
 
+    if (status) {
+      const statusCondition = ` AND o.status = $${paramIndex}`;
+      dataQuery += statusCondition;
+      countQuery += statusCondition; 
+      queryParams.push(status);
+      countParams.push(status);
+      paramIndex++;
+    }
 
     dataQuery += ` 
       GROUP BY o.id 

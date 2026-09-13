@@ -30,16 +30,25 @@ services:
     env_file:
       - ./backend/.env
     volumes:
-      - ./backend:/myProject
+      - ./backend:/app
+      - /app/node_modules
+    command: npm run dev
 
-  ngrok:
-    image: ngrok/ngrok:latest
-    container_name: ngrok_tunnel
-    restart: always
-    command:
-      - "http"
-      - "express:3000"
-    environment:
-      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile : dockerfile 
+    container_name : gotiy_frontend
+    restart : always
+    ports:
+      -"5000:5000"
     depends_on:
-      - express
+       -express
+    env_file:
+      - ./frontend/.env
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+
