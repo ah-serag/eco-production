@@ -5,23 +5,12 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { 
   LayoutGrid, Package, ListTree, Users, ShoppingBag,
-  LucidePackagePlus, ImageIcon, House, ChevronDown,
+  LucidePackagePlus, ImageIcon, House,
   PlusCircle, FileSpreadsheet, ImageUp,
   ClipboardList, Receipt, CreditCard, Search,
-  Menu,
-  Video,
-  VideoIcon,
-  TvMinimalPlay,
-  MonitorUp,
-  Tag
+  Menu, Video, TvMinimalPlay, MonitorUp, Tag
 } from "lucide-react";
 
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
@@ -38,12 +27,31 @@ import {
 } from "@/components/ui/accordion"; 
 import { UserNav } from "../navbar/userNav";
 import { Link } from "@/i18n/navigation";
-import Image from "next/image";
+
+// --- Types ---
+interface NavItemProps {
+  href: string;
+  icon?: React.ReactNode;
+  children: string;
+  active?: boolean;
+  isCollapsed?: boolean;
+  onClick?: () => void;
+}
+
+interface SidebarProps {
+  pathname: string;
+  setOpen?: (open: boolean) => void;
+  isCollapsed?: boolean;
+  setIsCollapsed?: (collapsed: boolean) => void;
+}
 
 export function AdminNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  
+  // حالة التحكم في تصغير وتكبير الشريط الجانبي في الكمبيوتر
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -52,271 +60,260 @@ export function AdminNav() {
   if (!mounted) return null;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-sm shadow-sm">
-      <div className="flex h-13 items-center justify-between px-6">
-        
-        <div className="flex items-center gap-4">
-          <div className="lg:hidden">
-            <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                <button className="p-2 -ml-2 text-slate-600 outline-none cursor-pointer">
-                  <Menu size={22} />
-                </button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] p-0 overflow-y-auto">
-                {/* حل مشكلة Accessibility: عناوين مخفية لقارئ الشاشة */}
-                <div className="sr-only">
-                  <SheetHeader>
-                    <SheetTitle>Admin Menu</SheetTitle>
-                    <SheetDescription>Navigation for admin panel</SheetDescription>
-                  </SheetHeader>
-                </div>
-
-                <div className="p-6 border-b bg-slate-50/50">
-                  <span className="text-xl font-semibold tracking-tighter text-gray-900">
-                    Vexa <span className="text-chart-1">Admin</span>
-                  </span>
-                </div>
-                
-                <div className="p-2">
-                  <Accordion type="single" collapsible className="w-full">
-                    <MobileSimpleLink href="/admin/dashboard" active={pathname === "/admin/dashboard"} icon={<LayoutGrid size={18} />} onClick={() => setOpen(false)}>
-                      Dashboard
-                    </MobileSimpleLink>
-
-                    {/* Products */}
-                    <AccordionItem value="products" className="border-none">
-                      <AccordionTrigger className="hover:no-underline py-2 px-3 rounded-md hover:bg-slate-50 text-[13px] font-medium text-slate-600">
-                        <div className="flex items-center gap-3"><LucidePackagePlus size={18} /> Products</div>
-                      </AccordionTrigger>
-                      <AccordionContent className="pb-1 pl-9 space-y-1">
-                        <SectionHeader title="Management" />
-                        <MobileSubLink href="/admin/products" icon={<Package size={14} />} onClick={() => setOpen(false)}>All Products</MobileSubLink>
-                        <SectionHeader title="Actions" />
-                        <MobileSubLink href="/admin/add_product" icon={<PlusCircle size={14} />} onClick={() => setOpen(false)}>Add Product</MobileSubLink>
-                        <MobileSubLink href="/admin/importExel_products" icon={<FileSpreadsheet size={14} />} onClick={() => setOpen(false)}>Import Excel</MobileSubLink>
-                      </AccordionContent>
-                    </AccordionItem>
-
-                    <MobileSimpleLink href="/admin/categories" active={pathname.includes("categories")} icon={<ListTree size={18} />} onClick={() => setOpen(false)}>
-                      Categories
-                    </MobileSimpleLink>
-
-                    {/* Orders */}
-                    <AccordionItem value="orders" className="border-none">
-                      <AccordionTrigger className="hover:no-underline py-2 px-3 rounded-md hover:bg-slate-50 text-[13px] font-medium text-slate-600">
-                        <div className="flex items-center gap-3"><ClipboardList size={18} /> Orders</div>
-                      </AccordionTrigger>
-                      <AccordionContent className="pb-1 pl-9 space-y-1">
-                        <SectionHeader title="Sales Overview" />
-                        <MobileSubLink href="/admin/orders" icon={<ClipboardList size={14} />} onClick={() => setOpen(false)}>All Orders</MobileSubLink>
-                        <MobileSubLink href="/admin/orders/items" icon={<Receipt size={14} />} onClick={() => setOpen(false)}>Order Items</MobileSubLink>
-                        <SectionHeader title="Financials" />
-                        <MobileSubLink href="/admin/orders/transactions" icon={<CreditCard size={14} />} onClick={() => setOpen(false)}>Transactions</MobileSubLink>
-                        <SectionHeader title="Search" />
-                        <MobileSubLink href="/admin/orders/search" icon={<Search size={14} />} onClick={() => setOpen(false)}>Find by ID</MobileSubLink>
-                      </AccordionContent>
-                    </AccordionItem>
-
-                    {/* Images */}
-                    <AccordionItem value="images" className="border-none">
-                      <AccordionTrigger className="hover:no-underline py-2 px-3 rounded-md hover:bg-slate-50 text-[13px] font-medium text-slate-600">
-                        <div className="flex items-center gap-3"><ImageIcon size={18} /> Images</div>
-                      </AccordionTrigger>
-                      <AccordionContent className="pb-1 pl-9 space-y-1">
-                        <SectionHeader title="Upload" />
-                        <MobileSubLink href="/admin/upload_images" icon={<ImageUp size={14} />} onClick={() => setOpen(false)}>Upload New</MobileSubLink>
-                        <SectionHeader title="Library" />
-                        <MobileSubLink href="/admin/images_library" icon={<ImageIcon size={14} />} onClick={() => setOpen(false)}>Gallery</MobileSubLink>
-                      </AccordionContent>
-                    </AccordionItem>
-
-
-                    {/* videos  */} 
-                        <AccordionItem value="videos" className="border-none">
-                      <AccordionTrigger className="hover:no-underline py-2 px-3 rounded-md hover:bg-slate-50 text-[13px] font-medium text-slate-600">
-                        <div className="flex items-center gap-3"><Video size={18} />videos</div>
-                      </AccordionTrigger>
-                      <AccordionContent className="pb-1 pl-9 space-y-1">
-                        <SectionHeader title="Upload" />
-                        <MobileSubLink href="/admin/video/add_videos" icon={<ImageUp size={14} />} onClick={() => setOpen(false)}>Upload New</MobileSubLink>
-                        <SectionHeader title="Library" />
-                        <MobileSubLink href="/admin/video/videos_library" icon={<ImageIcon size={14} />} onClick={() => setOpen(false)}>videos</MobileSubLink>
-                      </AccordionContent>
-                    </AccordionItem>
-
-
-                    <MobileSimpleLink href="/admin/users" active={pathname.includes("users")} icon={<Users size={18} />} onClick={() => setOpen(false)}>Users</MobileSimpleLink>
-                    <MobileSimpleLink href="/admin/vendors" active={pathname.includes("vendors")} icon={<ShoppingBag size={18} />} onClick={() => setOpen(false)}>Vendors</MobileSimpleLink>
-                    <MobileSimpleLink href="/admin/coupons" active={pathname.includes("coupons")} icon={<Tag size={18} />} onClick={() => setOpen(false)}>Coupons</MobileSimpleLink>
-
-                    {/* Home UI */}
-                    <AccordionItem value="home-ui" className="border-none">
-                      <AccordionTrigger className="hover:no-underline py-2 px-3 rounded-md hover:bg-slate-50 text-[13px] font-medium text-slate-600">
-                        <div className="flex items-center gap-3"><House size={18} /> Home UI</div>
-                      </AccordionTrigger>
-                      <AccordionContent className="pb-1 pl-9 space-y-1">
-                        <SectionHeader title="Add Content" />
-                        <MobileSubLink href="/admin/home/add/addsections" onClick={() => setOpen(false)}>Sections</MobileSubLink>
-                        <MobileSubLink href="/admin/home/add/addherobanner" onClick={() => setOpen(false)}>Hero Banner</MobileSubLink>
-                        <MobileSubLink href="/admin/home/add/addCategoryHome" onClick={() => setOpen(false)}>Category</MobileSubLink>
-                        <MobileSubLink href="/admin/home/add/addProductHome" onClick={() => setOpen(false)}>Product</MobileSubLink>
-                        <MobileSubLink href="/admin/home/add/addLimitedOffer" onClick={() => setOpen(false)}>limit Offers</MobileSubLink>
-                        <MobileSubLink href="/admin/home/add/addsubCategoryBanner" onClick={() => setOpen(false)}>add subCategory Banner</MobileSubLink>
-                        <SectionHeader title="Edit & Preview" />
-                        <MobileSubLink href="/admin/home/edit/editAllsections" onClick={() => setOpen(false)}>Preview All</MobileSubLink>
-                        <MobileSubLink href="/admin/home/edit/editHerobanner" onClick={() => setOpen(false)}>Edit Banner</MobileSubLink>
-                        <MobileSubLink href="/admin/home/edit/editCategoryHome" onClick={() => setOpen(false)}>Edit Category</MobileSubLink>
-                        <MobileSubLink href="/admin/home/edit/editLimitedOffer" onClick={() => setOpen(false)}>Edit limit Offers</MobileSubLink>
-                        <MobileSubLink href="/admin/home/edit/editSubcategoryBanner" onClick={() => setOpen(false)}>Edit subCategory Banner</MobileSubLink>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-
-              <div className="md:flex hidden shrink-0">
-                <Link href="/" className="group flex items-center">
-                  <span className="text-2xl font-serif font-bold tracking-widest uppercase text-primary">GOTIY</span>
-                </Link>
-              </div> 
-     
-
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-1">
-            <NavItem href="/admin/dashboard" active={pathname === "/admin/dashboard"} icon={<LayoutGrid size={16} />}>Dashboard</NavItem>
+    <>
+      {/* 
+        1. شريط الجوال (Mobile Header)
+        استخدمنا sticky بدلاً من fixed لكي يدفع المحتوى للأسفل ولا يطفو فوقه
+      */}
+      <header className="lg:hidden sticky top-0 z-50 flex h-16 shrink-0 w-full items-center justify-between border-b bg-white px-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <button className="p-2 -ms-2 text-slate-600 outline-none cursor-pointer hover:bg-slate-100 rounded-md transition-colors">
+                <Menu size={24} />
+              </button>
+            </SheetTrigger>
             
-            <MenuDropdown label="Products" icon={<LucidePackagePlus size={16} />} active={pathname.includes("product")}>
-              <SectionHeader title="Management" />
-              <MenuLink href="/admin/products" icon={<Package size={14} />}>All Products</MenuLink>
-              <SectionHeader title="Actions" />
-              <MenuLink href="/admin/add_product" icon={<PlusCircle size={14} />}>Add Product</MenuLink>
-              <MenuLink href="/admin/importExel_products" icon={<FileSpreadsheet size={14} />}>Import Excel</MenuLink>
-            </MenuDropdown>
-
-            <NavItem href="/admin/categories" active={pathname.includes("categories")} icon={<ListTree size={16} />}>Categories</NavItem>
-
-            <MenuDropdown label="Orders" icon={<ClipboardList size={16} />} active={pathname.includes("orders")}>
-              <SectionHeader title="Sales Overview" />
-              <MenuLink href="/admin/orders" icon={<ClipboardList size={14} />}>All Orders</MenuLink>
-              <MenuLink href="/admin/orders/items" icon={<Receipt size={14} />}>Order Items</MenuLink>
-              <SectionHeader title="Financials" />
-              <MenuLink href="/admin/orders/transactions" icon={<CreditCard size={14} />}>Transactions</MenuLink>
-              <SectionHeader title="Search" />
-              <MenuLink href="/admin/orders/search" icon={<Search size={14} />}>Find by ID</MenuLink>
-            </MenuDropdown>
-
-            <MenuDropdown label="Images" icon={<ImageIcon size={16} />} active={pathname.includes("images")}>
-              <SectionHeader title="Upload" />
-              <MenuLink href="/admin/upload_images" icon={<ImageUp size={14} />}>Upload New</MenuLink>
-              <SectionHeader title="Library" />
-              <MenuLink href="/admin/images_library" icon={<ImageIcon size={14} />}>Gallery</MenuLink>
-            </MenuDropdown>
-
-
-               <MenuDropdown label="videos" icon={<TvMinimalPlay  size={16} />} active={pathname.includes("videos")}>
-              <SectionHeader title="Upload" />
-              <MenuLink href="/admin/video/upload_videos" icon={<MonitorUp size={14} />}>Upload New</MenuLink>
-              <SectionHeader title="Library" />
-              <MenuLink href="/admin/video/videos_library" icon={<TvMinimalPlay size={14} />}>videos library</MenuLink>
-            </MenuDropdown>
-            
-            
-            <NavItem href="/admin/users" active={pathname.includes("users")} icon={<Users size={16} />}>Users</NavItem>
-            <NavItem href="/admin/vendors" active={pathname.includes("vendors")} icon={<ShoppingBag size={16} />}>Vendors</NavItem>
-            <NavItem href="/admin/coupons" active={pathname.includes("coupons")} icon={<Tag size={16} />}>Coupons</NavItem>
-
-            <MenuDropdown label="Home UI" icon={<House size={16} />} active={pathname.includes("home")}>
-              <div className="grid grid-cols-2 w-[400px]">
-                <div className="border-r p-1">
-                  <SectionHeader title="Add Content " />
-                  <MenuLink href="/admin/home/add/addsections">Sections</MenuLink>
-                  <MenuLink href="/admin/home/add/addherobanner">Hero Banner</MenuLink>
-                  <MenuLink href="/admin/home/add/addCategoryHome">Category</MenuLink>
-                  <MenuLink href="/admin/home/add/addProductHome">Product</MenuLink>
-                  <MenuLink href="/admin/home/add/addLimitedOffer">limit Offers</MenuLink>
-                  <MenuLink href="/admin/home/add/addsubCategoryBanner">add subCategory Banner</MenuLink>
-                </div>
-                <div className="p-1">
-                  <SectionHeader  title="Edit & Preview" />
-                  <MenuLink href="/admin/home/edit/editAllsections">Preview All</MenuLink>
-                  <MenuLink href="/admin/home/edit/editHerobanner">Edit Banner</MenuLink>
-                  <MenuLink href="/admin/home/edit/editCategoryHome">Edit Category</MenuLink>
-                  <MenuLink href="/admin/home/edit/editLimitedOffer">Edit limit Offers</MenuLink>
-                  <MenuLink href="/admin/home/edit/editSubcategoryBanner">Edit subCategory Banner</MenuLink>
-                </div>
+            <SheetContent side="left" className="w-[300px] p-0 bg-primary border-none shadow-2xl">
+              <div className="sr-only">
+                <SheetHeader>
+                  <SheetTitle>Admin Menu</SheetTitle>
+                  <SheetDescription>Navigation for admin panel</SheetDescription>
+                </SheetHeader>
               </div>
-            </MenuDropdown>
-          </nav>
+
+              <div className="flex h-16 items-center px-6 border-b border-white/10 bg-black/10">
+                <Link href="/" onClick={() => setOpen(false)} className="text-2xl font-serif font-bold tracking-widest uppercase text-white">
+                  GOTIY
+                </Link>
+              </div>
+              
+              <div className="h-[calc(100vh-4rem)] overflow-y-auto p-4 custom-scrollbar">
+                <SidebarLinks pathname={pathname} setOpen={setOpen} isCollapsed={false} />
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
 
         <div className="flex items-center gap-3">
           <UserNav />
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* 
+        2. الشريط الجانبي للكمبيوتر (Desktop Sidebar)
+        استخدمنا sticky h-screen لكي يلتصق بالشاشة ولكنه يحجز مساحته بجوار المحتوى
+      */}
+      <aside className={cn(
+        "hidden lg:flex sticky top-0 h-screen flex-col bg-primary text-white shadow-xl transition-all duration-300 z-40 shrink-0",
+        isCollapsed ? "w-20" : "w-64" // التبديل بين الحجم المصغر والحجم الكامل
+      )}>
+        {/* هيدر الشريط الجانبي مع زر الفتح والإغلاق */}
+        <div className={cn("flex h-16 shrink-0 items-center border-b border-white/10 bg-black/10 px-4", isCollapsed ? "justify-center" : "justify-between")}>
+          {!isCollapsed && (
+            <Link href="/" className="text-2xl font-serif font-bold tracking-widest uppercase text-white hover:opacity-90 transition-opacity">
+              GOTIY
+            </Link>
+          )}
+          <button 
+            onClick={() => setIsCollapsed(!isCollapsed)} 
+            className="p-1.5 rounded-md hover:bg-white/10 text-white transition-colors"
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            <Menu size={22} />
+          </button>
+        </div>
+
+        {/* روابط الشريط */}
+        <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
+          <SidebarLinks pathname={pathname} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+        </div>
+
+        {/* معلومات المستخدم (مخفية إذا كان الشريط مصغراً) */}
+        {!isCollapsed && (
+          <div className="p-4 border-t border-white/10 bg-black/5">
+            <UserNav />
+          </div>
+        )}
+      </aside>
+    </>
   );
 }
 
-// --- Helpers ---
-function NavItem({ href, icon, children, active }: any) {
+// --- Sidebar Content Component ---
+function SidebarLinks({ pathname, setOpen, isCollapsed, setIsCollapsed }: SidebarProps) {
+  const closeMenu = () => setOpen?.(false);
+
+  // إذا ضغط المستخدم على قائمة مغلقة، يتم تكبير الشريط تلقائياً
+  const handleExpand = () => {
+    if (isCollapsed && setIsCollapsed) setIsCollapsed(false);
+  };
+
   return (
-    <Link href={href} className={cn(
-      "flex items-center gap-1.5 px-3 py-1.5   rounded-md text-[13px] font-medium transition-all",
-      active ? "bg-chart-1/10 text-chart-1 shadow-sm" : "text-slate-500 hover:bg-slate-200 "
+    <Accordion type="single" collapsible className="w-full space-y-1">
+      
+      <SidebarSimpleLink href="/admin/dashboard" active={pathname === "/admin/dashboard"} icon={<LayoutGrid size={20} />} isCollapsed={isCollapsed} onClick={closeMenu}>
+        Dashboard
+      </SidebarSimpleLink>
+
+      <AccordionItem value="products" className="border-none">
+        <AccordionTrigger onClick={handleExpand} className={cn(
+          "hover:no-underline py-2.5 px-3 rounded-md hover:bg-white/10 text-[14px] font-medium text-white/80 hover:text-white transition-all [&[data-state=open]]:bg-white/10 [&[data-state=open]]:text-white",
+          isCollapsed && "[&>svg]:hidden justify-center px-0" // إخفاء السهم عند التصغير
+        )}>
+          <div className="flex items-center gap-3">
+            <LucidePackagePlus size={20} className="shrink-0" /> 
+            {!isCollapsed && <span>Products</span>}
+          </div>
+        </AccordionTrigger>
+        {!isCollapsed && (
+          <AccordionContent className="pb-2 ps-9 space-y-1 pt-1">
+            <SectionHeader title="Management" />
+            <SidebarSubLink href="/admin/products" active={pathname === "/admin/products"} icon={<Package size={14} />} onClick={closeMenu}>All Products</SidebarSubLink>
+            <SectionHeader title="Actions" />
+            <SidebarSubLink href="/admin/add_product" active={pathname === "/admin/add_product"} icon={<PlusCircle size={14} />} onClick={closeMenu}>Add Product</SidebarSubLink>
+            <SidebarSubLink href="/admin/importExel_products" active={pathname === "/admin/importExel_products"} icon={<FileSpreadsheet size={14} />} onClick={closeMenu}>Import Excel</SidebarSubLink>
+          </AccordionContent>
+        )}
+      </AccordionItem>
+
+      <SidebarSimpleLink href="/admin/categories" active={pathname.includes("/admin/categories")} icon={<ListTree size={20} />} isCollapsed={isCollapsed} onClick={closeMenu}>
+        Categories
+      </SidebarSimpleLink>
+
+      <AccordionItem value="orders" className="border-none">
+        <AccordionTrigger onClick={handleExpand} className={cn(
+          "hover:no-underline py-2.5 px-3 rounded-md hover:bg-white/10 text-[14px] font-medium text-white/80 hover:text-white transition-all [&[data-state=open]]:bg-white/10 [&[data-state=open]]:text-white",
+          isCollapsed && "[&>svg]:hidden justify-center px-0"
+        )}>
+          <div className="flex items-center gap-3">
+            <ClipboardList size={20} className="shrink-0" /> 
+            {!isCollapsed && <span>Orders</span>}
+          </div>
+        </AccordionTrigger>
+        {!isCollapsed && (
+          <AccordionContent className="pb-2 ps-9 space-y-1 pt-1">
+            <SectionHeader title="Sales Overview" />
+            <SidebarSubLink href="/admin/orders" active={pathname === "/admin/orders"} icon={<ClipboardList size={14} />} onClick={closeMenu}>All Orders</SidebarSubLink>
+            <SidebarSubLink href="/admin/orders/items" active={pathname === "/admin/orders/items"} icon={<Receipt size={14} />} onClick={closeMenu}>Order Items</SidebarSubLink>
+            <SectionHeader title="Financials" />
+            <SidebarSubLink href="/admin/orders/transactions" active={pathname === "/admin/orders/transactions"} icon={<CreditCard size={14} />} onClick={closeMenu}>Transactions</SidebarSubLink>
+            <SectionHeader title="Search" />
+            <SidebarSubLink href="/admin/orders/search" active={pathname === "/admin/orders/search"} icon={<Search size={14} />} onClick={closeMenu}>Find by ID</SidebarSubLink>
+          </AccordionContent>
+        )}
+      </AccordionItem>
+
+      <AccordionItem value="images" className="border-none">
+        <AccordionTrigger onClick={handleExpand} className={cn(
+          "hover:no-underline py-2.5 px-3 rounded-md hover:bg-white/10 text-[14px] font-medium text-white/80 hover:text-white transition-all [&[data-state=open]]:bg-white/10 [&[data-state=open]]:text-white",
+          isCollapsed && "[&>svg]:hidden justify-center px-0"
+        )}>
+          <div className="flex items-center gap-3">
+            <ImageIcon size={20} className="shrink-0" /> 
+            {!isCollapsed && <span>Images</span>}
+          </div>
+        </AccordionTrigger>
+        {!isCollapsed && (
+          <AccordionContent className="pb-2 ps-9 space-y-1 pt-1">
+            <SectionHeader title="Upload" />
+            <SidebarSubLink href="/admin/upload_images" active={pathname === "/admin/upload_images"} icon={<ImageUp size={14} />} onClick={closeMenu}>Upload New</SidebarSubLink>
+            <SectionHeader title="Library" />
+            <SidebarSubLink href="/admin/images_library" active={pathname === "/admin/images_library"} icon={<ImageIcon size={14} />} onClick={closeMenu}>Gallery</SidebarSubLink>
+          </AccordionContent>
+        )}
+      </AccordionItem>
+
+      <AccordionItem value="videos" className="border-none">
+        <AccordionTrigger onClick={handleExpand} className={cn(
+          "hover:no-underline py-2.5 px-3 rounded-md hover:bg-white/10 text-[14px] font-medium text-white/80 hover:text-white transition-all [&[data-state=open]]:bg-white/10 [&[data-state=open]]:text-white",
+          isCollapsed && "[&>svg]:hidden justify-center px-0"
+        )}>
+          <div className="flex items-center gap-3">
+            <Video size={20} className="shrink-0" /> 
+            {!isCollapsed && <span>Videos</span>}
+          </div>
+        </AccordionTrigger>
+        {!isCollapsed && (
+          <AccordionContent className="pb-2 ps-9 space-y-1 pt-1">
+            <SectionHeader title="Upload" />
+            <SidebarSubLink href="/admin/video/upload_videos" active={pathname === "/admin/video/upload_videos"} icon={<MonitorUp size={14} />} onClick={closeMenu}>Upload New</SidebarSubLink>
+            <SectionHeader title="Library" />
+            <SidebarSubLink href="/admin/video/videos_library" active={pathname === "/admin/video/videos_library"} icon={<TvMinimalPlay size={14} />} onClick={closeMenu}>Video Library</SidebarSubLink>
+          </AccordionContent>
+        )}
+      </AccordionItem>
+
+      <SidebarSimpleLink href="/admin/users" active={pathname.includes("/admin/users")} icon={<Users size={20} />} isCollapsed={isCollapsed} onClick={closeMenu}>Users</SidebarSimpleLink>
+      <SidebarSimpleLink href="/admin/vendors" active={pathname.includes("/admin/vendors")} icon={<ShoppingBag size={20} />} isCollapsed={isCollapsed} onClick={closeMenu}>Vendors</SidebarSimpleLink>
+      <SidebarSimpleLink href="/admin/coupons" active={pathname.includes("/admin/coupons")} icon={<Tag size={20} />} isCollapsed={isCollapsed} onClick={closeMenu}>Coupons</SidebarSimpleLink>
+
+      <AccordionItem value="home-ui" className="border-none">
+        <AccordionTrigger onClick={handleExpand} className={cn(
+          "hover:no-underline py-2.5 px-3 rounded-md hover:bg-white/10 text-[14px] font-medium text-white/80 hover:text-white transition-all [&[data-state=open]]:bg-white/10 [&[data-state=open]]:text-white",
+          isCollapsed && "[&>svg]:hidden justify-center px-0"
+        )}>
+          <div className="flex items-center gap-3">
+            <House size={20} className="shrink-0" /> 
+            {!isCollapsed && <span>Home UI</span>}
+          </div>
+        </AccordionTrigger>
+        {!isCollapsed && (
+          <AccordionContent className="pb-2 ps-9 space-y-1 pt-1">
+            <SectionHeader title="Add Content" />
+            <SidebarSubLink href="/admin/home/add/addsections" active={pathname.includes("addsections")} onClick={closeMenu}>Sections</SidebarSubLink>
+            <SidebarSubLink href="/admin/home/add/addherobanner" active={pathname.includes("addherobanner")} onClick={closeMenu}>Hero Banner</SidebarSubLink>
+            <SidebarSubLink href="/admin/home/add/addCategoryHome" active={pathname.includes("addCategoryHome")} onClick={closeMenu}>Category</SidebarSubLink>
+            <SidebarSubLink href="/admin/home/add/addProductHome" active={pathname.includes("addProductHome")} onClick={closeMenu}>Product</SidebarSubLink>
+            <SidebarSubLink href="/admin/home/add/addLimitedOffer" active={pathname.includes("addLimitedOffer")} onClick={closeMenu}>Limit Offers</SidebarSubLink>
+            <SidebarSubLink href="/admin/home/add/addsubCategoryBanner" active={pathname.includes("addsubCategoryBanner")} onClick={closeMenu}>SubCategory Banner</SidebarSubLink>
+            
+            <div className="my-2 border-t border-white/10" />
+            
+            <SectionHeader title="Edit & Preview" />
+            <SidebarSubLink href="/admin/home/edit/editAllsections" active={pathname.includes("editAllsections")} onClick={closeMenu}>Preview All</SidebarSubLink>
+            <SidebarSubLink href="/admin/home/edit/editHerobanner" active={pathname.includes("editHerobanner")} onClick={closeMenu}>Edit Banner</SidebarSubLink>
+            <SidebarSubLink href="/admin/home/edit/editCategoryHome" active={pathname.includes("editCategoryHome")} onClick={closeMenu}>Edit Category</SidebarSubLink>
+            <SidebarSubLink href="/admin/home/edit/editLimitedOffer" active={pathname.includes("editLimitedOffer")} onClick={closeMenu}>Edit Limit Offers</SidebarSubLink>
+            <SidebarSubLink href="/admin/home/edit/editSubcategoryBanner" active={pathname.includes("editSubcategoryBanner")} onClick={closeMenu}>Edit SubCategory Banner</SidebarSubLink>
+          </AccordionContent>
+        )}
+      </AccordionItem>
+
+    </Accordion>
+  );
+}
+
+// --- Helpers for Sidebar UI ---
+function SidebarSimpleLink({ href, icon, children, active, isCollapsed, onClick }: NavItemProps) {
+  return (
+    <Link 
+      href={href} 
+      onClick={onClick} 
+      title={isCollapsed ? children : undefined} 
+      className={cn(
+        "flex items-center gap-3 px-3 py-2.5 rounded-md text-[14px] font-medium transition-all duration-200",
+        active ? "bg-white text-primary shadow-md" : "text-white/80 hover:bg-white/10 hover:text-white",
+        isCollapsed && "justify-center px-0"
+      )}
+    >
+      <div className="shrink-0">{icon}</div>
+      {!isCollapsed && <span>{children}</span>}
+    </Link>
+  );
+}
+
+function SidebarSubLink({ href, icon, children, active, onClick }: NavItemProps) {
+  return (
+    <Link href={href} onClick={onClick} className={cn(
+      "flex items-center gap-2.5 py-2 px-3 rounded-md text-[13px] transition-all duration-200",
+      active ? "bg-white/20 text-white font-semibold" : "text-white/60 hover:bg-white/10 hover:text-white hover:translate-x-1 rtl:hover:-translate-x-1"
     )}>
       {icon} <span>{children}</span>
     </Link>
   );
 }
 
-function MenuDropdown({ label, icon, active, children }: any) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className={cn(
-        "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all outline-none",
-        active ? "bg-chart-1/10 text-chart-1 shadow-sm" : "text-slate-500 hover:bg-slate-200"
-      )}>
-        {icon} <span>{label}</span> <ChevronDown size={12} className="opacity-40" />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="p-1.5 shadow-xl border-slate-200 min-w-[180px]">
-        {children}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-function MenuLink({ href, icon, children }: any) {
-  return (
-    <DropdownMenuItem   asChild>
-      <Link href={href} className="flex items-center  gap-2 px-2 py-1.5 text-[12px]  rounded-md ">
-        {icon} <span >{children}</span>
-      </Link>
-    </DropdownMenuItem>
-  );
-}
-
-function MobileSimpleLink({ href, icon, children, active, onClick }: any) {
-  return (
-    <Link href={href} onClick={onClick} className={cn(
-      "flex items-center gap-3 px-3 py-2 rounded-md text-[13px] font-medium mb-1",
-      active ? "bg-chart-1/10 text-chart-1" : "text-slate-600 hover:bg-slate-50"
-    )}>
-      {icon} {children}
-    </Link>
-  );
-}
-
-function MobileSubLink({ href, icon, children, onClick }: any) {
-  return (
-    <Link href={href} onClick={onClick} className="flex items-center gap-2 py-2 text-[12px] text-slate-500 hover:text-chart-1">
-      {icon} {children}
-    </Link>
-  );
-}
-
 function SectionHeader({ title }: { title: string }) {
-  return <div className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{title}</div>;
+  return <div className="px-3 py-1.5 mt-2 text-[10px] font-bold text-white/40 uppercase tracking-widest">{title}</div>;
 }

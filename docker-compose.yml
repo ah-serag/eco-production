@@ -1,54 +1,92 @@
-version: '3.9'
-
 services:
   db:
-    image: postgres:latest
-    container_name: my_postgres
-    restart: always
+    image: postgres:18 
+    container_name: gotiy_db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 5s
-      retries: 5
+      timeout: 5s
+      retries: 10
+      start_period: 15s
     volumes:
-      - ./database/data:/var/lib/postgresql
+      # تعديل المسار ليكون data/ لضمان حفظ البيانات بشكل صحيح في Postgres
+      - ./database/data:/var/lib/postgresql/data 
+    networks:
+      - app_network
+
   express:
     build:
       context: ./backend
-      dockerfile: dockerfile
-    container_name: express_app
-    restart: always
-    ports:
-      - "3000:3000"
-    depends_on:
-      - db
+      dockerfile: Dockerfile 
+    container_name: gotiy_backend
+    restart: unless-stopped
     env_file:
       - ./backend/.env
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    command: npm run dev
+    depends_on:
+      db:
+        condition: service_healthy 
+    networks:
+      - app_network
 
   frontend:
     build:
       context: ./frontend
-      dockerfile : dockerfile 
-    container_name : gotiy_frontend
-    restart : always
-    ports:
-      -"5000:5000"
-    depends_on:
-       -express
+      dockerfile: Dockerfile
+    container_name: gotiy_admin
+    restart: unless-stopped
     env_file:
       - ./frontend/.env
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
-    command: npm run dev
+    networks:
+      - app_network
 
+  frontend_client:
+    build:
+      context: ./frontend_client
+      dockerfile: Dockerfile
+    container_name: gotiy_client
+    restart: unless-stopped
+    env_file:
+      - ./frontend_client/.env
+    networks:
+      - app_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    depends_on:
+      - express
+      - frontend
+      - frontend_client
+    networks:
+      - app_network
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    restart: unless-stopped
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  certbot_conf:
+  certbot_www:
